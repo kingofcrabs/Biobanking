@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testharness", "Testharness\Testharness.csproj", "{3121E27C-B250-4308-83FD-1949E17CAAF9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF6DC50B-47F4-4457-9DDD-B7CF58524ED4}"
+	ProjectSection(SolutionItems) = preProject
+		Class1.cs = Class1.cs
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3121E27C-B250-4308-83FD-1949E17CAAF9}.Debug|x86.ActiveCfg = Debug|x86
+		{3121E27C-B250-4308-83FD-1949E17CAAF9}.Debug|x86.Build.0 = Debug|x86
+		{3121E27C-B250-4308-83FD-1949E17CAAF9}.Release|x86.ActiveCfg = Release|x86
+		{3121E27C-B250-4308-83FD-1949E17CAAF9}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,8 @@
+﻿author rex
+2013-11-7 0.66 add reader for TIU.
+2013-11-7 0.69 一个region 就是一列载架，每个载架上可以有X*Y组孔位，不像以前一个载架只有1*Y组孔位.
+2013-12-24 0.77 检测TIU的值不为负.
+2014-1-02 0.78 增加Run Result File.
+2014-1-13 0.79 增加Notifer
+2014-5-7 0.86 runResult file存成xml文件
+2015-4-21 0.89 增加slice最大限制

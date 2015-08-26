@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap11="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc12="http://www.w3.org/2003/05/soap-encoding" xmlns:soapenc11="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope" xmlns:tns="http://service.tecan.bio.haiersoft.com" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://model.service.tecan.bio.haiersoft.com" targetNamespace="http://service.tecan.bio.haiersoft.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://model.service.tecan.bio.haiersoft.com">
+      <xsd:complexType name="ArrayOfTubeInfo">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="TubeInfo" nillable="true" type="ns1:TubeInfo" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="TubeInfo">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" name="barcode" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" name="sampleType" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" name="sliceID" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" name="srcBarcode" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" name="volume" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="UpdateResult">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" name="batchID" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" name="errMessage" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" name="isOk" type="xsd:boolean" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+    <xsd:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.tecan.bio.haiersoft.com">
+      <xsd:element name="updatePackageInfo">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1" name="in0" nillable="true" type="ns1:ArrayOfTubeInfo" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="updatePackageInfoResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1" name="out" nillable="true" type="ns1:UpdateResult" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="updatePackageInfoRequest">
+    <wsdl:part name="parameters" element="tns:updatePackageInfo" />
+  </wsdl:message>
+  <wsdl:message name="updatePackageInfoResponse">
+    <wsdl:part name="parameters" element="tns:updatePackageInfoResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IBiobankExternalServicePortType">
+    <wsdl:operation name="updatePackageInfo">
+      <wsdl:input name="updatePackageInfoRequest" message="tns:updatePackageInfoRequest" />
+      <wsdl:output name="updatePackageInfoResponse" message="tns:updatePackageInfoResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="IBiobankExternalServiceHttpBinding" type="tns:IBiobankExternalServicePortType">
+    <wsdlsoap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="updatePackageInfo">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="updatePackageInfoRequest">
+        <wsdlsoap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="updatePackageInfoResponse">
+        <wsdlsoap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="IBiobankExternalService">
+    <wsdl:port name="IBiobankExternalServiceHttpPort" binding="tns:IBiobankExternalServiceHttpBinding">
+      <wsdlsoap:address location="http://192.168.1.108:8080/Bio/services/IBiobankExternalService" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

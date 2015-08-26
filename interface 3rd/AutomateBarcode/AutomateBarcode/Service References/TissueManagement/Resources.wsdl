@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:ax21="http://bean.axis.webservice.tissuebank.scbit.org/xsd" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ns="http://resources.axis.webservice.tissuebank.scbit.org" xmlns:ns1="http://org.apache.axis2/xsd" targetNamespace="http://resources.axis.webservice.tissuebank.scbit.org" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation>Resources</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://bean.axis.webservice.tissuebank.scbit.org/xsd">
+      <xs:complexType name="TubeInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="barcode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="sampleType" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="sliceID" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="srcBarcode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="volumeUL" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="UpdateResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="bok" nillable="true" type="xs:boolean" />
+          <xs:element minOccurs="0" name="errDescription" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PrintResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="barcodes" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="bok" nillable="true" type="xs:boolean" />
+          <xs:element minOccurs="0" name="errDescription" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+    <xs:schema xmlns:ax22="http://bean.axis.webservice.tissuebank.scbit.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://resources.axis.webservice.tissuebank.scbit.org">
+      <xs:import namespace="http://bean.axis.webservice.tissuebank.scbit.org/xsd" />
+      <xs:element name="UpdatePackageInfo">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="infos" nillable="true" type="ax22:TubeInfo" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UpdatePackageInfoResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="ax22:UpdateResult" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PrintBarcodes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="totalCnt" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PrintBarcodesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="ax22:PrintResult" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="PrintBarcodesRequest">
+    <wsdl:part name="parameters" element="ns:PrintBarcodes" />
+  </wsdl:message>
+  <wsdl:message name="PrintBarcodesResponse">
+    <wsdl:part name="parameters" element="ns:PrintBarcodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePackageInfoRequest">
+    <wsdl:part name="parameters" element="ns:UpdatePackageInfo" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePackageInfoResponse">
+    <wsdl:part name="parameters" element="ns:UpdatePackageInfoResponse" />
+  </wsdl:message>
+  <wsdl:portType name="ResourcesPortType">
+    <wsdl:operation name="PrintBarcodes">
+      <wsdl:input wsaw:Action="urn:PrintBarcodes" message="ns:PrintBarcodesRequest" />
+      <wsdl:output wsaw:Action="urn:PrintBarcodesResponse" message="ns:PrintBarcodesResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePackageInfo">
+      <wsdl:input wsaw:Action="urn:UpdatePackageInfo" message="ns:UpdatePackageInfoRequest" />
+      <wsdl:output wsaw:Action="urn:UpdatePackageInfoResponse" message="ns:UpdatePackageInfoResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ResourcesSoap11Binding" type="ns:ResourcesPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="PrintBarcodes">
+      <soap:operation soapAction="urn:PrintBarcodes" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePackageInfo">
+      <soap:operation soapAction="urn:UpdatePackageInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ResourcesSoap12Binding" type="ns:ResourcesPortType">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="PrintBarcodes">
+      <soap12:operation soapAction="urn:PrintBarcodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePackageInfo">
+      <soap12:operation soapAction="urn:UpdatePackageInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ResourcesHttpBinding" type="ns:ResourcesPortType">
+    <http:binding verb="POST" />
+    <wsdl:operation name="PrintBarcodes">
+      <http:operation location="PrintBarcodes" />
+      <wsdl:input>
+        <mime:content part="parameters" type="application/xml" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="parameters" type="application/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePackageInfo">
+      <http:operation location="UpdatePackageInfo" />
+      <wsdl:input>
+        <mime:content part="parameters" type="application/xml" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="parameters" type="application/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Resources">
+    <wsdl:port name="ResourcesHttpSoap11Endpoint" binding="ns:ResourcesSoap11Binding">
+      <soap:address location="http://192.168.1.110:8080/tissueBank-network-V4/services/Resources.ResourcesHttpSoap11Endpoint/" />
+    </wsdl:port>
+    <wsdl:port name="ResourcesHttpSoap12Endpoint" binding="ns:ResourcesSoap12Binding">
+      <soap12:address location="http://192.168.1.110:8080/tissueBank-network-V4/services/Resources.ResourcesHttpSoap12Endpoint/" />
+    </wsdl:port>
+    <wsdl:port name="ResourcesHttpEndpoint" binding="ns:ResourcesHttpBinding">
+      <http:address location="http://192.168.1.110:8080/tissueBank-network-V4/services/Resources.ResourcesHttpEndpoint/" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
