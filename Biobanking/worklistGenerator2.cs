@@ -858,7 +858,9 @@ namespace Biobanking
                     //}
                     bCanMatch = false;
                 }
-                if (!bCanMatch)
+                string sModel = ConfigurationManager.AppSettings[stringRes.f];
+                int model = int.Parse(sModel);
+                if (!bCanMatch && model!=75 )
                     throw new Exception("Cannot match tips at labware edge");
             }
             WriteDispenseBuffyNoCheck(pts, grid,site, sw);
