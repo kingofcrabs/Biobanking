@@ -69,11 +69,10 @@ namespace Biobanking
 
         internal static int GetSamplesPerRow(LabwareSettings labwareSettings, PipettingSettings pipettingSettings)
         {
-            int totalRow = labwareSettings.dstLabwareRows;
             int totalSlicePerSample = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
             if (labwareSettings.dstLabwareColumns == 1)
                 return 1;
-            return labwareSettings.dstLabwareRows / totalSlicePerSample;
+            return labwareSettings.dstLabwareColumns / totalSlicePerSample;
         }
     }
 }

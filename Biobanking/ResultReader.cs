@@ -93,8 +93,8 @@ namespace Biobanking
                     DetectedHeight detectedHeight = new DetectedHeight();
                     int infoIndex = (curRow - 1);
                     string[] vals = sContent.Split(',');
-                    detectedHeight.Z1 = double.Parse(vals[1])/10; //convert to mm, tiu result is 1/10 mm
-                    detectedHeight.Z2 = double.Parse(vals[2])/10;
+                    detectedHeight.Z1 = double.Parse(vals[1]);
+                    detectedHeight.Z2 = double.Parse(vals[2]);
                     heights.Add(detectedHeight);
 
                     if (detectedHeight.Z1 < 0 || detectedHeight.Z2 < 0)
