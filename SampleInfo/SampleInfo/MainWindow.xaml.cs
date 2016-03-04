@@ -233,7 +233,7 @@ namespace SampleInfo
                     break;
                 }
             }
-            lstRadius.IsEnabled = false;
+            //lstRadius.IsEnabled = false;
 
             //chkHasBuffy.IsChecked = Convert.ToBoolean(Utility.ReadFolder(stringRes.hasBuffyFile));
             //chkNucleinExtraction.IsChecked= Convert.ToBoolean(Utility.ReadFolder(stringRes.DoNucleinExtractionFile));

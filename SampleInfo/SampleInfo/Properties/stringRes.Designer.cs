@@ -106,7 +106,7 @@ namespace SampleInfo.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 0.09.
+        ///   Looks up a localized string similar to 0.10.
         /// </summary>
         internal static string Version {
             get {
