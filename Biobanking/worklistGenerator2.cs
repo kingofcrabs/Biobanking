@@ -239,13 +239,16 @@ namespace Biobanking
         }
 
     
-        private void GenerateForBatch(string sOutput,int rackIndex, int startSample, List<DetectedHeight> heightsThisTime)
+        private void GenerateForBatch(string sOutput,int rackIndex, int sampleIndexInRack, List<DetectedHeight> heightsThisTime)
         {
-            log.InfoFormat("rack index : {0}, start sample : {1}", rackIndex, startSample);
+            bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
+            log.InfoFormat("rack index : {0}, start sample : {1}", rackIndex, sampleIndexInRack);
              //batch index
-            int batchID = 1+ startSample / labwareSettings.tipCount;
+            int batchID = 1+ sampleIndexInRack / labwareSettings.tipCount;
+
+            int tipOffSet = GetTipOffSet(bNeedUseLastFour);
             int ditiMask = 0;
-            for (int i = 0; i < heightsThisTime.Count; i++)
+            for (int i = tipOffSet; i < tipOffSet + heightsThisTime.Count; i++)
                 ditiMask += (int)Math.Pow(2, i);
 
             //create batch file
@@ -266,7 +269,7 @@ namespace Biobanking
             //1 aspirate plasmas
             double r = pipettingSetting.r_mm;
             double area = 3.14159265 * r * r;
-            List<POINT> ptsAsp = positionGenerator.GetSrcWells(startSample, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
+            List<POINT> ptsAsp = positionGenerator.GetSrcWells(sampleIndexInRack, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
             int plasmaSlice = pipettingSetting.dstPlasmaSlice;
             List<string> strsSetTipVolume = new List<string>();
             for (int slice = 0; slice < plasmaSlice; slice++)
@@ -276,14 +279,14 @@ namespace Biobanking
                 sw.WriteLine(string.Format("B;Execute(\"{0}\",2,\"\",2);", sExe));
          
                 WriteComment(string.Format("Processing slice: {0}, plasma part", slice + 1), sw);
-                GenerateForSlice(slice, plasmaSlice,ptsAsp,rackIndex,startSample, heightsThisTime,sw);
+                GenerateForSlice(slice, plasmaSlice,ptsAsp,rackIndex,sampleIndexInRack, heightsThisTime,sw);
             }
 
             //2 aspirate & dispense buffy
             bool bhasBuffyCoat = pipettingSetting.dstbuffySlice > 0;//ResultReader.Instance.HasBuffyCoat();
-            bool inSameRegion = IsDstWellsInSameRegion(rackIndex, startSample, ptsAsp.Count);
-            int firstRegionStartSampleIndex = GetFirstRegionStartSampleIndex(rackIndex, startSample);
-            int secondRegionStartSampleIndex = GetEndIndexForFirstRegion(rackIndex, startSample) + 1;
+            bool inSameRegion = IsDstWellsInSameRegion(rackIndex, sampleIndexInRack, ptsAsp.Count);
+            int globalSampleIndex = GetGlobalSampleIndex(rackIndex, sampleIndexInRack);
+            //int secondRegionStartSampleIndex = GetEndIndexForFirstRegion(rackIndex, startSample) + 1;
 
             if (bhasBuffyCoat)
             {
@@ -293,6 +296,10 @@ namespace Biobanking
 
                 //3 为buffy设置tipVolume
                 List<double> buffyvolumes = new List<double>();
+                if(bNeedUseLastFour)
+                {
+                    buffyvolumes.AddRange(new List<double> { 0, 0, 0, 0 });
+                }
                 for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
                 {
                     // set tip_volume 
@@ -300,9 +307,9 @@ namespace Biobanking
                     double z2 = heightsThisTime[tipIndex].Z2;
                     double volume2Set = CalculateTipVolume(0, heightsThisTime[tipIndex], false, true);
                     WriteSetVolString(tipIndex, volume2Set, sw);
-                    
                     buffyvolumes.Add(10); //为了让tip_volumen_x起作用，加10ul
                 }
+                
 
                 
                 int srcGrid = GetSrcGrid(rackIndex);
@@ -310,16 +317,15 @@ namespace Biobanking
                 sw.WriteLine(strAspirateBuffy);
                 
                 int grid = 0, site = 0;
-                CalculateDestBuffyGridAndSite(firstRegionStartSampleIndex, ref grid, ref site);
+                CalculateDestBuffyGridAndSite(globalSampleIndex, ref grid, ref site);
 
                 
                 //4 asp buffy using MSD
-                WriteMSDCommands(sw, heightsThisTime.Count);
+                WriteMSDCommands(sw, heightsThisTime.Count,bNeedUseLastFour);
                 //5 dispense buffy
-                WriteDispenseBuffy(rackIndex, startSample, inSameRegion, firstRegionStartSampleIndex, secondRegionStartSampleIndex, heightsThisTime.Count, sw);
-                //string strDispBuffy = GenerateAspirateOrDispenseCommand(ptsAsp, buffyvolumes, BB_Buffy, srcGrid, labwareSettings.sourceWells,false);
-                //WriteComment("Dispense the excess 10ul volume ",sw);
-                //sw.WriteLine(strDispBuffy);
+                if(!inSameRegion)
+                    throw new Exception("Try to dispense to different regions");
+                WriteDispenseBuffy(rackIndex, sampleIndexInRack,  heightsThisTime.Count,bNeedUseLastFour, sw);
             }
 
             int orgDelta = pipettingSetting.safeDelta;
@@ -331,13 +337,13 @@ namespace Biobanking
                 for (int slice = 0; slice < redCellSlice; slice++)
                 {
                     WriteComment(string.Format("Processing slice : {0}, red cell part", slice + 1), sw);
-                    GenerateForSlice(slice, redCellSlice, ptsAsp, rackIndex, startSample, redCellAspHeights, sw, true);
+                    GenerateForSlice(slice, redCellSlice, ptsAsp, rackIndex, sampleIndexInRack, redCellAspHeights, sw, true);
                 }
             }
             pipettingSetting.safeDelta = orgDelta;
             sw.WriteLine(string.Format("B;DropDiti({0},{1},2,10,70,0);", ditiMask,labwareSettings.wasteGrid));
 
-            int endSampleID = rackIndex * 16 + startSample + heightsThisTime.Count;
+            int endSampleID = rackIndex * 16 + sampleIndexInRack + heightsThisTime.Count;
             if (endSampleID >= heights.Count)
             {
                 string sFinishedCommand = sNotifierFolder + string.Format("Notifier.exe Pipetting;true");
@@ -345,6 +351,20 @@ namespace Biobanking
             }
             sw.Close();
             
+        }
+
+        private int GetTipOffSet(bool bNeedUseLastFour)
+        {
+             return bNeedUseLastFour ? 4 : 0;
+        }
+
+        private bool NeedUseLastFour(int startSample)
+        {
+            if (labwareSettings.tipCount != 4)
+                return false;
+            int remCnt = startSample % 16;
+            return 16 - remCnt <= 4;
+
         }
 
         private List<DetectedHeight> ModifyHeights( List<DetectedHeight> heightsThisTime)
@@ -365,7 +385,7 @@ namespace Biobanking
 
     
 
-        private void GenerateForSlice(int slice, int totalSlice, List<POINT> ptsAsp, int srcRackIndex,int startSample, List<DetectedHeight> heightsThisTime, StreamWriter sw,bool isRedCell = false)
+        private void GenerateForSlice(int slice, int totalSlice, List<POINT> ptsAsp, int srcRackIndex,int sampleIndexInRack, List<DetectedHeight> heightsThisTime, StreamWriter sw,bool isRedCell = false)
         {
             //如果plasma体积很大，分成多次pipetting,最多10次，8.5ml，
             List<List<double>> volumesList = new List<List<double>>();
@@ -388,6 +408,8 @@ namespace Biobanking
             int maxVolPerTip = 850;
             int maxVolmaxVolumePerSlice = int.Parse(ConfigurationManager.AppSettings["maxVolumePerSlice"]);
             //1 设置tipvolume, 
+            bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
+            int tipOffset = GetTipOffSet(bNeedUseLastFour);
             for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
             {
                 // set tip_volume 
@@ -416,7 +438,7 @@ namespace Biobanking
                     double adjustedHeight = aspHeight + offsetUp;
                     
                     double tipVolume2Set = CalculateTipVolume(adjustedHeight, heightsThisTime[tipIndex], slice == totalSlice - 1);
-                    eachTimesCommands[times].Add(GetSetVolString(tipIndex, tipVolume2Set));
+                    eachTimesCommands[times].Add(GetSetVolString(tipIndex + tipOffset, tipVolume2Set));
                     eachTimesHeights[times].Add(adjustedHeight);
                 }
             }
@@ -439,7 +461,7 @@ namespace Biobanking
                 {
                     if (volumes[tipIndex] != 0)
                     {
-                        WriteComment(string.Format("aspirate at height: {0} for tip {1}", height[tipIndex], tipIndex + 1), sw);
+                        WriteComment(string.Format("aspirate at height: {0} for tip {1}", height[tipIndex], tipIndex + tipOffset + 1), sw);
                         foreach (string s in thisTimeCommands[tipIndex])
                             sw.WriteLine(s);
 
@@ -455,7 +477,7 @@ namespace Biobanking
                     if (smalleastDiff < 5)
                         sLiquidClass = BBPlasmaSlow;
                 }
-                ProcessCurrentSlice(ptsAsp, volumes, sLiquidClass, srcRackIndex, slice, startSample, sw,isRedCell);
+                ProcessCurrentSlice(ptsAsp, volumes, sLiquidClass, srcRackIndex, slice, sampleIndexInRack, sw,isRedCell);
             }
         }
 
@@ -543,15 +565,18 @@ namespace Biobanking
         }
 
         private void ProcessCurrentSlice(List<POINT> ptsAsp, List<double> volumes, string liquidClass ,
-             int srcRackIndex,int sliceIndex, int startSample,StreamWriter sw,bool isRedCell)
+             int srcRackIndex,int sliceIndex, int sampleIndexInRack,StreamWriter sw,bool isRedCell)
         {
             //有时候，液体需要被喷到不同的区域，这时，我们将之分成2个区域，firstRegionStartSampleIndex表示区域1中第一个样品的索引号
             //secondRegionStartSampleIndex表示区域2中的第一个样品的索引号，
-            bool inSameRegion = IsDstWellsInSameRegion(srcRackIndex, startSample, ptsAsp.Count);
+            bool inSameRegion = IsDstWellsInSameRegion(srcRackIndex, sampleIndexInRack, ptsAsp.Count);
             int safeSlice = pipettingSetting.dstPlasmaSlice - 3;
             
             int srcGrid = GetSrcGrid(srcRackIndex);
-            int firstRegionStartSampleIndex = GetFirstRegionStartSampleIndex(srcRackIndex,startSample); //
+            int globalSampleIndex = GetGlobalSampleIndex(srcRackIndex, sampleIndexInRack); //
+            bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
+            if (bNeedUseLastFour)
+                volumes.InsertRange(0,new List<double>() { 0, 0, 0, 0 });
             //int secondRegionStartSampleIndex = -1;
             //int endSampleIndexFirstRegion;
             //int firstRegionSampleCount;
@@ -561,9 +586,9 @@ namespace Biobanking
 
             if (inSameRegion)
             {
-                List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex,sliceIndex, startSample, ptsAsp.Count);
+                List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, ptsAsp.Count);
                 int grid = 0, site = 0;
-                CalculateDestGridAndSite(firstRegionStartSampleIndex, sliceIndex,isRedCell, ref grid, ref site);
+                CalculateDestGridAndSite(globalSampleIndex, sliceIndex,isRedCell, ref grid, ref site);
                 string strDispense = GenerateDispenseCommand(ptsDisp, volumes, liquidClass, grid,site, labwareSettings.dstLabwareRows);
                 sw.WriteLine(strDispense);
             }
@@ -589,7 +614,7 @@ namespace Biobanking
         }
 
  
-        private int GetFirstRegionStartSampleIndex(int rackIndex, int startSample)
+        private int GetGlobalSampleIndex(int rackIndex, int startSample)
         {
             return rackIndex * labwareSettings.sourceWells + startSample;
         }
@@ -751,7 +776,7 @@ namespace Biobanking
             //sw.WriteLine(GetSetVolString(tipIndex,volume2Set));
             //WriteVariable(string.Format("Tip_Volume_{0}", tipIndex), volume2Set.ToString("0.00"), sw);
         }
-        private void WriteDispenseBuffyNoCheck(List<POINT> pts, int grid,int site, StreamWriter sw)
+        private void WriteDispenseBuffyNoCheck(List<POINT> pts, int grid,int site, StreamWriter sw, int tipOffset)
         {
             log.Info("WriteDispenseBuffy for certain region");
             int samples = pts.Count;
@@ -761,14 +786,14 @@ namespace Biobanking
             string sMoveLiha = string.Format("B;MoveLiha({0},{1},{2},1,\"{3}\",0,1,0,10,0,0);", ditiMask, grid,site, sWellSelection);
             sw.WriteLine(sMoveLiha);
             WriteComment("Set end speed for plungers", sw);
-            string sSEP = GetSEPString(samples, 2400);
+            string sSEP = GetSEPString(samples, 2400, tipOffset);
             WriteComand(sSEP, sw);
             WriteComment("Set stop speed for plungers", sw);
-            string sSPP = GetSPPString(samples, 1500);
+            string sSPP = GetSPPString(samples, 1500 , tipOffset);
             WriteComand(sSPP, sw);
             //WriteComand("C5SPP1500", sw);
             WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
-            string sPPA = GetPPAString(samples,0);
+            string sPPA = GetPPAString(samples,0, tipOffset);
             WriteComand(sPPA, sw);
             //WriteComment("Move tips up.", sw);
             //sw.WriteLine(sMoveLiha);
@@ -828,34 +853,17 @@ namespace Biobanking
         }
 
 
-        private void WriteDispenseBuffy(List<POINT> pts,int grid, int site, StreamWriter sw, int startTip = 0)
+        private void WriteDispenseBuffy(List<POINT> pts,int grid, int site, StreamWriter sw, int tipOffset = 0)
         {
             //for safe liha movement.
             double maxWell = pts.Select(x => x.y).Max();
-            int endTip = startTip + pts.Count;
+            int endTip = tipOffset + pts.Count;
          
             if( maxWell < 4 || maxWell > 13)
             {
                 bool bCanMatch = true;
-                if (maxWell - endTip >= 12)
+                if (maxWell - endTip >= 12 || endTip - maxWell >= 5)
                 {
-                    bCanMatch = false;
-                    //for (int i = 0; i < pts.Count; i++)
-                    //{
-                    //    List<POINT> tmpPts = new List<POINT>();
-                    //    tmpPts.Add(pts[i]);
-                    //    WriteDispenseBuffyNoCheck(tmpPts, grid,site, sw, startTip++);
-                    //}
-                    //return;
-                }
-                else if( endTip - maxWell >= 5)
-                {
-                    //for (int i = 0; i < pts.Count; i++)
-                    //{
-                    //    List<POINT> tmpPts = new List<POINT>();
-                    //    tmpPts.Add(pts[i]);
-                    //    WriteDispenseBuffyNoCheck(tmpPts, grid,site, sw, startTip++);
-                    //}
                     bCanMatch = false;
                 }
                 string sModel = ConfigurationManager.AppSettings[stringRes.f];
@@ -863,52 +871,26 @@ namespace Biobanking
                 if (!bCanMatch && model!=75 )
                     throw new Exception("Cannot match tips at labware edge");
             }
-            WriteDispenseBuffyNoCheck(pts, grid,site, sw);
+            WriteDispenseBuffyNoCheck(pts, grid,site, sw, tipOffset);
         }
 
-        private void WriteDispenseBuffy(int rackIndex, int startSampleIndexThisRack,bool inSameRegion,int firstSampleStartIndex, int secondSampleStartIndex, int samplesCountThisBatch,StreamWriter sw)
+        private void WriteDispenseBuffy(int rackIndex, 
+            int sampleIndexThisRack,
+            int samplesCountThisBatch,
+            bool bNeedUseLastFour ,StreamWriter sw)
         {
             log.Info("Write DispenseBuffy");
             int slice = pipettingSetting.dstPlasmaSlice;
-            if (inSameRegion)
-            {
-                List<POINT> ptsDisp = positionGenerator.GetDestWells(rackIndex, slice,startSampleIndexThisRack, samplesCountThisBatch);
-                int grid = 0, site = 0;
-                CalculateDestBuffyGridAndSite(firstSampleStartIndex,ref grid, ref site);
-                WriteDispenseBuffy(ptsDisp, grid,site, sw);
-            }
-            else
-            {
-                throw new Exception("Try to dispense to different regions");
-                //int firstRegionSampleCount = secondSampleStartIndex - firstSampleStartIndex;
-                //List<POINT> ptsDisp = positionGenerator.GetDestWells(rackIndex,slice, startSampleIndexThisRack, firstRegionSampleCount);
-                //int nGrid = CalculateDestBuffyGrid(firstSampleStartIndex);
-                //WriteDispenseBuffy(ptsDisp, nGrid, sw);
-                //ptsDisp = positionGenerator.GetDestWells(rackIndex,slice, startSampleIndexThisRack + firstRegionSampleCount, samplesCountThisBatch - firstRegionSampleCount);
-                //nGrid = CalculateDestBuffyGrid(secondSampleStartIndex);
-                //WriteDispenseBuffy(ptsDisp,nGrid, sw,firstRegionSampleCount);
-            }
+            List<POINT> ptsDisp = positionGenerator.GetDestWells(rackIndex, slice,sampleIndexThisRack, samplesCountThisBatch);
+            int grid = 0, site = 0;
+            CalculateDestBuffyGridAndSite(GetGlobalSampleIndex(rackIndex, sampleIndexThisRack), ref grid, ref site);
+            int tipShift = bNeedUseLastFour ? 4 : 0;
+            WriteDispenseBuffy(ptsDisp, grid, site, sw, tipShift);
+           
+         
         }
 
-        //private string GetMixString(List<POINT> pts,int grid, string sWellSelection, int mixTimes)
-        //{
-        //    log.Info("GetMixString");
-        //    int tipMask = GetTipSelection(pts.Count);
-        //    //BB_Buffy_Mix
-        //    string volumes = "";
-        //    for (int i = 0; i < 12; i++)
-        //    {
-        //        if (i < pts.Count)
-        //        {
-        //            volumes += string.Format("\"{0}\",", (int)pipettingSetting.buffyVolume);
-        //        }
-        //        else
-        //            volumes += "0,";
-        //    }
-        //    return string.Format("B;Mix({0},\"{1}\",{2}{3},0,1,\"{4}\",{5},0,0);", tipMask, BB_Buffy_Mix, volumes, grid, sWellSelection, mixTimes);
-        //}
-
-        private void WriteMSDCommands(StreamWriter sw, int samplesInTheBatch)
+        private void WriteMSDCommands(StreamWriter sw, int samplesInTheBatch, bool bNeedUseLastFour)
         {
             log.Info("Write MSD");
             int buffyVol = pipettingSetting.buffyVolume;
@@ -924,10 +906,11 @@ namespace Biobanking
             double aspVolumePerSpiral = buffyVol / (pipettingSetting.buffyAspirateLayers*2.0);
             int dialutorSteps =(int)(3.1 * aspVolumePerSpiral);
             int aspSpeedSteps = (int)(3.1 * aspSpeed * speedFactor * buffyVol / 300.0);
-            int tipSel = GetTipSelection(samplesInTheBatch);
+            int tipOffset = bNeedUseLastFour ? 4 : 0;
+            int tipSel = GetTipSelection(samplesInTheBatch,tipOffset);
 
             WriteComment("Set Move values",sw);
-            string sSEP = GetSEPString(samplesInTheBatch, aspSpeedSteps);
+            string sSEP = GetSEPString(samplesInTheBatch, aspSpeedSteps, tipOffset);
             WriteComand(sSEP, sw);
             for (int i = 0; i < pipettingSetting.buffyAspirateLayers; i++)
             {
@@ -936,7 +919,7 @@ namespace Biobanking
                 string sMSDCommand = GetMSDCommand(deltaXY, numSegments, tipSel, dialutorSteps, speedXY, accXY);
                 WriteComand(sMSDCommand, sw);
                 WriteComment(string.Format("Move LiHa deltaZ down -times: {0} distance:{1}", i + 1, deltaZ), sw);
-                string sMoveLihaDown = GetMoveLihaDown(samplesInTheBatch, deltaZ);
+                string sMoveLihaDown = GetMoveLihaDown(samplesInTheBatch, deltaZ, tipOffset);
                 WriteComand(sMoveLihaDown, sw);
                 WriteComment(string.Format("Move LiHa spiral in -times: {0}",i+1),sw);
                 deltaXY = -deltaXY;
@@ -951,40 +934,44 @@ namespace Biobanking
             
         }
 
-        private string GetCommandForAllTips(string sCommandPrefix, int samplesInTheBatch, int val)
+        private string GetCommandForAllTips(string sCommandPrefix, int samplesInTheBatch, int val, int tipOffset = 0)
         {
             string s = sCommandPrefix;
+            for (int i = 0; i < tipOffset; i++ )
+            {
+                s +=  "0,";
+            }
             for (int i = 0; i < samplesInTheBatch; i++)
             {
                 s += val.ToString() + ",";
             }
-            for (int i = samplesInTheBatch; i < 8; i++)
+            for (int i = samplesInTheBatch + tipOffset; i < 8; i++)
             {
                 s += ",";
             }
             return s;
         }
 
-        private string GetPPAString(int samplesThisBatch, int pos)
+        private string GetPPAString(int samplesThisBatch, int pos, int tipOffset)
         {
             string s = "C5PPA";
-            return GetCommandForAllTips(s, samplesThisBatch, pos);
+            return GetCommandForAllTips(s, samplesThisBatch, pos, tipOffset);
         }
 
-        private string GetMoveLihaDown(int samplesInTheBatch, int deltaZ)
+        private string GetMoveLihaDown(int samplesInTheBatch, int deltaZ, int tipOffset)
         {
             string s = "C5PRZ";
-            return GetCommandForAllTips(s, samplesInTheBatch, deltaZ);
+            return GetCommandForAllTips(s, samplesInTheBatch, deltaZ, tipOffset);
         }
-        private string GetSEPString(int samplesInTheBatch, int aspSpeedSteps)
+        private string GetSEPString(int samplesInTheBatch, int aspSpeedSteps,int tipOffset)
         {
             string sSEP = "C5SEP";
-            return GetCommandForAllTips(sSEP, samplesInTheBatch, aspSpeedSteps);
+            return GetCommandForAllTips(sSEP, samplesInTheBatch, aspSpeedSteps,tipOffset);
         }
-        private string GetSPPString(int samplesThisBatch, int speed)
+        private string GetSPPString(int samplesThisBatch, int speed, int tipOffset)
         {
             string sSPP = "C5SPP";
-            return GetCommandForAllTips(sSPP, samplesThisBatch, speed);
+            return GetCommandForAllTips(sSPP, samplesThisBatch, speed, tipOffset);
         }
         private string GetMSDCommand(int deltaXY, int numSegments, int tipSel, int dialutorSteps,  int speedXY, int accXY)
         {
