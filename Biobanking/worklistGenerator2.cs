@@ -299,6 +299,8 @@ namespace Biobanking
                 if(bNeedUseLastFour)
                 {
                     buffyvolumes.AddRange(new List<double> { 0, 0, 0, 0 });
+                    POINT ptZero = new POINT(0, 0);
+                    ptsAsp.InsertRange(0, new List<POINT>() { ptZero, ptZero, ptZero, ptZero });
                 }
                 for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
                 {
@@ -309,8 +311,6 @@ namespace Biobanking
                     WriteSetVolString(tipIndex, volume2Set, sw);
                     buffyvolumes.Add(10); //为了让tip_volumen_x起作用，加10ul
                 }
-                
-
                 
                 int srcGrid = GetSrcGrid(rackIndex);
                 string strAspirateBuffy = GenerateAspirateCommand(ptsAsp, buffyvolumes, BB_Buffy, srcGrid, 0, labwareSettings.sourceWells);
@@ -564,19 +564,25 @@ namespace Biobanking
             return rackIndex + labwareSettings.sourceLabwareStartGrid;
         }
 
-        private void ProcessCurrentSlice(List<POINT> ptsAsp, List<double> volumes, string liquidClass ,
+        private void ProcessCurrentSlice(List<POINT> ptsAspOrg, List<double> volumes, string liquidClass ,
              int srcRackIndex,int sliceIndex, int sampleIndexInRack,StreamWriter sw,bool isRedCell)
         {
             //有时候，液体需要被喷到不同的区域，这时，我们将之分成2个区域，firstRegionStartSampleIndex表示区域1中第一个样品的索引号
             //secondRegionStartSampleIndex表示区域2中的第一个样品的索引号，
-            bool inSameRegion = IsDstWellsInSameRegion(srcRackIndex, sampleIndexInRack, ptsAsp.Count);
+            bool inSameRegion = IsDstWellsInSameRegion(srcRackIndex, sampleIndexInRack, ptsAspOrg.Count);
             int safeSlice = pipettingSetting.dstPlasmaSlice - 3;
             
             int srcGrid = GetSrcGrid(srcRackIndex);
             int globalSampleIndex = GetGlobalSampleIndex(srcRackIndex, sampleIndexInRack); //
             bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
+            List<POINT> ptsAsp = new List<POINT>(ptsAspOrg);
             if (bNeedUseLastFour)
-                volumes.InsertRange(0,new List<double>() { 0, 0, 0, 0 });
+            {
+                POINT ptZero = new POINT(0, 0);
+                ptsAsp.InsertRange(0, new List<POINT>() { ptZero, ptZero, ptZero, ptZero });
+                volumes.InsertRange(0, new List<double>() { 0, 0, 0, 0 });
+            }
+                
             //int secondRegionStartSampleIndex = -1;
             //int endSampleIndexFirstRegion;
             //int firstRegionSampleCount;
@@ -589,6 +595,11 @@ namespace Biobanking
                 List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, ptsAsp.Count);
                 int grid = 0, site = 0;
                 CalculateDestGridAndSite(globalSampleIndex, sliceIndex,isRedCell, ref grid, ref site);
+                if(bNeedUseLastFour)
+                {
+                    POINT ptZero = new POINT(0, 0);
+                    ptsDisp.InsertRange(0, new List<POINT>() { ptZero, ptZero, ptZero, ptZero });
+                }
                 string strDispense = GenerateDispenseCommand(ptsDisp, volumes, liquidClass, grid,site, labwareSettings.dstLabwareRows);
                 sw.WriteLine(strDispense);
             }
