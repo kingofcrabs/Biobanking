@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<LabwareSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <tipCount>4</tipCount>
+  <dstLabwareRows>4</dstLabwareRows>
+  <dstLabwareStartGrid>17</dstLabwareStartGrid>
+  <dstLabwareColumns>6</dstLabwareColumns>
+  <sourceWells>16</sourceWells>
+  <sourceLabwareStartGrid>6</sourceLabwareStartGrid>
+  <sourceLabwareGrids>4</sourceLabwareGrids>
+  <wasteGrid>10</wasteGrid>
+  <regions>4</regions>
+  <gridsPerRegion>6</gridsPerRegion>
+  <sitesPerRegion>3</sitesPerRegion>
+</LabwareSettings>
