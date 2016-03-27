@@ -791,7 +791,7 @@ namespace Biobanking
         {
             log.Info("WriteDispenseBuffy for certain region");
             int samples = pts.Count;
-            int ditiMask = GetTipSelection(samples);
+            int ditiMask = GetTipSelection(samples,tipOffset);
             //List<POINT> pts = positionGenerator.GetDestWellsForCertainSliceOfOneBatch(batchIndex,0,false);
             string sWellSelection = GetWellSelection(labwareSettings.dstLabwareColumns, labwareSettings.dstLabwareRows, pts);
             string sMoveLiha = string.Format("B;MoveLiha({0},{1},{2},1,\"{3}\",0,1,0,10,0,0);", ditiMask, grid,site, sWellSelection);
@@ -802,7 +802,6 @@ namespace Biobanking
             WriteComment("Set stop speed for plungers", sw);
             string sSPP = GetSPPString(samples, 1500 , tipOffset);
             WriteComand(sSPP, sw);
-            //WriteComand("C5SPP1500", sw);
             WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
             string sPPA = GetPPAString(samples,0, tipOffset);
             WriteComand(sPPA, sw);
@@ -810,12 +809,6 @@ namespace Biobanking
             //sw.WriteLine(sMoveLiha);
 
             List<double> volumes = new List<double>();
-            //if (pipettingSetting.mixTimes != 0 && pipettingSetting.dstbuffySlice > 1)
-            //{
-            //    WriteComment("Mix.", sw);
-            //    string sMix = GetMixString(pts,grid, sWellSelection, pipettingSetting.mixTimes);
-            //    sw.WriteLine(sMix);
-            //}
             int startTip = 0;
             int buffySlice = pipettingSetting.dstbuffySlice;
             if (buffySlice > 1) //need dispense the buffy
