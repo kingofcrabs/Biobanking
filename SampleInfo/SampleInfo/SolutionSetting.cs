@@ -24,7 +24,8 @@ namespace SampleInfo
         public double redCellGreedyVolume;
         public double redCellBottomHeight;
         public bool giveUpNotEnough;
-
+        public double msdZMoveRatio;
+        public double msdMaxVariance;
         public PipettingSettings()
         {
             buffyAspirateLayers = 6;
@@ -41,6 +42,8 @@ namespace SampleInfo
             redCellGreedyVolume = 300;
             redCellBottomHeight = 80; //8mm
             giveUpNotEnough = false;
+            msdZMoveRatio = 1.3;
+            msdMaxVariance = 5;
         }
     }
     [Serializable]

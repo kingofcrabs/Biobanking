@@ -296,6 +296,7 @@ namespace Biobanking
 
                 //3 为buffy设置tipVolume
                 List<double> buffyvolumes = new List<double>();
+                
                 if(bNeedUseLastFour)
                 {
                     buffyvolumes.AddRange(new List<double> { 0, 0, 0, 0 });
@@ -308,7 +309,7 @@ namespace Biobanking
                     double z1 = heightsThisTime[tipIndex].Z1;
                     double z2 = heightsThisTime[tipIndex].Z2;
                     double volume2Set = CalculateTipVolume(0, heightsThisTime[tipIndex], false, true);
-                    WriteSetVolString(tipIndex, volume2Set, sw);
+                    WriteSetVolString(tipIndex + tipOffSet, volume2Set, sw);
                     buffyvolumes.Add(10); //为了让tip_volumen_x起作用，加10ul
                 }
                 
@@ -902,8 +903,9 @@ namespace Biobanking
             double speedFactor = pipettingSetting.buffySpeedFactor;
             int speedXY = (int)(60 * speedFactor);
             double area = 3.1415926 * pipettingSetting.r_mm * pipettingSetting.r_mm;
-            int deltaZ = -(int)( pipettingSetting.buffyVolume*10 / area / (2*pipettingSetting.buffyAspirateLayers));
+            double deltaZPerLayer = (pipettingSetting.buffyVolume * 10 / area / (2 * pipettingSetting.buffyAspirateLayers));
             int deltaXY = pipettingSetting.deltaXYForMSD;
+            
             int accXY = 2000;
             int numSegments = 5;
            
@@ -916,14 +918,22 @@ namespace Biobanking
             WriteComment("Set Move values",sw);
             string sSEP = GetSEPString(samplesInTheBatch, aspSpeedSteps, tipOffset);
             WriteComand(sSEP, sw);
+            int totalZ = 0;
             for (int i = 0; i < pipettingSetting.buffyAspirateLayers; i++)
             {
                 WriteComment(string.Format("Move LiHa spiral out -times: {0}",i+1), sw);
                 //WriteComment("MSD deltaDistance, NrOfHalfSpirals, TipSelect, DilutorDistance, ZTrackingDistance, XYSpeed,", sw);
                 string sMSDCommand = GetMSDCommand(deltaXY, numSegments, tipSel, dialutorSteps, speedXY, accXY);
                 WriteComand(sMSDCommand, sw);
-                WriteComment(string.Format("Move LiHa deltaZ down -times: {0} distance:{1}", i + 1, deltaZ), sw);
-                string sMoveLihaDown = GetMoveLihaDown(samplesInTheBatch, deltaZ, tipOffset);
+                WriteComment(string.Format("Move LiHa deltaZ down -times: {0} distance:{1}", i + 1, deltaZPerLayer), sw);
+                
+                double originalZ = (i+1) * deltaZPerLayer;
+                double adjustedZ =  originalZ * pipettingSetting.msdZMoveRatio;
+                if (adjustedZ - originalZ > pipettingSetting.msdMaxVariance * 10)
+                    adjustedZ = originalZ + pipettingSetting.msdMaxVariance * 10;
+                int thisLayerDeltaZ = (int)(adjustedZ - totalZ);
+                totalZ += thisLayerDeltaZ;
+                string sMoveLihaDown = GetMoveLihaDown(samplesInTheBatch, -thisLayerDeltaZ, tipOffset);
                 WriteComand(sMoveLihaDown, sw);
                 WriteComment(string.Format("Move LiHa spiral in -times: {0}",i+1),sw);
                 deltaXY = -deltaXY;
