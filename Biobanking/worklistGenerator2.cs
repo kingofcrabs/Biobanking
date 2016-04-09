@@ -10,6 +10,7 @@ using System.Configuration;
 #if DEBUG
 #else
 using NCalc;
+using Settings;
 #endif
 
 namespace Biobanking
@@ -904,6 +905,8 @@ namespace Biobanking
             int speedXY = (int)(60 * speedFactor);
             double area = 3.1415926 * pipettingSetting.r_mm * pipettingSetting.r_mm;
             double deltaZPerLayer = (pipettingSetting.buffyVolume * 10 / area / (2 * pipettingSetting.buffyAspirateLayers));
+            double adjustedZPerLayer = deltaZPerLayer + pipettingSetting.msdZDistance * 10 / (2 * pipettingSetting.buffyAspirateLayers);
+            
             int deltaXY = pipettingSetting.deltaXYForMSD;
             
             int accXY = 2000;
@@ -925,13 +928,9 @@ namespace Biobanking
                 //WriteComment("MSD deltaDistance, NrOfHalfSpirals, TipSelect, DilutorDistance, ZTrackingDistance, XYSpeed,", sw);
                 string sMSDCommand = GetMSDCommand(deltaXY, numSegments, tipSel, dialutorSteps, speedXY, accXY);
                 WriteComand(sMSDCommand, sw);
-                WriteComment(string.Format("Move LiHa deltaZ down -times: {0} distance:{1}", i + 1, deltaZPerLayer), sw);
-                
-                double originalZ = (i+1) * deltaZPerLayer;
-                double adjustedZ =  originalZ * pipettingSetting.msdZMoveRatio;
-                if (adjustedZ - originalZ > pipettingSetting.msdMaxVariance * 10)
-                    adjustedZ = originalZ + pipettingSetting.msdMaxVariance * 10;
-                int thisLayerDeltaZ = (int)(adjustedZ - totalZ);
+                WriteComment(string.Format("Move LiHa deltaZ down -times: {0} distance:{1}", i + 1, adjustedZPerLayer), sw);
+                double adjustedZ = (i + 1) * adjustedZPerLayer;
+                int thisLayerDeltaZ = (int)(adjustedZ - totalZ + 0.5);
                 totalZ += thisLayerDeltaZ;
                 string sMoveLihaDown = GetMoveLihaDown(samplesInTheBatch, -thisLayerDeltaZ, tipOffset);
                 WriteComand(sMoveLihaDown, sw);

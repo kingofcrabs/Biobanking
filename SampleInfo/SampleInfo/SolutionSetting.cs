@@ -7,6 +7,20 @@ using System.IO;
 
 namespace SampleInfo
 {
+
+    [Serializable]
+    public class SolutionSettings
+    {
+        private PipettingSettings pipettingSettings;
+        private LabwareSettings labwareSettings;
+        public SolutionSettings()
+        {
+            pipettingSettings = new PipettingSettings();
+            labwareSettings = new LabwareSettings();
+        }
+        
+    }
+
     [Serializable]
     public class PipettingSettings
     {
@@ -24,8 +38,8 @@ namespace SampleInfo
         public double redCellGreedyVolume;
         public double redCellBottomHeight;
         public bool giveUpNotEnough;
-        public double msdZMoveRatio;
-        public double msdMaxVariance;
+        public double msdZDistance;
+        public double msdStartPositionAboveBuffy;
         public PipettingSettings()
         {
             buffyAspirateLayers = 6;
@@ -42,8 +56,9 @@ namespace SampleInfo
             redCellGreedyVolume = 300;
             redCellBottomHeight = 80; //8mm
             giveUpNotEnough = false;
-            msdZMoveRatio = 1.3;
-            msdMaxVariance = 5;
+            msdZDistance = 4;
+            msdStartPositionAboveBuffy = 1;
+            
         }
     }
     [Serializable]
