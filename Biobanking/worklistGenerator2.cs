@@ -285,7 +285,7 @@ namespace Biobanking
 
             //2 aspirate & dispense buffy
             bool bhasBuffyCoat = pipettingSetting.dstbuffySlice > 0;//ResultReader.Instance.HasBuffyCoat();
-            bool inSameRegion = IsDstWellsInSameRegion(rackIndex, sampleIndexInRack, ptsAsp.Count);
+            bool inSameColumn = IsDstWellsInSamColumn(rackIndex, sampleIndexInRack, ptsAsp.Count);
             int globalSampleIndex = GetGlobalSampleIndex(rackIndex, sampleIndexInRack);
             //int secondRegionStartSampleIndex = GetEndIndexForFirstRegion(rackIndex, startSample) + 1;
 
@@ -297,7 +297,7 @@ namespace Biobanking
 
                 //3 为buffy设置tipVolume
                 List<double> buffyvolumes = new List<double>();
-                
+               
                 if(bNeedUseLastFour)
                 {
                     buffyvolumes.AddRange(new List<double> { 0, 0, 0, 0 });
@@ -318,16 +318,26 @@ namespace Biobanking
                 string strAspirateBuffy = GenerateAspirateCommand(ptsAsp, buffyvolumes, BB_Buffy, srcGrid, 0, labwareSettings.sourceWells);
                 sw.WriteLine(strAspirateBuffy);
                 
-                int grid = 0, site = 0;
-                CalculateDestBuffyGridAndSite(globalSampleIndex, ref grid, ref site);
+            
 
+                
                 
                 //4 asp buffy using MSD
                 WriteMSDCommands(sw, heightsThisTime.Count,bNeedUseLastFour);
                 //5 dispense buffy
-                if(!inSameRegion)
-                    throw new Exception("Try to dispense to different regions");
-                WriteDispenseBuffy(rackIndex, sampleIndexInRack,  heightsThisTime.Count,bNeedUseLastFour, sw);
+                if (inSameColumn)
+                {
+                    WriteDispenseBuffy(rackIndex, sampleIndexInRack,  heightsThisTime.Count,bNeedUseLastFour,false, sw);
+                }
+                else//need to dispense to different column
+                {
+                    int endIndexFirstColumn = GetEndIndexForFirstColumn(rackIndex, sampleIndexInRack);
+                    int firstColumnSampleCount = endIndexFirstColumn - rackIndex * labwareSettings.sourceWells - sampleIndexInRack + 1;
+                    WriteDispenseBuffy(rackIndex, sampleIndexInRack, firstColumnSampleCount, bNeedUseLastFour, true, sw);
+                    int secondColumnStartSampleIndex = endIndexFirstColumn + 1;
+                    WriteDispenseBuffy(rackIndex, secondColumnStartSampleIndex, heightsThisTime.Count - firstColumnSampleCount, bNeedUseLastFour, true, sw);
+                }
+               
             }
 
             int orgDelta = pipettingSetting.safeDelta;
@@ -569,9 +579,8 @@ namespace Biobanking
         private void ProcessCurrentSlice(List<POINT> ptsAspOrg, List<double> volumes, string liquidClass ,
              int srcRackIndex,int sliceIndex, int sampleIndexInRack,StreamWriter sw,bool isRedCell)
         {
-            //有时候，液体需要被喷到不同的区域，这时，我们将之分成2个区域，firstRegionStartSampleIndex表示区域1中第一个样品的索引号
-            //secondRegionStartSampleIndex表示区域2中的第一个样品的索引号，
-            bool inSameRegion = IsDstWellsInSameRegion(srcRackIndex, sampleIndexInRack, ptsAspOrg.Count);
+            //有时候，液体需要被喷到不同行，
+            bool inSameColumn = IsDstWellsInSamColumn(srcRackIndex, sampleIndexInRack, ptsAspOrg.Count);
             int safeSlice = pipettingSetting.dstPlasmaSlice - 3;
             
             int srcGrid = GetSrcGrid(srcRackIndex);
@@ -584,15 +593,13 @@ namespace Biobanking
                 ptsAsp.InsertRange(0, new List<POINT>() { ptZero, ptZero, ptZero, ptZero });
                 volumes.InsertRange(0, new List<double>() { 0, 0, 0, 0 });
             }
-                
-            //int secondRegionStartSampleIndex = -1;
-            //int endSampleIndexFirstRegion;
-            //int firstRegionSampleCount;
+
+
             //2 吸，喷
             string strAspirate = GenerateAspirateCommand(ptsAsp, volumes, liquidClass, srcGrid,0, labwareSettings.sourceWells);
             sw.WriteLine(strAspirate);
 
-            if (inSameRegion)
+            if (inSameColumn)
             {
                 List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, ptsAsp.Count);
                 int grid = 0, site = 0;
@@ -607,24 +614,25 @@ namespace Biobanking
             }
             else
             {
-                throw new Exception("try to dispense to different regions.");
-                //endSampleIndexFirstRegion = GetEndIndexForFirstRegion(srcRackIndex, startSample);
-                //firstRegionSampleCount = endSampleIndexFirstRegion - srcRackIndex * labwareSettings.sourceWells - startSample + 1;
-                //List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, slice,startSample, firstRegionSampleCount);
-                //int dstGrid = CalculateDestGrid(firstRegionStartSampleIndex, slice, isRedCell);
-                //List<double> volumes1;
-                //List<double> volumes2;
-                //SplitVolumes2Region(volumes, out volumes1, out volumes2, firstRegionSampleCount);
-                //string strDispense = GenerateAspirateOrDispenseCommand(ptsDisp, volumes1, liquidClass, dstGrid, labwareSettings.dstLabwareRows, false);
-                //sw.WriteLine(strDispense);
-
-                //ptsDisp = positionGenerator.GetDestWells(srcRackIndex, slice,startSample + firstRegionSampleCount, ptsAsp.Count - firstRegionSampleCount);
-                //secondRegionStartSampleIndex = endSampleIndexFirstRegion + 1;
-                //dstGrid = CalculateDestGrid(secondRegionStartSampleIndex, slice, isRedCell);
-                //strDispense = GenerateAspirateOrDispenseCommand(ptsDisp, volumes2, liquidClass, dstGrid, labwareSettings.dstLabwareRows, false, volumes1.Count);
-                //sw.WriteLine(strDispense);
+                //throw new Exception("try to dispense to different regions.");
+                int endIndexFirstColumn = GetEndIndexForFirstColumn(srcRackIndex, sampleIndexInRack);
+                int firstColumnSampleCount = endIndexFirstColumn - srcRackIndex * labwareSettings.sourceWells - sampleIndexInRack + 1;
+                List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, firstColumnSampleCount);
+                int grid = 0, site = 0;
+                CalculateDestGridAndSite4OnlyOnePerRegion(sliceIndex, ref grid, ref site);
+                List<double> volumes1;
+                List<double> volumes2;
+                SplitVolumes2Region(volumes, out volumes1, out volumes2, firstColumnSampleCount);
+                string strDispense = GenerateDispenseCommand(ptsDisp, volumes1, liquidClass, grid, site, labwareSettings.dstLabwareRows);
+                sw.WriteLine(strDispense);
+                int secondColumnStartSampleIndex = endIndexFirstColumn + 1;
+                ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack + firstColumnSampleCount, ptsAsp.Count - firstColumnSampleCount);
+                strDispense = GenerateDispenseCommand(ptsDisp, volumes2, liquidClass, grid, site, labwareSettings.dstLabwareRows);
+                sw.WriteLine(strDispense);
             }
         }
+
+      
 
  
         private int GetGlobalSampleIndex(int rackIndex, int startSample)
@@ -650,11 +658,11 @@ namespace Biobanking
             }
         }
 
-        private int GetEndIndexForFirstRegion(int srcRackIndex, int startSample)
+        private int GetEndIndexForFirstColumn(int srcRackIndex, int startSample)
         {
             int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
-            int nRegionIndex = nStartSampleIndex / labwareSettings.dstLabwareRows;
-            return (nRegionIndex + 1) * labwareSettings.dstLabwareRows - 1;
+            int columnIndex = nStartSampleIndex / labwareSettings.dstLabwareRows;
+            return (columnIndex + 1) * labwareSettings.dstLabwareRows - 1;
         }
 
         //private int GetRegionUsedGrids()
@@ -706,6 +714,15 @@ namespace Biobanking
                 CalculateDestPlasmaGridAndSite(sampleIndex,slice, ref grid, ref site);
         }
 
+        //in each region, only 1 slice would be dispensed to
+        private void CalculateDestGridAndSite4OnlyOnePerRegion(int sliceIndex, ref int grid, ref int site)
+        {
+            int startGrid = labwareSettings.dstLabwareStartGrid;
+            int sitesPerGrid = labwareSettings.sitesPerRegion;
+            int additionalGrids = labwareSettings.gridsPerRegion * (sliceIndex / sitesPerGrid);
+            grid = startGrid + additionalGrids;
+            site = sliceIndex % labwareSettings.sitesPerRegion;
+        }
         private void CalculateDestPlasmaGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
             int totalSlicePerSample = pipettingSetting.dstbuffySlice + pipettingSetting.dstPlasmaSlice + pipettingSetting.dstRedCellSlice;
@@ -750,7 +767,7 @@ namespace Biobanking
         }
 
 
-        private bool IsDstWellsInSameRegion(int srcRackIndex, int startSample, int sampleCount)
+        private bool IsDstWellsInSamColumn(int srcRackIndex, int startSample, int sampleCount)
         {
             //if (isPlasma && !pipettingSetting.mov2NextRegionEachPlasmaRack) //无视rack的变化，总是同一region
             //    return true;
@@ -758,9 +775,9 @@ namespace Biobanking
             int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
             int wellsCount = labwareSettings.dstLabwareRows;
 
-            int nRegion1 = nStartSampleIndex / wellsCount;
-            int nRegion2 = nEndSampleIndex / wellsCount;
-            return nRegion1 == nRegion2;
+            int nCol1 = nStartSampleIndex / wellsCount;
+            int nCol2 = nEndSampleIndex / wellsCount;
+            return nCol1 == nCol2;
         }
 
         private List<string> GetSetVolString(int tipIndex, double volume2Set)
@@ -883,17 +900,23 @@ namespace Biobanking
         private void WriteDispenseBuffy(int rackIndex, 
             int sampleIndexThisRack,
             int samplesCountThisBatch,
-            bool bNeedUseLastFour ,StreamWriter sw)
+            bool bNeedUseLastFour, bool bOnlyOneSlicePerRegion, StreamWriter sw)
         {
             log.Info("Write DispenseBuffy");
             int slice = pipettingSetting.dstPlasmaSlice;
             List<POINT> ptsDisp = positionGenerator.GetDestWells(rackIndex, slice,sampleIndexThisRack, samplesCountThisBatch);
             int grid = 0, site = 0;
-            CalculateDestBuffyGridAndSite(GetGlobalSampleIndex(rackIndex, sampleIndexThisRack), ref grid, ref site);
+            if(bOnlyOneSlicePerRegion)
+            {
+                CalculateDestGridAndSite4OnlyOnePerRegion(pipettingSetting.dstPlasmaSlice, ref grid, ref site);
+            }
+            else
+            {
+                CalculateDestBuffyGridAndSite(GetGlobalSampleIndex(rackIndex, sampleIndexThisRack), ref grid, ref site);
+            }
+                
             int tipShift = bNeedUseLastFour ? 4 : 0;
             WriteDispenseBuffy(ptsDisp, grid, site, sw, tipShift);
-           
-         
         }
 
         private void WriteMSDCommands(StreamWriter sw, int samplesInTheBatch, bool bNeedUseLastFour)
