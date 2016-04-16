@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using System.Reflection;
 using setTipVolCommand = System.Collections.Generic.List<string>;
 using System.Configuration;
+using Settings;
 #if DEBUG
 #else
 using NCalc;
@@ -617,7 +618,7 @@ namespace Biobanking
                 //throw new Exception("try to dispense to different regions.");
                 int endIndexFirstColumn = GetEndIndexForFirstColumn(srcRackIndex, sampleIndexInRack);
                 int firstColumnSampleCount = endIndexFirstColumn - srcRackIndex * labwareSettings.sourceWells - sampleIndexInRack + 1;
-                List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, firstColumnSampleCount);
+                List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, 0, sampleIndexInRack, firstColumnSampleCount);
                 int grid = 0, site = 0;
                 CalculateDestGridAndSite4OnlyOnePerRegion(sliceIndex, ref grid, ref site);
                 List<double> volumes1;
@@ -904,6 +905,8 @@ namespace Biobanking
         {
             log.Info("Write DispenseBuffy");
             int slice = pipettingSetting.dstPlasmaSlice;
+            if (bOnlyOneSlicePerRegion) //same as first slice
+                slice = 0;
             List<POINT> ptsDisp = positionGenerator.GetDestWells(rackIndex, slice,sampleIndexThisRack, samplesCountThisBatch);
             int grid = 0, site = 0;
             if(bOnlyOneSlicePerRegion)
