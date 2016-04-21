@@ -54,8 +54,25 @@ namespace Biobanking
             }
             return pts;
         }
+
+        internal List<POINT> GetDestWellsOneSlicePerRegion(int srcRackIndex, int startSample, int sampleCount)
+        {
+            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
+            List<POINT> pts = new List<POINT>();
+            for(int i = 0; i< sampleCount ; i++)
+            {
+                int nSampleIndex = nStartSampleIndex + i;
+                int col = nSampleIndex / labwareSettings.dstLabwareRows + 1;
+                int row = nSampleIndex - (col - 1) * labwareSettings.dstLabwareRows + 1;
+                pts.Add(new POINT(col, row));
+            }
+            return pts;
+        }
+
         internal List<POINT> GetDestWells(int srcRackIndex, int sliceIndex, int startSample, int sampleCount)
         {
+            if (pipettingSettings.onlyOneSlicePerRegion)
+                return GetDestWellsOneSlicePerRegion(srcRackIndex, startSample, sampleCount);
             int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
             int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
             int totalRow = labwareSettings.dstLabwareRows;
