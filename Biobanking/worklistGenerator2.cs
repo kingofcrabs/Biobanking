@@ -821,6 +821,9 @@ namespace Biobanking
             WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
             string sPPA = GetPPAString(samples,0, tipOffset);
             WriteComand(sPPA, sw);
+            WriteComment("Move plunger to absolut position 240 (about 80ul -> aspirate airgap)", sw);
+            sPPA = GetPPAString(samples, 240, tipOffset);
+            WriteComand(sPPA, sw);
             //WriteComment("Move tips up.", sw);
             //sw.WriteLine(sMoveLiha);
 
