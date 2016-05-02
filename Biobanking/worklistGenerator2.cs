@@ -821,9 +821,7 @@ namespace Biobanking
             WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
             string sPPA = GetPPAString(samples,0, tipOffset);
             WriteComand(sPPA, sw);
-            WriteComment("Move plunger to absolut position 240 (about 80ul -> aspirate airgap)", sw);
-            sPPA = GetPPAString(samples, 240, tipOffset);
-            WriteComand(sPPA, sw);
+            
             //WriteComment("Move tips up.", sw);
             //sw.WriteLine(sMoveLiha);
 
@@ -969,6 +967,15 @@ namespace Biobanking
                 WriteComment(string.Format("Move LiHa deltaZ down -times: {0}",i+1), sw);
                 WriteComand(sMoveLihaDown, sw);
             }
+            WriteComment("Move LiHa up to 15cm", sw);
+            var sMoveAbsoluteZ = GetMoveLihaAbsoluteZ(samplesInTheBatch, 1500, tipOffset);
+            WriteComment(string.Format("Aspirate airgap:{0}",pipettingSetting.airGap), sw);
+            WriteComand(sMoveAbsoluteZ, sw);
+
+            WriteComment(string.Format("Aspirate air gap: {0}",pipettingSetting.airGap), sw);
+            string sPPA = GetPPAString(samplesInTheBatch, pipettingSetting.airGap, tipOffset);
+            WriteComand(sPPA, sw);
+
             
         }
 
@@ -994,6 +1001,13 @@ namespace Biobanking
         {
             string s = "C5PPA";
             return GetCommandForAllTips(s, samplesThisBatch, pos, tipOffset);
+        }
+
+        //zposition, 0 is somewhere near table, so we assume 1500 => 15cm a good position
+        private string GetMoveLihaAbsoluteZ(int samplesInTheBatch, int zPosition, int tipOffset)
+        {
+            string s = "C5PAZ";
+            return GetCommandForAllTips(s, samplesInTheBatch, zPosition, tipOffset);
         }
 
         private string GetMoveLihaDown(int samplesInTheBatch, int deltaZ, int tipOffset)
