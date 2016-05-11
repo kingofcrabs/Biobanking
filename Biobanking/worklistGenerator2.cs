@@ -350,7 +350,7 @@ namespace Biobanking
                 }
             }
             pipettingSetting.safeDelta = orgDelta;
-            sw.WriteLine(string.Format("B;DropDiti({0},{1},2,10,70,0);", ditiMask,labwareSettings.wasteGrid));
+            sw.WriteLine(string.Format("B;DropDiti(255,{1},2,10,70,0);", ditiMask,labwareSettings.wasteGrid));
 
             int endSampleID = rackIndex * 16 + sampleIndexInRack + heightsThisTime.Count;
             if (endSampleID >= heights.Count)
@@ -821,7 +821,20 @@ namespace Biobanking
             WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
             string sPPA = GetPPAString(samples,0, tipOffset);
             WriteComand(sPPA, sw);
-            
+
+            WriteComment("Move LiHa up to 15cm", sw);
+            var sMoveAbsoluteZ = GetMoveLihaAbsoluteZ(samples, 1500, tipOffset);
+            WriteComand(sMoveAbsoluteZ, sw);
+
+            WriteComment("Set end speed for plungers", sw);
+            sSEP = GetSEPString(samples, 2400, tipOffset);
+            WriteComand(sSEP, sw);
+            WriteComment("Set stop speed for plungers", sw);
+            sSPP = GetSPPString(samples, 1500, tipOffset);
+            WriteComand(sSPP, sw);
+            WriteComment(string.Format("Aspirate air gap: {0}", pipettingSetting.airGap), sw);
+            sPPA = GetPPAString(samples, pipettingSetting.airGap, tipOffset);
+            WriteComand(sPPA, sw);
             //WriteComment("Move tips up.", sw);
             //sw.WriteLine(sMoveLiha);
 
@@ -967,14 +980,7 @@ namespace Biobanking
                 WriteComment(string.Format("Move LiHa deltaZ down -times: {0}",i+1), sw);
                 WriteComand(sMoveLihaDown, sw);
             }
-            WriteComment("Move LiHa up to 15cm", sw);
-            var sMoveAbsoluteZ = GetMoveLihaAbsoluteZ(samplesInTheBatch, 1500, tipOffset);
-            WriteComment(string.Format("Aspirate airgap:{0}",pipettingSetting.airGap), sw);
-            WriteComand(sMoveAbsoluteZ, sw);
-
-            WriteComment(string.Format("Aspirate air gap: {0}",pipettingSetting.airGap), sw);
-            string sPPA = GetPPAString(samplesInTheBatch, pipettingSetting.airGap, tipOffset);
-            WriteComand(sPPA, sw);
+            
 
             
         }
