@@ -115,7 +115,7 @@ namespace Biobanking {
         }
         
         /// <summary>
-        ///   查找类似 1.08 的本地化字符串。
+        ///   查找类似 1.10 的本地化字符串。
         /// </summary>
         internal static string version {
             get {

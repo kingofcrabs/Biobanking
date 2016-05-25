@@ -321,6 +321,8 @@ namespace Biobanking
                 
                 //4 asp buffy using MSD
                 WriteMSDCommands(sw, heightsThisTime.Count,bNeedUseLastFour);
+
+
                 //5 dispense buffy
                 if (inSameColumn)
                 {
@@ -806,34 +808,55 @@ namespace Biobanking
         private void WriteDispenseBuffyNoCheck(List<POINT> pts, int grid,int site, StreamWriter sw, int tipOffset)
         {
             log.Info("WriteDispenseBuffy for certain region");
-            int samples = pts.Count;
-            int ditiMask = GetTipSelection(samples,tipOffset);
-            //List<POINT> pts = positionGenerator.GetDestWellsForCertainSliceOfOneBatch(batchIndex,0,false);
+            int sampleCnt = pts.Count;
+            int ditiMask = GetTipSelection(sampleCnt,tipOffset);
+            List<double> vols = new List<double>();
+            for(int i = 0; i < sampleCnt; i++)
+            {
+                double vol = i >= tipOffset ? 10:0 ;
+                vols.Add(vol);
+            }
+
+            string sVolumes = "";
+            for (int i = 0; i < 12; i++)
+            {
+                string sTmp = "";
+                if (i < vols.Count) // has the volume
+                    sTmp = string.Format("\"{0}\",", vols[i]);
+                else
+                    sTmp = "0,";
+                sVolumes += sTmp;
+            }
+
+             //List<POINT> pts = positionGenerator.GetDestWellsForCertainSliceOfOneBatch(batchIndex,0,false);
             string sWellSelection = GetWellSelection(labwareSettings.dstLabwareColumns, labwareSettings.dstLabwareRows, pts);
+            string sDispense = string.Format("B;{0}({1},\"{2}\",{3}{4},{5},1,\"{6}\", 0, 0);", "Dispense", ditiMask, BB_Buffy, sVolumes, grid, site, sWellSelection);
+            WriteComment("Write Dispense for sample tracking", sw);
+            sw.WriteLine(sDispense);
             string sMoveLiha = string.Format("B;MoveLiha({0},{1},{2},1,\"{3}\",0,1,0,10,0,0);", ditiMask, grid,site, sWellSelection);
             sw.WriteLine(sMoveLiha);
             WriteComment("Set end speed for plungers", sw);
-            string sSEP = GetSEPString(samples, 2400, tipOffset);
+            string sSEP = GetSEPString(sampleCnt, 2400, tipOffset);
             WriteComand(sSEP, sw);
             WriteComment("Set stop speed for plungers", sw);
-            string sSPP = GetSPPString(samples, 1500 , tipOffset);
+            string sSPP = GetSPPString(sampleCnt, 1500 , tipOffset);
             WriteComand(sSPP, sw);
             WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
-            string sPPA = GetPPAString(samples,0, tipOffset);
+            string sPPA = GetPPAString(sampleCnt,0, tipOffset);
             WriteComand(sPPA, sw);
 
             WriteComment("Move LiHa up to 15cm", sw);
-            var sMoveAbsoluteZ = GetMoveLihaAbsoluteZ(samples, 1500, tipOffset);
+            var sMoveAbsoluteZ = GetMoveLihaAbsoluteZ(sampleCnt, 1500, tipOffset);
             WriteComand(sMoveAbsoluteZ, sw);
 
             WriteComment("Set end speed for plungers", sw);
-            sSEP = GetSEPString(samples, 2400, tipOffset);
+            sSEP = GetSEPString(sampleCnt, 2400, tipOffset);
             WriteComand(sSEP, sw);
             WriteComment("Set stop speed for plungers", sw);
-            sSPP = GetSPPString(samples, 1500, tipOffset);
+            sSPP = GetSPPString(sampleCnt, 1500, tipOffset);
             WriteComand(sSPP, sw);
             WriteComment(string.Format("Aspirate air gap: {0}", pipettingSetting.airGap), sw);
-            sPPA = GetPPAString(samples, pipettingSetting.airGap, tipOffset);
+            sPPA = GetPPAString(sampleCnt, pipettingSetting.airGap, tipOffset);
             WriteComand(sPPA, sw);
             //WriteComment("Move tips up.", sw);
             //sw.WriteLine(sMoveLiha);
@@ -844,7 +867,7 @@ namespace Biobanking
             if (buffySlice > 1) //need dispense the buffy
             {
                 volumes.Clear();
-                for (int i = 0; i < startTip + samples; i++)
+                for (int i = 0; i < startTip + sampleCnt; i++)
                 {
                     if (i < startTip || buffySlice == 0)
                         volumes.Add(0);
@@ -918,6 +941,7 @@ namespace Biobanking
             if (bOnlyOneSlicePerRegion) //same as first slice
                 slice = 0;
             List<POINT> ptsDisp = positionGenerator.GetDestWells(rackIndex, slice,sampleIndexThisRack, samplesCountThisBatch);
+
             int grid = 0, site = 0;
             if(bOnlyOneSlicePerRegion)
             {
