@@ -105,7 +105,7 @@ namespace Biobanking
     public class DestRackInfos
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private List<DestRack> rackInfos;
+        private List<DestRack> rackInfos = null;
         public List<DestRack> RackInfos
         {
             get

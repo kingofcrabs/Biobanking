@@ -11,7 +11,6 @@ using Settings;
 #if DEBUG
 #else
 using NCalc;
-using Settings;
 #endif
 
 namespace Biobanking
@@ -106,6 +105,7 @@ namespace Biobanking
         LabwareSettings labwareSettings = new LabwareSettings();
         List<int> destPlasmaPos = new List<int>();
         PositionGenerator positionGenerator;
+        MappingCalculator mappingCalculator;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         const string BBPlasmaFast = "BB_Plasma_Fast";
@@ -123,7 +123,7 @@ namespace Biobanking
 
             heights = ResultReader.Instance.Read();
             log.Info("read heights");
-
+            mappingCalculator = new MappingCalculator(Settings.Utility.GetExeFolder() + Settings.stringRes.calibFileName);
             //PreparePlasmaDestPositions();
             positionGenerator = new PositionGenerator(pipettingSetting, labwareSettings,heights.Count);
             string errMsg = "";
@@ -204,7 +204,9 @@ namespace Biobanking
             {
                 double z1 = heightsThisTime[i].Z1;
                 double z2 = heightsThisTime[i].Z2;
-                double totalPlasmaVolume = (z1 - z2 - pipettingSetting.safeDelta) * area;
+               
+                double totalPlasmaVolume = mappingCalculator.GetVolume(z1) - mappingCalculator.GetVolume(z2)
+                    - pipettingSetting.safeDelta * area;
                 int plasmaSlice = pipettingSetting.dstPlasmaSlice;
                 if (pipettingSetting.plasmaGreedyVolume != 0)
                 {
@@ -226,7 +228,8 @@ namespace Biobanking
             {
                 double z1 = heightsThisTime[i].Z1;
                 double z2 = heightsThisTime[i].Z2;
-                double totalPlasmaVolume = (z1 - z2 - pipettingSetting.safeDelta) * area;
+                double totalPlasmaVolume = mappingCalculator.GetVolume(z1) - mappingCalculator.GetVolume(z2)
+                  - pipettingSetting.safeDelta * area;
                 int plasmaSlice = pipettingSetting.dstPlasmaSlice;
                 if( pipettingSetting.plasmaGreedyVolume != 0)
                 {
@@ -308,9 +311,8 @@ namespace Biobanking
                 for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
                 {
                     // set tip_volume 
-                    double z1 = heightsThisTime[tipIndex].Z1;
                     double z2 = heightsThisTime[tipIndex].Z2;
-                    double volume2Set = CalculateTipVolume(0, heightsThisTime[tipIndex], false, true);
+                    int volume2Set = CalculateBuffyTipVolume(z2);//CalculateTipVolume(0, heightsThisTime[tipIndex], false, true);
                     WriteSetVolString(tipIndex + tipOffSet, volume2Set, sw);
                     buffyvolumes.Add(10); //为了让tip_volumen_x起作用，加10ul
                 }
@@ -364,6 +366,11 @@ namespace Biobanking
             
         }
 
+        private int CalculateBuffyTipVolume(double z2)
+        {
+            return mappingCalculator.GetTipVolume(z2 + pipettingSetting.msdStartPositionAboveBuffy);
+        }
+
         private int GetTipOffSet(bool bNeedUseLastFour)
         {
              return bNeedUseLastFour ? 4 : 0;
@@ -398,7 +405,6 @@ namespace Biobanking
 
         private void GenerateForSlice(int slice, int totalSlice, List<POINT> ptsAsp, int srcRackIndex,int sampleIndexInRack, List<DetectedHeight> heightsThisTime, StreamWriter sw,bool isRedCell = false)
         {
-            //如果plasma体积很大，分成多次pipetting,最多10次，8.5ml，
             List<List<double>> volumesList = new List<List<double>>();
             List<List<setTipVolCommand>> eachTimesCommands = new List<List<List<string>>>();
             List<List<double>> eachTimesHeights = new List<List<double>>();
@@ -413,7 +419,7 @@ namespace Biobanking
                 eachTimesCommands.Add(new List<List<string>>());
                 eachTimesHeights.Add(new List<double>());
             }
-            
+
             double r = pipettingSetting.r_mm;
             double area = 3.14159265 * r * r;
             int maxVolPerTip = 850;
@@ -426,7 +432,7 @@ namespace Biobanking
                 // set tip_volume 
                 double z1 = heightsThisTime[tipIndex].Z1;
                 double z2 = heightsThisTime[tipIndex].Z2;
-                double aspHeight = CalcuAspirateHeight(slice, totalSlice, z1, z2,isRedCell);
+                double aspHeight = CalcuAspirateHeight(slice, totalSlice, z1, z2);
                 double volumeTheTip = CalculateAspirateVolume(slice, totalSlice, z1, z2, isRedCell);//
                 volumeTheTip = Math.Min(maxVolmaxVolumePerSlice, volumeTheTip);
                 for (int times = 0; times < 10; times++)
@@ -447,14 +453,14 @@ namespace Biobanking
                     //现在volumeTheTip中就是这次吸完后剩下的体积
                     double offsetUp = volumeTheTip / area;
                     double adjustedHeight = aspHeight + offsetUp;
-                    
+
                     double tipVolume2Set = CalculateTipVolume(adjustedHeight, heightsThisTime[tipIndex], slice == totalSlice - 1);
                     eachTimesCommands[times].Add(GetSetVolString(tipIndex + tipOffset, tipVolume2Set));
                     eachTimesHeights[times].Add(adjustedHeight);
                 }
             }
             //foreach (List<double> volumes in volumesList)
-            for(int times = 0; times < volumesList.Count; times++)
+            for (int times = 0; times < volumesList.Count; times++)
             {
                 string sLiquidClass = BBPlasmaFast;
                 List<double> volumes = volumesList[times];                          //所有枪头这次需要吸液的量
@@ -462,34 +468,80 @@ namespace Biobanking
                 if (volumes.Sum() == 0)
                     continue;
 
-                List<setTipVolCommand> thisTimeCommands = eachTimesCommands[times]; //所有枪头这次Tip_Volume_X的相应设置命令
-                List<double> height = eachTimesHeights[times];
+                List<double> heights = eachTimesHeights[times];
 
                 WriteComment(string.Format("aspirate times : {0}", times+1), sw);
                 //set tipvolume for the tip need to do aspiration
-                double smalleastDiff = 999;
-                for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
-                {
-                    if (volumes[tipIndex] != 0)
-                    {
-                        WriteComment(string.Format("aspirate at height: {0} for tip {1}", height[tipIndex], tipIndex + tipOffset + 1), sw);
-                        foreach (string s in thisTimeCommands[tipIndex])
-                            sw.WriteLine(s);
-
-                        double diff = height[tipIndex] - heightsThisTime[tipIndex].Z2;
-                        if (diff < smalleastDiff)
-                            smalleastDiff = diff;
-                    }
-                }
-
+                double smalleastDiff =  GetSmallestDiff(volumes, heights, heightsThisTime);
                 if (smalleastDiff < 10)
                 {
                     sLiquidClass = BBPlasmaMedium;
                     if (smalleastDiff < 5)
+                    {
                         sLiquidClass = BBPlasmaSlow;
+                        if(pipettingSetting.fixedPositionNearBuffy)
+                        {
+                            var thisTimeCommands = eachTimesCommands[times];
+                            for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
+                            {
+                                if (volumes[tipIndex] != 0)
+                                {
+                                    WriteComment(string.Format("aspirate at height: {0} for tip {1}", heights[tipIndex], tipIndex + tipOffset + 1), sw);
+                                    foreach (string s in thisTimeCommands[tipIndex])
+                                        sw.WriteLine(s);
+                                }
+                            }
+                        }
+                        
+                    }
+                        
                 }
+                
                 ProcessCurrentSlice(ptsAsp, volumes, sLiquidClass, srcRackIndex, slice, sampleIndexInRack, sw,isRedCell);
             }
+        }
+
+        private double GetSmallestDiff(List<double> volumes, List<double> heights , List<DetectedHeight> heightsThisTime)
+        {
+            double smalleastDiff = 999;
+            for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
+            {
+                if (volumes[tipIndex] != 0)
+                {
+                    //WriteComment(string.Format("aspirate at height: {0} for tip {1}", height[tipIndex], tipIndex + tipOffset + 1), sw);
+                    //foreach (string s in thisTimeCommands[tipIndex])
+                    //    sw.WriteLine(s);
+
+                    double diff = heights[tipIndex] - heightsThisTime[tipIndex].Z2;
+                    if (diff < smalleastDiff)
+                        smalleastDiff = diff;
+                }
+            }
+            return smalleastDiff;
+        }
+
+        //private double GetSmallestDiff(List<double> volumes, List<double> heights)
+        //{
+        //    double smalleastDiff = 999;
+        //    for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
+        //    {
+        //        if (volumes[tipIndex] != 0)
+        //        {
+        //            //WriteComment(string.Format("aspirate at height: {0} for tip {1}", height[tipIndex], tipIndex + tipOffset + 1), sw);
+        //            //foreach (string s in thisTimeCommands[tipIndex])
+        //            //    sw.WriteLine(s);
+
+        //            double diff = heights[tipIndex] - heightsThisTime[tipIndex].Z2;
+        //            if (diff < smalleastDiff)
+        //                smalleastDiff = diff;
+        //        }
+        //    }
+        //    return smalleastDiff;
+        //}
+
+        double GetRealVolume(double z)
+        {
+            return 0;
         }
 
   
@@ -500,10 +552,11 @@ namespace Biobanking
             double aspirateVol = 0;
             bool plasmaGreed = (!isRedCell) && (pipettingSetting.plasmaGreedyVolume != 0);
             bool redCellGreed = isRedCell && (pipettingSetting.redCellGreedyVolume != 0);
-                
-            if(plasmaGreed || redCellGreed)
+            double totalPlasmaVolume = mappingCalculator.GetVolume(z1) - mappingCalculator.GetVolume(z2)
+                    - pipettingSetting.safeDelta * area;
+            if (plasmaGreed || redCellGreed)
             {
-                double totalPlasmaVolume = (z1 - z2 - pipettingSetting.safeDelta) * area;
+                
                 double greedyVolume = isRedCell ? pipettingSetting.redCellGreedyVolume : pipettingSetting.plasmaGreedyVolume;
                 double curVolume = (curSlice + 1) * greedyVolume;
                 double lastVolume = curSlice * greedyVolume;
@@ -527,48 +580,38 @@ namespace Biobanking
                 }
             }
             else
-                aspirateVol = area * (z1 - z2 - pipettingSetting.safeDelta) / totalSlice;//平均吸取
+                aspirateVol = totalPlasmaVolume / totalSlice;//平均吸取
 
             if (aspirateVol < 0)
                 aspirateVol = 0;
             return aspirateVol;
         }
 
-        private double CalcuAspirateHeight(int curSlice, int totalSlice, double z1, double z2, bool isRedCell)
+        private double CalcuAspirateHeight(int curSlice, int totalSlice, double z1, double z2)
         {
-            double aspHeight;
-            bool plasmaGreed = (!isRedCell) && (pipettingSetting.plasmaGreedyVolume != 0);
-            bool redCellGreed = isRedCell && (pipettingSetting.redCellGreedyVolume != 0);
-
+            double r = pipettingSetting.r_mm;
+            double area = 3.14159265 * r * r;
+            double totalVolume = mappingCalculator.GetVolume(z1) - mappingCalculator.GetVolume(z2)
+                    - pipettingSetting.safeDelta * area;
             double safeHeight = z2 + pipettingSetting.safeDelta;
-            if (plasmaGreed || redCellGreed)
+            double remainVolume = 0;
+            double needVolume;
+            if (pipettingSetting.plasmaGreedyVolume != 0)// greedy
             {
-                double greedyVolume = isRedCell ? pipettingSetting.redCellGreedyVolume : pipettingSetting.plasmaGreedyVolume;
-
-                double r = pipettingSetting.r_mm;
-                double area = 3.14159265 * r * r;
-                double totalVolume = (z1 - z2 - pipettingSetting.safeDelta) * area;
-                
-                double curVolume = (curSlice + 1) * greedyVolume;
-                if ( curVolume> totalVolume)
-                    aspHeight = safeHeight;
-                else
-                    aspHeight = z1 - (curVolume / area);
+                //see whether enough
+                needVolume = (curSlice + 1) * pipettingSetting.plasmaGreedyVolume;
+                if (needVolume > totalVolume)
+                    return safeHeight;
             }
-            else //平均吸取
+            else
             {
-                aspHeight = z1 - (curSlice + 1) * (z1 - z2 - pipettingSetting.safeDelta) / totalSlice;
+                needVolume = totalVolume * (curSlice + 1) / totalSlice;
             }
-
-            if (!isRedCell) //每管都多插2mm，确保能吸到足够的液体
-            {
-                if( aspHeight - safeHeight > 2)
-                    aspHeight -= 2;
-            }
-            return aspHeight;
+            remainVolume = mappingCalculator.GetVolume(z1) - needVolume;
+            return mappingCalculator.GetHeight(remainVolume);
         }
 
-    
+
 
         private int GetSrcGrid(int rackIndex)
         {
@@ -964,8 +1007,8 @@ namespace Biobanking
             double speedFactor = pipettingSetting.buffySpeedFactor;
             int speedXY = (int)(60 * speedFactor);
             double area = 3.1415926 * pipettingSetting.r_mm * pipettingSetting.r_mm;
-            double deltaZPerLayer = (pipettingSetting.buffyVolume * 10 / area / (2 * pipettingSetting.buffyAspirateLayers));
-            double adjustedZPerLayer = deltaZPerLayer + pipettingSetting.msdZDistance * 10 / (2 * pipettingSetting.buffyAspirateLayers);
+            double totalHmm = pipettingSetting.buffyVolume * 10 / area;
+            double adjustedZPerLayer = (totalHmm + pipettingSetting.msdZDistance * 10) / (2 * pipettingSetting.buffyAspirateLayers);
             
             int deltaXY = pipettingSetting.deltaXYForMSD;
             
@@ -1200,29 +1243,11 @@ namespace Biobanking
             double safeHeight = detectHeight.Z2 + pipettingSetting.safeDelta;
             if (isBuffy)
                 aspHeight = detectHeight.Z2 + 1;
-            else 
+            else if (aspHeight < safeHeight)
             {
-                //if (isLastSlicePlasma)
-                //{
-                //    aspHeight = safeHeight;
-                //}
-                //else
-                {
-                    if (aspHeight < safeHeight)
-                        aspHeight = safeHeight;
-                }
+               aspHeight = safeHeight;
             }
-            
-            string sExpression = ConfigurationManager.AppSettings[stringRes.expression];
-            sExpression = sExpression.Replace("height_mm", aspHeight.ToString());
-#if DEBUG
-            double vol = 100 * aspHeight - 200;
-#else
-            Expression e = new Expression(sExpression);
-            double vol = double.Parse(e.Evaluate().ToString());
-#endif
-           
-            return vol;
+            return mappingCalculator.GetTipVolume(aspHeight);
         }
  
         private void WriteRacksCount(int n)
