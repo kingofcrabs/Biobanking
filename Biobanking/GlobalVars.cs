@@ -24,7 +24,6 @@ namespace Biobanking
         private GlobalVars()
         {
             DstBarcodeFolder = ConfigurationManager.AppSettings["DstBarcodeFolder"];
-            GenerateEsc = bool.Parse(ConfigurationManager.AppSettings["GenerateESC"]);
             ResultFile = ConfigurationManager.AppSettings[stringRes.reportPath];
             string sFileStruct = Settings.Utility.GetExeFolder() + "fileStruct.xml";
             TrackBarcode = bool.Parse(ConfigurationManager.AppSettings["TrackBarcode"]);
@@ -42,7 +41,6 @@ namespace Biobanking
         }
 
         public bool TrackBarcode { get; set; }
-        public bool GenerateEsc { get; set; }
         public string ResultFile { get; set; }
         public string DstBarcodeFolder { get; set; }
         public FileStruct FileStruct { get; set; }

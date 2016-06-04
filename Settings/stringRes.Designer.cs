@@ -36,7 +36,7 @@ namespace Settings {
         ///   返回此类使用的缓存的 ResourceManager 实例。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Settings.stringRes", typeof(stringRes).Assembly);
@@ -51,7 +51,7 @@ namespace Settings {
         ///   重写当前线程的 CurrentUICulture 属性。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,20 +61,56 @@ namespace Settings {
         }
         
         /// <summary>
+        ///   查找类似 calibrations.XML 的本地化字符串。
+        /// </summary>
+        public static string calibFileName {
+            get {
+                return ResourceManager.GetString("calibFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 labwareSettings.XML 的本地化字符串。
         /// </summary>
-        internal static string labwareSettingFileName {
+        public static string labwareSettingFileName {
             get {
                 return ResourceManager.GetString("labwareSettingFileName", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   查找类似 maxSampleCount 的本地化字符串。
+        /// </summary>
+        public static string maxSampleCount {
+            get {
+                return ResourceManager.GetString("maxSampleCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 pipettingSettings.XML 的本地化字符串。
         /// </summary>
-        internal static string pipettingSettingFileName {
+        public static string pipettingSettingFileName {
             get {
                 return ResourceManager.GetString("pipettingSettingFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 sampleCount.txt 的本地化字符串。
+        /// </summary>
+        public static string SampleCountFile {
+            get {
+                return ResourceManager.GetString("SampleCountFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 tubeSettings.XML 的本地化字符串。
+        /// </summary>
+        public static string tubeSettingFileName {
+            get {
+                return ResourceManager.GetString("tubeSettingFileName", resourceCulture);
             }
         }
     }

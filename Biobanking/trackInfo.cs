@@ -84,25 +84,33 @@ namespace Biobanking
 
         internal void WriteResult()
         {
-            string sFolder = Utility.GetOutputFolder() +"\\"+ DateTime.Now.ToString("yyyyMMdd");
+            string sFolder = Utility.GetOutputFolder() + DateTime.Now.ToString("yyyyMMdd")+"\\";
             if (!Directory.Exists(sFolder))
                 Directory.CreateDirectory(sFolder);
-            var sFile = sFolder + "\\" + DateTime.Now.ToString("HHmmss")+".csv";
+            sFolder += DateTime.Now.ToString("HHmmss") + "\\";
+            if (!Directory.Exists(sFolder))
+                Directory.CreateDirectory(sFolder);
+            var sCSVFile = sFolder + "track.csv";
+            var sExcelFile = sFolder + "track.xls";
             List<string> strs = FormatInfos();
-            File.WriteAllLines(sFile, strs);
+            
+            File.WriteAllLines(sCSVFile, strs);
+            ExcelReader.SaveAsExcel(sCSVFile, sExcelFile);
         }
+
+        
 
         private List<string> FormatInfos()
         {
             List<string> strs = new List<string>();
-            strs.Add("Sample Source,Barcode,Sample Type,Volume");
+            strs.Add("Barcode,Sample Source,Sample Type,Volume");
             trackInfos.ForEach(x => Format(x, strs));
             return strs;
         }
 
         private void Format(TrackInfo info, List<string> strs)
         {
-            string s = string.Format("{0},{1},{2},{3}", info.sourceBarcode, info.dstBarcode, info.description, info.volume);
+            string s = string.Format("{0},{1},{2},{3}", info.dstBarcode, info.sourceBarcode, info.description, info.volume);
             strs.Add(s);
         }
     }

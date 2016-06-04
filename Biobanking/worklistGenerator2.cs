@@ -116,6 +116,7 @@ namespace Biobanking
             SettingsHelper settingHelper = new SettingsHelper();
             log.Info("load settings");
             settingHelper.LoadSettings(ref pipettingSetting, ref labwareSettings);
+            settingHelper.SaveSettings(pipettingSetting);
             detectInfos = ResultReader.Instance.Read();
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker = new BarcodeTracker(pipettingSetting, labwareSettings, detectInfos.Select(x=>x.sBarcode).ToList());
@@ -163,13 +164,13 @@ namespace Biobanking
             }
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker.WriteResult();
+            
             return true;
         }
 
         private void GenerateForBatch(string sOutput,int rackIndex, int sampleIndexInRack, List<DetectedInfo> heightsThisTime)
         {
-            if (GlobalVars.Instance.GenerateEsc)
-                breakPrefix = "";
+        
 
             bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
             log.InfoFormat("rack index : {0}, start sample : {1}", rackIndex, sampleIndexInRack);
@@ -182,30 +183,15 @@ namespace Biobanking
                 ditiMask += (int)Math.Pow(2, i);
 
             //create batch file
-            string suffix = GlobalVars.Instance.GenerateEsc ? ".esc" : ".gwl";
+            string suffix = ".gwl";
             string sBatchFile = sOutput + string.Format("\\worklist{0}{1}",batchID,suffix);
             
             if (File.Exists(sBatchFile))
                 File.Delete(sBatchFile);
             FileStream fs = new FileStream(sBatchFile, FileMode.CreateNew);
             StreamWriter sw = new StreamWriter(fs, Encoding.Default);
-            
-            if(GlobalVars.Instance.GenerateEsc)
-            {
-                string tubeSettingFilePath = Utility.GetExeFolder() + Settings.stringRes.tubeSettingFileName;
-                var s = File.ReadAllText(tubeSettingFilePath);
-                string escFilePath =  Utility.Deserialize<TubeSettings>(s).escFile;
-                if (!File.Exists(escFilePath))
-                    throw new Exception(string.Format("Cannot find esc file at {0}!",escFilePath));
-                List<string> sContents = File.ReadAllLines(escFilePath).ToList();
-                int index = sContents.IndexOf("--{ RPG }--");
-                sContents = sContents.Take(index+1).ToList();
-                sContents.ForEach(x => sw.WriteLine(x));
-            }
-            else
-            {
-                sw.WriteLine("W;");
-            }
+            sw.WriteLine("W;");
+         
                 
             string sNotifierFolder = ConfigurationManager.AppSettings["NotifierFolder"];
           
@@ -394,19 +380,19 @@ namespace Biobanking
                     if (smalleastDiff < 5)
                     {
                         sLiquidClass = BBPlasmaSlow;
-                        if (pipettingSetting.fixedPositionNearBuffy)
-                        {
-                            var thisTimeCommands = eachTimesCommands[times];
-                            for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
-                            {
-                                if (volumes[tipIndex] != 0)
-                                {
-                                    WriteComment(string.Format("aspirate at height: {0} for tip {1}", heights[tipIndex], tipIndex + tipOffset + 1), sw);
-                                    foreach (string s in thisTimeCommands[tipIndex])
-                                        sw.WriteLine(s);
-                                }
-                            }
-                        }
+                        //if (pipettingSetting.fixedPositionNearBuffy)
+                        //{
+                        //    var thisTimeCommands = eachTimesCommands[times];
+                        //    for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
+                        //    {
+                        //        if (volumes[tipIndex] != 0)
+                        //        {
+                        //            WriteComment(string.Format("aspirate at height: {0} for tip {1}", heights[tipIndex], tipIndex + tipOffset + 1), sw);
+                        //            foreach (string s in thisTimeCommands[tipIndex])
+                        //                sw.WriteLine(s);
+                        //        }
+                        //    }
+                        //}
                     }
                 }
                 

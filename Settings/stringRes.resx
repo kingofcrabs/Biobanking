@@ -120,7 +120,19 @@
   <data name="labwareSettingFileName" xml:space="preserve">
     <value>labwareSettings.XML</value>
   </data>
+  <data name="maxSampleCount" xml:space="preserve">
+    <value>maxSampleCount</value>
+  </data>
   <data name="pipettingSettingFileName" xml:space="preserve">
     <value>pipettingSettings.XML</value>
+  </data>
+  <data name="SampleCountFile" xml:space="preserve">
+    <value>sampleCount.txt</value>
+  </data>
+  <data name="tubeSettingFileName" xml:space="preserve">
+    <value>tubeSettings.XML</value>
+  </data>
+  <data name="calibFileName" xml:space="preserve">
+    <value>calibrations.XML</value>
   </data>
 </root>

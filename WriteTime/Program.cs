@@ -13,7 +13,7 @@ namespace WriteTime
         static void Main(string[] args)
         {
             string sFile = Utility.GetOutputFolder() + "barcodeTime.txt";
-            File.WriteAllText(sFile, DateTime.Now.ToString("hhmm"));
+            File.WriteAllText(sFile, DateTime.Now.ToString("HHmm"));
         }
     }
 }

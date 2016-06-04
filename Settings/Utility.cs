@@ -114,11 +114,7 @@ namespace Settings
             return sSaveFolder;
         }
 
-        static public string GetDataFolder()
-        {
-            string s = GetExeFolder() + stringRes.dataFolder;
-            return s;
-        }
+      
         #endregion
         public static void SaveSettings<T>(T settings, string sFile)
         {

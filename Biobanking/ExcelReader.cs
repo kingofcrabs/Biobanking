@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,7 +32,7 @@ namespace Biobanking
             log.InfoFormat("File name: {0}", lastBatch.Name);
             string sTimeFile = Utility.GetOutputFolder() + "barcodeTime.txt";
             var experimentTime = File.ReadAllText(sTimeFile);
-            var fileTime = lastBatch.LastWriteTime.ToString("hhmm");
+            var fileTime = lastBatch.LastWriteTime.ToString("HHmm");
             if(int.Parse(fileTime) < int.Parse(experimentTime))
             {
                 log.InfoFormat("File time is:{0}, experiment time is:{1}", fileTime, experimentTime);
@@ -66,7 +67,7 @@ namespace Biobanking
             foreach(var s in strs)
             {
                 var subStrs = s.Split(',');
-                var position = subStrs[GlobalVars.Instance.FileStruct.dstBarcodePositionIndex];
+                var position = subStrs[GlobalVars.Instance.FileStruct.dstSamplePosition];
                 var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
                 barcodesThisPlate.Add(position,barcode);
             }
@@ -89,7 +90,6 @@ namespace Biobanking
                 }
                 
             }
-            Console.WriteLine("this file done!");
         }
 
         private void SaveAsCSV(List<string> sheetPaths)
@@ -114,6 +114,25 @@ namespace Biobanking
                 wbWorkbook.Close();
                 Console.WriteLine(sCSVFile);
             }
+            app.Quit();
+        }
+
+
+        public static void SaveAsExcel(string sCSVFile, string sExcelFile)
+        {
+          
+            Workbooks excelWorkBooks = null;
+            Workbook excelWorkBook = null;
+            Worksheet excelWorkSheet = null;
+
+            Application app = new Application();
+            app.Visible = false;
+            app.DisplayAlerts = false;
+            excelWorkBooks = app.Workbooks;
+            excelWorkBook = ((Workbook)excelWorkBooks.Open(sCSVFile, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value));
+            excelWorkSheet = (Worksheet)excelWorkBook.Worksheets[1];
+            excelWorkBook.SaveAs(sExcelFile, XlFileFormat.xlAddIn8, Missing.Value, Missing.Value, Missing.Value, Missing.Value, XlSaveAsAccessMode.xlNoChange, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value);
+            excelWorkBook.Close();
             app.Quit();
         }
     }

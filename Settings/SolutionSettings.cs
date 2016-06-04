@@ -9,7 +9,65 @@ using System.Xml;
 
 namespace Settings
 {
+    [Serializable]
+    public class CalibrationItem
+    {
+        public int tipVolume;
+        public int volumeUL;
+        public double height;
+        public CalibrationItem(double h, int v,int tipV)
+        {
+            tipVolume = tipV;
+            volumeUL = v;
+            height = h;
+        }
+        public CalibrationItem()
+        {
 
+        }
+    }
+
+    [Serializable]
+    public class CalibrationItems
+    {
+        public CalibrationItems(List<CalibrationItem> items)
+        {
+            calibItems = new List<CalibrationItem>(items);
+        }
+
+        public CalibrationItems()
+        {
+            calibItems = new List<CalibrationItem>();
+        }
+
+        public List<CalibrationItem> calibItems { get; set; }
+    }
+
+
+    [Serializable]
+    public class FileStruct
+    {
+        public int noIndex; //sample id;
+        public int srcBarcodeIndex; // barcode index in source file, it is always 0
+        public int dstBarcodeIndex; // column index in dst file
+        //public FileStruct(int idIndex, int srcBarcodeIndex, int dstBarcodeIndex)
+        //{
+        //    noIndex = idIndex;
+        //    this.srcBarcodeIndex = srcBarcodeIndex;
+        //    this.dstBarcodeIndex = dstBarcodeIndex;
+        //}
+        public FileStruct()
+        {
+            noIndex = 0;
+            srcBarcodeIndex = 0;
+            dstBarcodeIndex = 2;
+            dstSamplePosition = 1;
+        }
+
+
+
+        public int dstSamplePosition { get; set; }
+    }
   
     [Serializable]
     public class TubeSetting
@@ -59,6 +117,9 @@ namespace Settings
         public double msdStartPositionAboveBuffy;
         public bool onlyOneSlicePerRegion;
         public int airGap;
+        public int bottomOffsetmm;
+        public int maxVolumePerSlice;
+        public int retractHeightcm;
         public PipettingSettings()
         {
             buffyAspirateLayers = 6;
@@ -78,6 +139,10 @@ namespace Settings
             msdStartPositionAboveBuffy = 1;
             onlyOneSlicePerRegion = false;
             airGap = 70;
+            bottomOffsetmm = 388;
+            retractHeightcm = 10;
+            maxVolumePerSlice = 5000;
+
         }
     }
 
@@ -181,7 +246,8 @@ namespace Settings
 
             XmlSerializer xs = new XmlSerializer(typeof(PipettingSettings));
             string sFile = GetExeFolder() + "\\" + stringRes.pipettingSettingFileName;
-
+            if (File.Exists(sFile))
+                File.Delete(sFile);
             Stream stream = new FileStream(sFile, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
             xs.Serialize(stream, settings);
             stream.Close();
@@ -191,7 +257,8 @@ namespace Settings
         {
             XmlSerializer xs = new XmlSerializer(typeof(LabwareSettings));
             string sFile = GetExeFolder() + "\\" + stringRes.labwareSettingFileName;
-
+            if (File.Exists(sFile))
+                File.Delete(sFile);
             Stream stream = new FileStream(sFile, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
             xs.Serialize(stream, labwareSettings);
             stream.Close();
