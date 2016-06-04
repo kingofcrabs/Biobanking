@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<PipettingSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <buffyAspirateLayers>6</buffyAspirateLayers>
+  <dstPlasmaSlice>3</dstPlasmaSlice>
+  <dstbuffySlice>1</dstbuffySlice>
+  <deltaXYForMSD>8</deltaXYForMSD>
+  <buffyVolume>500</buffyVolume>
+  <safeDelta>2</safeDelta>
+  <buffySpeedFactor>2</buffySpeedFactor>
+  <plasmaGreedyVolume>0</plasmaGreedyVolume>
+  <giveUpNotEnough>false</giveUpNotEnough>
+  <msdZDistance>2</msdZDistance>
+  <msdStartPositionAboveBuffy>1.5</msdStartPositionAboveBuffy>
+  <onlyOneSlicePerRegion>true</onlyOneSlicePerRegion>
+  <retractHeightcm>10</retractHeightcm>
+  <fixedPositionNearBuffy>false</fixedPositionNearBuffy>
+  <airGap>70</airGap>
+  <bottomOffsetmm>395</bottomOffsetmm>
+  <maxVolumePerSlice>5000</maxVolumePerSlice>
+</PipettingSettings>

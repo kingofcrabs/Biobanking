@@ -22,7 +22,7 @@ namespace Settings {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class stringRes {
+    public class stringRes {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
