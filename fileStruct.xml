@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<FileStruct xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<FileStruct xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <dstBarcodeIndex>2</dstBarcodeIndex>
   <srcBarcodeIndex>0</srcBarcodeIndex>
   <noIndex>0</noIndex>
