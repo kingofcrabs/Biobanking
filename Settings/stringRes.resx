@@ -117,34 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="dataFolder" xml:space="preserve">
-    <value>\Data</value>
-  </data>
-  <data name="DoNucleinExtractionFile" xml:space="preserve">
-    <value>\DoNucleinExtraction.txt</value>
-  </data>
-  <data name="hasBuffyFile" xml:space="preserve">
-    <value>\hasBuffy.txt</value>
-  </data>
   <data name="labwareSettingFileName" xml:space="preserve">
     <value>labwareSettings.XML</value>
   </data>
-  <data name="maxSampleCount" xml:space="preserve">
-    <value>maxSampleCount</value>
-  </data>
   <data name="pipettingSettingFileName" xml:space="preserve">
     <value>pipettingSettings.XML</value>
-  </data>
-  <data name="SampleCountFile" xml:space="preserve">
-    <value>\SampleCount.txt</value>
-  </data>
-  <data name="xmlFolder" xml:space="preserve">
-    <value>xmlFolder</value>
-  </data>
-  <data name="calibFileName" xml:space="preserve">
-    <value>calibrations.XML</value>
-  </data>
-  <data name="tubeSettingFileName" xml:space="preserve">
-    <value>tubeSettings.xml</value>
   </data>
 </root>

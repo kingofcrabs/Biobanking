@@ -10,43 +10,7 @@ using System.Xml;
 namespace Settings
 {
 
-
-    [Serializable]
-    public class CalibrationItem
-    {
-        public int tipVolume;
-        public int volumeUL;
-        public double height;
-        public CalibrationItem()
-        {
-
-        }
-
-        public CalibrationItem(double h, int v, int tipV)
-        {
-            height = h;
-            volumeUL = v;
-            tipVolume = tipV;
-        }
-    }
-
-    [Serializable]
-    public class CalibrationItems
-    {
-        public List<CalibrationItem> calibItems;
-
-        public CalibrationItems()
-        {
-            calibItems = new List<CalibrationItem>();
-        }
-
-        public CalibrationItems(List<CalibrationItem> items)
-        {
-            calibItems = new List<CalibrationItem>(items);
-        }
-    }
-
-
+  
     [Serializable]
     public class TubeSetting
     {
@@ -66,11 +30,9 @@ namespace Settings
     {
         public List<TubeSetting> Settings;
         public int selectIndex;
-        public string escFile;
         public TubeSettings()
         {
             Settings = new List<TubeSetting>();
-            escFile = @"C:\ProgramData\Tecan\EVOware\database\scripts\test.esc";
             //Settings.Add(new TubeSetting());
             //selectIndex = 0;
         }
@@ -81,44 +43,41 @@ namespace Settings
     public class PipettingSettings
     {
         public int buffyAspirateLayers;
+        public double r_mm;
         public int dstPlasmaSlice;
         public int dstbuffySlice;
         public int deltaXYForMSD;
         public int buffyVolume;
-        //public int mixTimes;
         public int safeDelta;
         public double buffySpeedFactor;
         public double plasmaGreedyVolume;
+        public int dstRedCellSlice;
+        public double redCellGreedyVolume;
+        public double redCellBottomHeight;
         public bool giveUpNotEnough;
         public double msdZDistance;
         public double msdStartPositionAboveBuffy;
         public bool onlyOneSlicePerRegion;
-        public int retractHeightcm;
-        public bool fixedPositionNearBuffy;
         public int airGap;
-        public int bottomOffsetmm;
-        public int maxVolumePerSlice;
-
         public PipettingSettings()
         {
             buffyAspirateLayers = 6;
             dstPlasmaSlice = 5;
             dstbuffySlice = 1;
             deltaXYForMSD = 13;
-            //mixTimes = 2;
             safeDelta = 2;
+            r_mm = 5.5;
             buffySpeedFactor = 2.5;
             buffyVolume = 300;
             plasmaGreedyVolume = 0;
+            dstRedCellSlice = 0;
+            redCellGreedyVolume = 300;
+            redCellBottomHeight = 80; //8mm
             giveUpNotEnough = false;
             msdZDistance = 4;
-            airGap = 70;
-            bottomOffsetmm = 395;
-            fixedPositionNearBuffy = true;
             msdStartPositionAboveBuffy = 1;
             onlyOneSlicePerRegion = false;
-            retractHeightcm = 10;
-            maxVolumePerSlice = 5000;
+            airGap = 70;
         }
     }
 
@@ -129,8 +88,6 @@ namespace Settings
         public int tipCount;
         public int dstLabwareRows;
         public int dstLabwareStartGrid;
-        //public int dstBuffyStartGrid;
-        //public int dstRedCellStartGrid;
         public int dstLabwareColumns;
         public int sourceWells;
         public int sourceLabwareStartGrid;
@@ -156,21 +113,6 @@ namespace Settings
         }
     }
 
-    [Serializable]
-    public class FileStruct
-    {
-        public FileStruct()
-        {
-            dstBarcodeIndex = 2;
-            dstBarcodePositionIndex = 1;
-            srcBarcodeIndex = 0;
-            noIndex = 0;
-        }
-        public int dstBarcodeIndex;
-        public int dstBarcodePositionIndex;
-        public int srcBarcodeIndex;
-        public int noIndex;
-    }
 
     public class SettingsHelper
     {
@@ -212,7 +154,7 @@ namespace Settings
             //如果冻存管载架只有一列位置，那么Region的列数plasma+ buffy数量决定，
             //如果冻存管载架有多列位置N，那么Region的列数由N决定
             int columnsPerRegion = labwareSettings.dstLabwareColumns;
-            int totalSlice = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;
+            int totalSlice = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
             if (columnsPerRegion == 1)
                 columnsPerRegion = totalSlice;
 
