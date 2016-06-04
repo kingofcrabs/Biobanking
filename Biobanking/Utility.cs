@@ -24,59 +24,7 @@ namespace Biobanking
             get { return encoding; }
         }
     }
-    class Utility
-    {
-        static public string GetOutputFolder()
-        {
-            return   Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\output\\";
-        }
-
-        static public void Write2File(string fileName, List<string> strs)
-        {
-            using (StreamWriter sw = new StreamWriter(fileName))
-            {
-                foreach (string s in strs)
-                    sw.WriteLine(s);
-            }
-        }
-        public static string Serialize<T>(T value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-
-            XmlWriterSettings settings = new XmlWriterSettings();
-
-
-            using (StringWriterWithEncoding textWriter = new StringWriterWithEncoding(Encoding.Default))
-            {
-                using (XmlWriter xmlWriter = XmlWriter.Create(textWriter, settings))
-                {
-                    serializer.Serialize(xmlWriter, value);
-                }
-                return textWriter.ToString();
-            }
-        }
-        static public void Write2File(string fileName, string s)
-        {
-            using (StreamWriter sw = new StreamWriter(fileName))
-            {
-                sw.WriteLine(s);
-            }
-        }
-
-        internal static int GetSamplesPerRow(LabwareSettings labwareSettings, PipettingSettings pipettingSettings)
-        {
-            int totalSlicePerSample = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
-            if (labwareSettings.dstLabwareColumns == 1)
-                return 1;
-            return labwareSettings.dstLabwareColumns / totalSlicePerSample;
-        }
-    }
-
+  
     public enum PipettingApproach
     {
         Z_Tight = 0,
@@ -85,11 +33,11 @@ namespace Biobanking
         Z_Rotate_UseNewColumn
     }
 
-
-    public class DetectedHeight
+    public class DetectedInfo
     {
         public double Z1; //1/10 mm
         public double Z2;
+        public string sBarcode;
 
     }
 

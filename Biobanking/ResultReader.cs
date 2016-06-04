@@ -10,7 +10,7 @@ namespace Biobanking
     public interface IResultReader
     {
         //bool HasBuffyCoat();
-        List<DetectedHeight> Read();
+        List<DetectedInfo> Read();
 
     }
 
@@ -34,10 +34,10 @@ namespace Biobanking
             return HasBuffyCoat(buffyCoatFile);
         }
 
-        public List<DetectedHeight> Read()
+        public List<DetectedInfo> Read()
         {
             SciRobotHelper sciRobotHelper = new SciRobotHelper();
-            List<DetectedHeight> heights = new List<DetectedHeight>();
+            List<DetectedInfo> heights = new List<DetectedInfo>();
             //check capacity
             sciRobotHelper.ReadZValues(ref heights);
             return heights;
@@ -63,15 +63,15 @@ namespace Biobanking
         //    return bHasBuffy;
         //}
       
-        public List<DetectedHeight> Read()
+        public List<DetectedInfo> Read()
         {
             //SciRobotHelper sciRobotHelper = new SciRobotHelper();
             //List<DetectedHeight> heights = new List<DetectedHeight>();
             ////check capacity
             //sciRobotHelper.ReadZValues(ref heights);
             //return heights;
-            List<DetectedHeight> heights = new List<DetectedHeight>();
-            string reportPath = ConfigurationManager.AppSettings[stringRes.reportPath];
+            List<DetectedInfo> heights = new List<DetectedInfo>();
+            string reportPath = GlobalVars.Instance.ResultFile;//ConfigurationManager.AppSettings[stringRes.reportPath];
             using (StreamReader sr = new StreamReader(reportPath))
             {
                 string sContent = "";
@@ -90,14 +90,15 @@ namespace Biobanking
                         continue;
                     }
                     
-                    DetectedHeight detectedHeight = new DetectedHeight();
+                    DetectedInfo detectedInfo = new DetectedInfo();
                     int infoIndex = (curRow - 1);
                     string[] vals = sContent.Split(',');
-                    detectedHeight.Z1 = double.Parse(vals[1]);
-                    detectedHeight.Z2 = double.Parse(vals[2]);
-                    heights.Add(detectedHeight);
+                    detectedInfo.Z1 = double.Parse(vals[1]);
+                    detectedInfo.Z2 = double.Parse(vals[2]);
+                    detectedInfo.sBarcode = vals[0];
+                    heights.Add(detectedInfo);
 
-                    if (detectedHeight.Z1 < 0 || detectedHeight.Z2 < 0)
+                    if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)
                         throw new Exception("Z1,Z2 cannot be smaller than 0 at line: " + heights.Count.ToString());
                     curRow++;
                 }
@@ -108,13 +109,13 @@ namespace Biobanking
 
     class RelaxReader : IResultReader
     {
-        public List<DetectedHeight> Read()
+        public List<DetectedInfo> Read()
         {
             string sReportXml = ConfigurationManager.AppSettings[stringRes.reportPath];
             DataSet ds = new DataSet();
             ds.ReadXml(sReportXml);
             DataTable dt = ds.Tables[0];
-            List<DetectedHeight> heights = new List<DetectedHeight>();
+            List<DetectedInfo> heights = new List<DetectedInfo>();
             Dictionary<int, string> nameValDict = new Dictionary<int, string>();
             for (int i = 0; i < dt.Columns.Count; i++)
             {
@@ -124,7 +125,7 @@ namespace Biobanking
             foreach (DataRow dr in dt.Rows)
             {
 
-                DetectedHeight detectResult = new DetectedHeight();
+                DetectedInfo detectResult = new DetectedInfo();
                 for (int i = 0; i < dr.ItemArray.Count(); i++)
                 {
                     if (nameValDict[i] == "Z1")

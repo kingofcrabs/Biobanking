@@ -33,7 +33,7 @@ namespace Biobanking.Tests
             //Assert.AreEqual( 2200, v20);
             var v50 = mappingCalculator.GetVolumeFromHeight(50);
             //Assert.AreEqual( 5200, v50);
-
+            var v577 = mappingCalculator.GetVolumeFromHeight(57.7);
             var tipV10 = mappingCalculator.GetTipVolumeFromHeight(10);
             //Assert.AreEqual(1300, tipV10);
 
@@ -49,6 +49,11 @@ namespace Biobanking.Tests
             double h21 = mappingCalculator.GetHeightFromVolume(2100);
             double h19 = mappingCalculator.GetHeightFromVolume(1900);
             double h70 = mappingCalculator.GetHeightFromVolume(7000);
+
+            double tipV16 = mappingCalculator.GetTipVolumeFromVolume(1600);
+            double tipV21 = mappingCalculator.GetTipVolumeFromVolume(2100);
+            double tipV50 = mappingCalculator.GetTipVolumeFromVolume(5000);
+            
         }
     }
 }

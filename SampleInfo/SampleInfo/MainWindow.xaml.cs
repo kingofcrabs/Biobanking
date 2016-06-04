@@ -28,7 +28,7 @@ namespace SampleInfo
         int sampleCount = 16, plasmaMaxCount,buffyMaxCount;
         bool bok = false;
 
-        string xmlFolder = ConfigurationManager.AppSettings[stringRes.xmlFolder];
+        string xmlFolder = Utility.GetExeFolder();
         string sLabwareSettingFileName;
         string sPipettingFileName;
         string sTubeSettingsFileName;
@@ -43,7 +43,7 @@ namespace SampleInfo
 
             sLabwareSettingFileName = xmlFolder + "\\labwareSettings.xml";
             sPipettingFileName = xmlFolder + "\\pipettingSettings.xml";
-            sTubeSettingsFileName = xmlFolder + "tubeSettings.xml";
+            sTubeSettingsFileName = xmlFolder + stringRes.tubeSettingFileName;
             maxSampleCount = int.Parse(ConfigurationManager.AppSettings[stringRes.maxSampleCount]);
             string s = "";
             plasmaMaxCount = int.Parse(ConfigurationManager.AppSettings["PlasmaMaxCount"]);
@@ -160,19 +160,29 @@ namespace SampleInfo
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
-                tubeSettings.selectIndex = lstSampleSettings.SelectedIndex;
-                var selectedSetting = tubeSettings.Settings[tubeSettings.selectIndex];
-                pipettingSettings.r_mm = selectedSetting.r_mm;
+                TubeSetting selectedSetting = new TubeSetting();
+                if(lstSampleSettings.Items.Count != 0)
+                {
+                    tubeSettings.selectIndex = lstSampleSettings.SelectedIndex;
+                    selectedSetting = tubeSettings.Settings[tubeSettings.selectIndex];
+                }
+                else
+                {
+                    tubeSettings.Settings.Add(selectedSetting);
+                }
                 pipettingSettings.msdZDistance = selectedSetting.msdZDistance;
                 pipettingSettings.msdStartPositionAboveBuffy = selectedSetting.msdStartPositionAboveBuffy;
                 SaveSettings();
            }
            catch (Exception ex)
            {
-               SetInfo(ex.Message, Colors.Red);
-               return;
+                SetInfo(ex.Message + ex.StackTrace, Colors.Red);
+                return;
            }
-           this.Close();
+
+            Utility.Write2File(Utility.GetOutputFolder() + "totalSlice.txt",
+                (pipettingSettings.dstPlasmaSlice + pipettingSettings.dstbuffySlice).ToString());
+            this.Close();
         }
 
   
@@ -202,12 +212,12 @@ namespace SampleInfo
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            lblVersion.Content = stringRes.Version;
+            lblVersion.Content = 0.13;
             try
             {
                 txtSampleCount.Text = Utility.ReadFolder(stringRes.SampleCountFile);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 txtSampleCount.Text = "1";
             }

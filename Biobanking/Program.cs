@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
-
+using Settings;
+using System.IO;
 
 namespace Biobanking
 {
@@ -15,19 +16,40 @@ namespace Biobanking
             Console.WriteLine("Version is :" + stringRes.version);
             worklistGenerator2 generator = new worklistGenerator2();
             bool bok = false;
-            //try
+#if DEBUG
+#else
+            try
+#endif
             {
+                if(args.Length != 0)
+                {
+                    CopyConfigurationFiles(args[0]);
+                }
+
                 bok = generator.DoJob();
             }
-            //catch(Exception ex)
-            //{
-            //    Utility.Write2File(Utility.GetOutputFolder() + "errMsg.txt", ex.Message + ex.StackTrace);
-            //    log.Info(ex.Message);
-            //}
+#if DEBUG
+#else
+            catch (Exception ex)
+            {
+                Utility.Write2File(Utility.GetOutputFolder() + "errMsg.txt", ex.Message + ex.StackTrace);
+                log.Info(ex.Message);
+            }
+#endif
             Utility.Write2File(Utility.GetOutputFolder() + "result.txt", bok.ToString());
         }
 
-        
-
+        private static void CopyConfigurationFiles(string srcFolder)
+        {
+            log.InfoFormat("source folder is: {0}", srcFolder);
+            string sDestFolder = Utility.GetExeFolder();
+            DirectoryInfo di = new DirectoryInfo(srcFolder);
+            var fileInfos = di.GetFiles("*.xml");
+            foreach(var fileInfo in fileInfos)
+            {
+                string dstFile = sDestFolder + fileInfo.Name;
+                File.Copy(fileInfo.FullName, dstFile, true);
+            }
+        }
     }
 }

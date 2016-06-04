@@ -23,9 +23,9 @@ namespace Biobanking
          internal int AllowedSamples()
          {
              int columnsPerLabware = labwareSettings.dstLabwareColumns;
-             
 
-             int totalSlice = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
+
+            int totalSlice = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;// + pipettingSettings.dstRedCellSlice;
              int samplesPerRow = columnsPerLabware / totalSlice;
              log.InfoFormat("samples per row is: {0}", samplesPerRow);
 
@@ -76,7 +76,7 @@ namespace Biobanking
             int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
             int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
             int totalRow = labwareSettings.dstLabwareRows;
-            int totalSlicePerSample = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
+            int totalSlicePerSample = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;// + pipettingSettings.dstRedCellSlice;
          
             int samplesPerRow = Utility.GetSamplesPerRow(labwareSettings, pipettingSettings);// labwareSettings.dstLabwareColumns / totalSlicePerSample;
             int samplesPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
