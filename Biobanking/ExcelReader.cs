@@ -123,14 +123,14 @@ namespace Biobanking
           
             Workbooks excelWorkBooks = null;
             Workbook excelWorkBook = null;
-            Worksheet excelWorkSheet = null;
 
             Application app = new Application();
             app.Visible = false;
             app.DisplayAlerts = false;
             excelWorkBooks = app.Workbooks;
             excelWorkBook = ((Workbook)excelWorkBooks.Open(sCSVFile, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value));
-            excelWorkSheet = (Worksheet)excelWorkBook.Worksheets[1];
+
+            log.InfoFormat("excel path is :{0}", sExcelFile);
             excelWorkBook.SaveAs(sExcelFile, XlFileFormat.xlAddIn8, Missing.Value, Missing.Value, Missing.Value, Missing.Value, XlSaveAsAccessMode.xlNoChange, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value);
             excelWorkBook.Close();
             app.Quit();

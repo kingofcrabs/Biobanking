@@ -116,7 +116,6 @@ namespace Biobanking
             SettingsHelper settingHelper = new SettingsHelper();
             log.Info("load settings");
             settingHelper.LoadSettings(ref pipettingSetting, ref labwareSettings);
-            settingHelper.SaveSettings(pipettingSetting);
             detectInfos = ResultReader.Instance.Read();
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker = new BarcodeTracker(pipettingSetting, labwareSettings, detectInfos.Select(x=>x.sBarcode).ToList());

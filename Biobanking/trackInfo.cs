@@ -64,6 +64,7 @@ namespace Biobanking
                 if ( pipettingSettings.dstbuffySlice > 0)
                 {
                     double vol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
+                    vol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                     for (indexInList = 0; indexInList < plasmaVols.Count; indexInList++)
                     {
                         for (int i = 0; i < pipettingSettings.dstbuffySlice; i++)
@@ -87,15 +88,25 @@ namespace Biobanking
             string sFolder = Utility.GetOutputFolder() + DateTime.Now.ToString("yyyyMMdd")+"\\";
             if (!Directory.Exists(sFolder))
                 Directory.CreateDirectory(sFolder);
-            sFolder += DateTime.Now.ToString("HHmmss") + "\\";
+            string csvFolder = sFolder + "csv\\";
+            string excelFolder = sFolder + "excel\\";
+            CreateIfNotExist(csvFolder);
+            CreateIfNotExist(excelFolder);
+            //sFolder += DateTime.Now.ToString("HHmmss") + "\\";
+            string sTime = DateTime.Now.ToString("HHmmss");
             if (!Directory.Exists(sFolder))
                 Directory.CreateDirectory(sFolder);
-            var sCSVFile = sFolder + "track.csv";
-            var sExcelFile = sFolder + "track.xls";
+            var sCSVFile = csvFolder + sTime + ".csv";
+            var sExcelFile = excelFolder + sTime + ".xls";
             List<string> strs = FormatInfos();
-            
             File.WriteAllLines(sCSVFile, strs);
             ExcelReader.SaveAsExcel(sCSVFile, sExcelFile);
+        }
+
+        private void CreateIfNotExist(string csvFolder)
+        {
+            if (!Directory.Exists(csvFolder))
+                Directory.CreateDirectory(csvFolder);
         }
 
         
