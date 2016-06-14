@@ -50,10 +50,11 @@ namespace Biobanking
             int indexInList = 0;
             foreach (var vol in plasmaVols)
             {
+                var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                 TrackInfo info = new TrackInfo(srcBarcodes[sampleIndex+ indexInList], 
                     correspondingbarcodes[sampleIndex+ indexInList][sliceIndex],
                     plasmaName,
-                    Math.Round(vol, 2).ToString());
+                    Math.Round(adjustVol, 2).ToString());
                 trackInfos.Add(info);
                 indexInList++;
             }
@@ -64,7 +65,6 @@ namespace Biobanking
                 if ( pipettingSettings.dstbuffySlice > 0)
                 {
                     double vol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
-                    vol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                     for (indexInList = 0; indexInList < plasmaVols.Count; indexInList++)
                     {
                         for (int i = 0; i < pipettingSettings.dstbuffySlice; i++)
