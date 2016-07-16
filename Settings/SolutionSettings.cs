@@ -98,7 +98,6 @@ namespace Settings
     public class PipettingSettings
     {
         public int buffyAspirateLayers;
-        public double r_mm;
         public int dstPlasmaSlice;
         public int dstbuffySlice;
         public int deltaXYForMSD;
@@ -106,16 +105,16 @@ namespace Settings
         public int safeDelta;
         public double buffySpeedFactor;
         public double plasmaGreedyVolume;
-        public int dstRedCellSlice;
-        public double redCellGreedyVolume;
-        public double redCellBottomHeight;
+        //public int dstRedCellSlice;
+        //public double redCellGreedyVolume;
+        //public double redCellBottomHeight;
         public bool giveUpNotEnough;
         public double msdZDistance;
         public double msdStartPositionAboveBuffy;
-        public bool onlyOneSlicePerRegion;
+        public bool onlyOneSlicePerLabware;
         public bool msdXYTogether;
         public int airGap;
-        public int bottomOffsetmm;
+        public int bottomOffset;
         public int maxVolumePerSlice;
         public int retractHeightcm;
         public PipettingSettings()
@@ -126,19 +125,18 @@ namespace Settings
             dstbuffySlice = 1;
             deltaXYForMSD = 13;
             safeDelta = 2;
-            r_mm = 5.5;
             buffySpeedFactor = 2.5;
             buffyVolume = 300;
             plasmaGreedyVolume = 0;
-            dstRedCellSlice = 0;
-            redCellGreedyVolume = 300;
-            redCellBottomHeight = 80; //8mm
+            //dstRedCellSlice = 0;
+            //redCellGreedyVolume = 300;
+            //redCellBottomHeight = 80; //8mm
             giveUpNotEnough = false;
             msdZDistance = 4;
             msdStartPositionAboveBuffy = 1;
-            onlyOneSlicePerRegion = false;
+            onlyOneSlicePerLabware = false;
             airGap = 70;
-            bottomOffsetmm = 388;
+            bottomOffset = 388;
             retractHeightcm = 10;
             maxVolumePerSlice = 5000;
 
@@ -151,15 +149,15 @@ namespace Settings
     {
         public int tipCount;
         public int dstLabwareRows;
-        public int dstLabwareStartGrid;
         public int dstLabwareColumns;
+        public int dstLabwareStartGrid;
         public int sourceWells;
-        public int sourceLabwareStartGrid;
         public int sourceLabwareGrids;
+        public int sourceLabwareStartGrid;
         public int wasteGrid;
-        public int regions;
-        public int gridsPerRegion;
-        public int sitesPerRegion;
+        public int dstCarrierCnt;
+        public int gridsPerCarrier;
+        public int sitesPerCarrier;
 
         public LabwareSettings()
         {
@@ -169,11 +167,11 @@ namespace Settings
             tipCount = 2;
             sourceWells = 10;
             wasteGrid = 21;
-            regions = 1;
+            dstCarrierCnt = 1;
             dstLabwareRows = 8;
             dstLabwareColumns = 6;
-            gridsPerRegion = 1;
-            sitesPerRegion = 1;
+            gridsPerCarrier = 1;
+            sitesPerCarrier = 1;
         }
     }
 
@@ -218,7 +216,7 @@ namespace Settings
             //如果冻存管载架只有一列位置，那么Region的列数plasma+ buffy数量决定，
             //如果冻存管载架有多列位置N，那么Region的列数由N决定
             int columnsPerRegion = labwareSettings.dstLabwareColumns;
-            int totalSlice = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
+            int totalSlice = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;
             if (columnsPerRegion == 1)
                 columnsPerRegion = totalSlice;
 

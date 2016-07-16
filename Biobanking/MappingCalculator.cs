@@ -50,15 +50,15 @@ namespace Biobanking
                 lower = calibItems[calibItems.Count - 2];
             }
             double vDiff = higher.volumeUL - lower.volumeUL;
-            double tipVDiff = higher.tipVolume - lower.tipVolume;
+            //double tipVDiff = higher.tipVolume - lower.tipVolume;
             double hDiff = higher.height - lower.height;
             double vhRatio = vDiff / hDiff;
-            double tipVhRatio = tipVDiff / hDiff;
+            //double tipVhRatio = tipVDiff / hDiff;
             double currentDiff = height - lower.height;
             double volumeOffset = currentDiff * vhRatio;
-            int tipVOffset = (int)(currentDiff * tipVhRatio);
+            //int tipVOffset = (int)(currentDiff * tipVhRatio);
             volume = lower.volumeUL + (int)volumeOffset;
-            tipVolume = lower.tipVolume + tipVOffset;
+            //tipVolume = lower.tipVolume + tipVOffset;
 
         }
         private void GetTipVolumeAndHegiht(double v,ref int tipVol, ref double height)
@@ -85,15 +85,15 @@ namespace Biobanking
                 lower = calibItems[calibItems.Count - 2];
             }
             double vDiff = higher.volumeUL - lower.volumeUL;
-            double tipVDiff = higher.tipVolume - lower.tipVolume;
+            //double tipVDiff = higher.tipVolume - lower.tipVolume;
             double hDiff = higher.height - lower.height;
             double hvRatio = hDiff / vDiff;
-            double tipVVRatio = tipVDiff / vDiff;
+            //double tipVVRatio = tipVDiff / vDiff;
             double currentVDiff = v - lower.volumeUL;
             double heightOffset = currentVDiff * hvRatio;
-            double tipVOffset = currentVDiff * tipVVRatio;
+            //double tipVOffset = currentVDiff * tipVVRatio;
             height =  heightOffset + lower.height;
-            tipVol = (int)(tipVOffset + lower.tipVolume);
+            //tipVol = (int)(tipVOffset + lower.tipVolume);
         }
         public double GetVolumeFromHeight(double height)
         {

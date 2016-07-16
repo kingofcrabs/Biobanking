@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ConfigureTool"
         mc:Ignorable="d"
-        Title="ConfigureTool" Height="450" Width="525">
+        Title="ConfigureTool" Height="700" Width="525">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>

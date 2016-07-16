@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ConfigureTool
 {
-    public enum Type
+    public enum MType
     {
         TString,
         TInt,
@@ -16,9 +16,9 @@ namespace ConfigureTool
 
     class TypeConstrain
     {
-        static public Dictionary<string, Type> ExtractTypeInfo(Dictionary<string, string> dict)
+        static public Dictionary<string, MType> ExtractTypeInfo(Dictionary<string, string> dict)
         {
-            Dictionary<string, Type> key_type = new Dictionary<string, Type>();
+            Dictionary<string, MType> key_type = new Dictionary<string, MType>();
             foreach(var pair in dict)
             {
                 bool result = false;
@@ -26,22 +26,44 @@ namespace ConfigureTool
                 int val = 0;
                 if ( bool.TryParse(pair.Value,out result))
                 {
-                    key_type.Add(pair.Key, Type.TBool);
+                    key_type.Add(pair.Key, MType.TBool);
+                }
+                else if (int.TryParse(pair.Value, out val))
+                {
+                    key_type.Add(pair.Key, MType.TInt);
                 }
                 else if (double.TryParse(pair.Value, out dVal))
                 {
-                    key_type.Add(pair.Key, Type.TDouble);
-                }
-                else if(int.TryParse(pair.Value,out val))
-                {
-                    key_type.Add(pair.Key, Type.TInt);
+                    key_type.Add(pair.Key, MType.TDouble);
                 }
                 else
                 {
-                    key_type.Add(pair.Key, Type.TString);
+                    key_type.Add(pair.Key, MType.TString);
                 }
             }
             return key_type;
+        }
+
+        static public bool IsExpectedType(string val,MType type)
+        {
+            switch(type)
+            {
+                case MType.TBool:
+                    bool res = false;
+                    return bool.TryParse(val, out res);
+                case MType.TDouble:
+                    double dRes = 0;
+                    return double.TryParse(val, out dRes);
+                case MType.TInt:
+                    int iRes = 0;
+                    return int.TryParse(val, out iRes);
+                case MType.TString:
+                default:
+                    return true;
+
+            }
+            
+            
         }
 
     }

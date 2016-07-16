@@ -29,12 +29,12 @@ namespace Biobanking
              int samplesPerRow = columnsPerLabware / totalSlice;
              log.InfoFormat("samples per row is: {0}", samplesPerRow);
 
-             int dispenseAllowed = samplesPerRow*labwareSettings.dstLabwareRows * labwareSettings.regions * labwareSettings.sitesPerRegion;
+             int dispenseAllowed = samplesPerRow*labwareSettings.dstLabwareRows * labwareSettings.dstCarrierCnt * labwareSettings.sitesPerCarrier;
              
 
              if (columnsPerLabware == 1)
              {
-                 dispenseAllowed = labwareSettings.dstLabwareRows * (labwareSettings.regions / totalSlice) * labwareSettings.sitesPerRegion;
+                 dispenseAllowed = labwareSettings.dstLabwareRows * (labwareSettings.dstCarrierCnt / totalSlice) * labwareSettings.sitesPerCarrier;
              }
              log.InfoFormat("dispenseAllowed is: {0}", dispenseAllowed);
 
@@ -71,7 +71,7 @@ namespace Biobanking
 
         internal List<POINT> GetDestWells(int srcRackIndex, int sliceIndex, int startSample, int sampleCount)
         {
-            if (pipettingSettings.onlyOneSlicePerRegion)
+            if (pipettingSettings.onlyOneSlicePerLabware)
                 return GetDestWellsOneSlicePerRegion(srcRackIndex, startSample, sampleCount);
             int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
             int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;

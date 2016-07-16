@@ -22,39 +22,51 @@ namespace ConfigureTool
     public partial class MainWindow : Window
     {
         Setting settings = new Setting();
-        Dictionary<string, Type> key_Type = new Dictionary<string, Type>();
+        Dictionary<string, MType> key_Type = new Dictionary<string, MType>();
+        Dictionary<string, string> currentSettings = new Dictionary<string, string>();
+        DataTable tbl = new DataTable("Customers");
+        DescriptionHelper descriptionHelper = new DescriptionHelper();
+        string currentKey = "";
         public MainWindow()
         {
             InitializeComponent();
+            listView.SelectionChanged += ListView_SelectionChanged;
+            this.Loaded += MainWindow_Loaded;
             this.Closing += MainWindow_Closing;
         }
 
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            SaveSettings();
-        }
-
-        private void SaveSettings()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void rdb_Click(object sender, RoutedEventArgs e)
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
+                tbl.Columns.Add("Name", typeof(string));
+                tbl.Columns.Add("Value", typeof(string));
                 ChangeSetting();
             }
             catch(Exception ex)
             {
-                SetInfo(ex.Message,true);
+                SetInfo(ex.Message, true);
             }
+            
         }
 
-        private void btnModify_Click(object sender, RoutedEventArgs e)
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            if (listView.SelectedIndex == -1)
+                return;
+            var dt = (DataTable)listView.DataContext;
+            txtCurrentVal.Text = (string)dt.Rows[listView.SelectedIndex][1];
+            currentKey = (string)dt.Rows[listView.SelectedIndex][0];
+            if (descriptionHelper[currentKey] == null)
+                throw new Exception("无法找到对应的说明！");
+            SetInfo(descriptionHelper[currentKey]);
         }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            
+        }
+
 
         private void SetInfo(string message, bool isError = false)
         {
@@ -64,28 +76,55 @@ namespace ConfigureTool
 
         private void ChangeSetting()
         {
+            tbl.Rows.Clear();
             bool configSettings = (bool)rdbConfigSettings.IsChecked;
             bool labwareSettings = (bool)rdbLabwareSettings.IsChecked;
             bool pipettingSettings = (bool)rdbPipettingSettings.IsChecked;
-            var dict = settings.Load(configSettings, labwareSettings, pipettingSettings);
-            key_Type = TypeConstrain.ExtractTypeInfo(dict);
-            this.listView.DataContext = CreateDataTable(dict);
+            currentSettings = settings.Load(configSettings, labwareSettings, pipettingSettings);
+            
+            key_Type = TypeConstrain.ExtractTypeInfo(currentSettings);
+            this.listView.DataContext = CreateDataTable(currentSettings);
         }
 
      
         DataTable CreateDataTable(Dictionary<string,string> dict)
         {
-            DataTable tbl = new DataTable("Customers");
-
-            tbl.Columns.Add("Name", typeof(string));
-            tbl.Columns.Add("Value", typeof(string));
+           
+            ;
             foreach(var pair in dict)
             {
                 tbl.Rows.Add(pair.Key, pair.Value);
             }
             return tbl;
         }
+        private void rdb_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ChangeSetting();
+            }
+            catch (Exception ex)
+            {
+                SetInfo(ex.Message, true);
+            }
+        }
 
+        private void btnModify_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (listView.SelectedIndex == -1)
+                return;
+            if (currentKey == "")
+                return;
+            if(!TypeConstrain.IsExpectedType(txtCurrentVal.Text, key_Type[currentKey]))
+            {
+                SetInfo(string.Format("类型不对，期望的类型是{0}：", key_Type[currentKey]), true);
+                return;
+            }
+            currentSettings[currentKey] = txtCurrentVal.Text;
+            tbl.Rows[listView.SelectedIndex][1] = txtCurrentVal.Text;
+
+        }
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();

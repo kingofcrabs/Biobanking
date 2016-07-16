@@ -633,23 +633,23 @@ namespace Biobanking
         private void CalculateDestGridAndSite4OneSlicePerRegion(int sliceIndex, ref int grid, ref int site)
         {
             int startGrid = labwareSettings.dstLabwareStartGrid;
-            int sitesPerGrid = labwareSettings.sitesPerRegion;
-            int additionalGrids = labwareSettings.gridsPerRegion * (sliceIndex / sitesPerGrid);
+            int sitesPerGrid = labwareSettings.sitesPerCarrier;
+            int additionalGrids = labwareSettings.gridsPerCarrier * (sliceIndex / sitesPerGrid);
             grid = startGrid + additionalGrids;
-            site = sliceIndex % labwareSettings.sitesPerRegion;
+            site = sliceIndex % labwareSettings.sitesPerCarrier;
         }
 
         private void CalculateDestPlasmaGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
             int totalSlicePerSample = pipettingSetting.dstbuffySlice + pipettingSetting.dstPlasmaSlice;// + pipettingSetting.dstRedCellSlice;
             int samplesPerRow = Utility.GetSamplesPerRow(labwareSettings, pipettingSetting);
-            if (labwareSettings.gridsPerRegion == 1)
+            if (labwareSettings.gridsPerCarrier == 1)
                 samplesPerRow = 1;
-            int regionSampleCount = samplesPerRow* labwareSettings.dstLabwareRows*labwareSettings.sitesPerRegion;
+            int regionSampleCount = samplesPerRow* labwareSettings.dstLabwareRows*labwareSettings.sitesPerCarrier;
            
             int nRegionIndex = sampleIndex / regionSampleCount;
-            if (nRegionIndex > labwareSettings.regions)
-                throw new Exception("Regions out of range, there is only: " + string.Format("{0} regions in configuration file!",labwareSettings.regions));
+            if (nRegionIndex > labwareSettings.dstCarrierCnt)
+                throw new Exception("Regions out of range, there is only: " + string.Format("{0} regions in configuration file!",labwareSettings.dstCarrierCnt));
 
             int startGrid =labwareSettings.dstLabwareStartGrid;
             int maxGrid = GetMaxGrid();
@@ -657,11 +657,11 @@ namespace Biobanking
             {
                 throw new Exception(string.Format("the destination grid: {0} exceeds the maximum grid： {1}", startGrid, maxGrid));
             }
-            int actualGridsPerRegion = labwareSettings.gridsPerRegion;
+            int actualGridsPerRegion = labwareSettings.gridsPerCarrier;
             if (actualGridsPerRegion == 1)//如果冻存管载架上只有一列位置，则region的大小决定于plasma和buffy的份数
                 actualGridsPerRegion = pipettingSetting.dstPlasmaSlice + pipettingSetting.dstbuffySlice;
             int regionGridsUsed = nRegionIndex * actualGridsPerRegion;
-            int sliceGridsUsed = labwareSettings.gridsPerRegion == 1 ? slice : 0;//如果冻存管载架上有多列，则每份封装的Grid位置不变
+            int sliceGridsUsed = labwareSettings.gridsPerCarrier == 1 ? slice : 0;//如果冻存管载架上有多列，则每份封装的Grid位置不变
 
             int sampleIndexInTheRegion = sampleIndex % regionSampleCount;
             site = sampleIndexInTheRegion / (labwareSettings.dstLabwareRows*samplesPerRow);
@@ -670,7 +670,7 @@ namespace Biobanking
 
         private void CalculateDestRedCellGridAndSite(int sampleIndex, int slice, ref int grid, ref int site)
         {
-            int redCellSliceUsedGrid = labwareSettings.gridsPerRegion == 1 ? slice : 0;//如果冻存管载架上有多列，则每份封装的Grid位置不变
+            int redCellSliceUsedGrid = labwareSettings.gridsPerCarrier == 1 ? slice : 0;//如果冻存管载架上有多列，则每份封装的Grid位置不变
             CalculateDestPlasmaGridAndSite(sampleIndex, 0, ref grid, ref site);
             grid += pipettingSetting.dstPlasmaSlice + pipettingSetting.dstbuffySlice + redCellSliceUsedGrid;
 
@@ -678,7 +678,7 @@ namespace Biobanking
         private void CalculateDestBuffyGridAndSite(int sampleIndex, ref int grid, ref int site)
         {
             CalculateDestPlasmaGridAndSite(sampleIndex, 0, ref grid, ref site);
-            if( labwareSettings.gridsPerRegion == 1)
+            if( labwareSettings.gridsPerCarrier == 1)
                 grid += pipettingSetting.dstPlasmaSlice;
         }
 
@@ -957,7 +957,7 @@ namespace Biobanking
             }
             for (int i = 0; i < heights.Count; i++)
             {
-                double h = pipettingSetting.bottomOffsetmm + (heights[i] + pipettingSetting.msdStartPositionAboveBuffy) * 10;
+                double h = pipettingSetting.bottomOffset + (heights[i] + pipettingSetting.msdStartPositionAboveBuffy) * 10;
                 s += ((int)h).ToString() + ",";
             }
             for (int i = heights.Count + tipOffset; i < 8; i++)
