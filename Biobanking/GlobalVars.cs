@@ -26,7 +26,7 @@ namespace Biobanking
             DstBarcodeFolder = ConfigurationManager.AppSettings["DstBarcodeFolder"];
             ResultFile = ConfigurationManager.AppSettings[stringRes.reportPath];
             string sFileStruct = Settings.Utility.GetExeFolder() + "fileStruct.xml";
-            TrackBarcode = bool.Parse(ConfigurationManager.AppSettings["TrackBarcode"]);
+            TrackBarcode = DstBarcodeFolder != "";
             if (File.Exists(sFileStruct))
             {
                 var sContent = File.ReadAllText(sFileStruct);

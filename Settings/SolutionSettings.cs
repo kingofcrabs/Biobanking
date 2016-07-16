@@ -94,7 +94,6 @@ namespace Settings
             //Settings.Add(new TubeSetting());
             //selectIndex = 0;
         }
-
     }
 
     [Serializable]
@@ -116,12 +115,14 @@ namespace Settings
         public double msdZDistance;
         public double msdStartPositionAboveBuffy;
         public bool onlyOneSlicePerRegion;
+        public bool msdXYTogether;
         public int airGap;
         public int bottomOffsetmm;
         public int maxVolumePerSlice;
         public int retractHeightcm;
         public PipettingSettings()
         {
+            msdXYTogether = false;
             buffyAspirateLayers = 6;
             dstPlasmaSlice = 5;
             dstbuffySlice = 1;

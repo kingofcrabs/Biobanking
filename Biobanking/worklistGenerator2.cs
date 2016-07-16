@@ -192,7 +192,7 @@ namespace Biobanking
             sw.WriteLine("W;");
          
                 
-            string sNotifierFolder = ConfigurationManager.AppSettings["NotifierFolder"];
+            string sNotifierFolder = Utility.GetExeFolder();
           
             //0 get diti
             WriteComment(string.Format("batch id is: {0}", batchID), sw);
@@ -776,14 +776,14 @@ namespace Biobanking
             //sw.WriteLine(sMoveLiha);
 
             List<double> volumes = new List<double>();
-            int startTip = 0;
+            //int startTip = 0;
             int buffySlice = pipettingSetting.dstbuffySlice;
             if (buffySlice > 1) //need dispense the buffy
             {
                 volumes.Clear();
-                for (int i = 0; i < startTip + sampleCnt; i++)
+                for (int i = 0; i < tipOffset + sampleCnt; i++)
                 {
-                    if (i < startTip || buffySlice == 0)
+                    if (i < tipOffset || buffySlice == 0)
                         volumes.Add(0);
                     else
                     {

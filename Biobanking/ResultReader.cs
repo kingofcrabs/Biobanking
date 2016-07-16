@@ -151,12 +151,9 @@ namespace Biobanking
             {
                 if (impliment != null)
                     return impliment;
-                string sThirdPartyName = ConfigurationManager.AppSettings[stringRes.ThridPartyName];
-                switch (sThirdPartyName)
+                string sMeasureName = ConfigurationManager.AppSettings[stringRes.MeasureName];
+                switch (sMeasureName)
                 {
-                    case "SciRobotic":
-                        impliment = new SciRobotReader();
-                        break;
                     case "TIU":
                         impliment = new TIUReader();
                         break;
