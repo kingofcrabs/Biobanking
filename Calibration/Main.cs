@@ -32,8 +32,7 @@ namespace Calibration
         {
             foreach(var calibItem in calibItems)
             {
-                var strs = new string[] { calibItem.volumeUL.ToString(), Convert(calibItem.height),
-                calibItem.tipVolume.ToString()};
+                var strs = new string[] { calibItem.volumeUL.ToString(), Convert(calibItem.height) };
                 ListViewItem itm = new ListViewItem(strs);
                 lvCalibration.Items.Add(itm);
             }
@@ -47,7 +46,7 @@ namespace Calibration
         {
             try
             {
-                AddItem(txtHeight.Text, txtVolume.Text,txtTipVolume.Text);
+                AddItem(txtHeight.Text, txtVolume.Text);
             }
             catch(Exception ex)
             {
@@ -64,15 +63,15 @@ namespace Calibration
                 txtInfo.ForeColor = Color.Red;
         }
 
-        private void AddItem(string sHeight, string sVolume, string sTipVolume)
+        private void AddItem(string sHeight, string sVolume)
         {
-            if (sHeight == "" || sVolume == "" || sTipVolume == "")
-                throw new Exception("高度，体积，TipVolume不能为空！");
-            string[] strs = new string[] { sVolume, sHeight, sTipVolume };
+            if (sHeight == "" || sVolume == "")
+                throw new Exception("高度，体积,不能为空！");
+            string[] strs = new string[] { sVolume, sHeight };
             ListViewItem itm = new ListViewItem(strs);
             txtHeight.Text = "";
             txtVolume.Text = "";
-            txtTipVolume.Text = "";
+
             lvCalibration.Items.Add(itm);
         }
 
@@ -110,9 +109,7 @@ namespace Calibration
             {
                 int volume = int.Parse(itm.SubItems[0].Text);
                 double height = Math.Round(double.Parse(itm.SubItems[1].Text), 2);
-               
-                int tipPerVolume = int.Parse(itm.SubItems[2].Text);
-                CalibrationItem calibItem = new CalibrationItem(height, volume, tipPerVolume);
+                CalibrationItem calibItem = new CalibrationItem(height, volume);
                 calibItems.Add(calibItem);
             }
             CalibrationItems items = new CalibrationItems(calibItems);
@@ -128,7 +125,6 @@ namespace Calibration
          
             txtVolume.Text = currentItem.SubItems[0].Text;
             txtHeight.Text = currentItem.SubItems[1].Text;
-            txtTipVolume.Text = currentItem.SubItems[2].Text;
         }
     }
 }

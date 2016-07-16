@@ -31,11 +31,11 @@ namespace SampleInfo
         string xmlFolder = Utility.GetExeFolder();
         string sLabwareSettingFileName;
         string sPipettingFileName;
-        string sTubeSettingsFileName;
+        //string sTubeSettingsFileName;
 
         LabwareSettings labwareSettings = new LabwareSettings();
         PipettingSettings pipettingSettings = new PipettingSettings();
-        TubeSettings tubeSettings = new TubeSettings();
+        //TubeSettings tubeSettings = new TubeSettings();
         int maxSampleCount = 0;
         public MainWindow()
         {
@@ -43,11 +43,14 @@ namespace SampleInfo
 
             sLabwareSettingFileName = xmlFolder + "\\labwareSettings.xml";
             sPipettingFileName = xmlFolder + "\\pipettingSettings.xml";
-            sTubeSettingsFileName = xmlFolder + stringRes.tubeSettingFileName;
-            maxSampleCount = int.Parse(ConfigurationManager.AppSettings[stringRes.maxSampleCount]);
+            //sTubeSettingsFileName = xmlFolder + stringRes.tubeSettingFileName;
+            string exePath = Utility.GetExeFolder() + "Biobanking.exe";
+            Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
+
+            maxSampleCount = int.Parse(config.AppSettings.Settings[stringRes.maxSampleCount].Value);
             string s = "";
-            plasmaMaxCount = int.Parse(ConfigurationManager.AppSettings["PlasmaMaxCount"]);
-            buffyMaxCount = int.Parse(ConfigurationManager.AppSettings["BuffyMaxCount"]);
+            plasmaMaxCount = int.Parse(config.AppSettings.Settings["PlasmaMaxCount"].Value);
+            buffyMaxCount = int.Parse(config.AppSettings.Settings["BuffyMaxCount"].Value);
             if (!File.Exists(sLabwareSettingFileName))
             {
                 SetInfo("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName, Colors.Red);
@@ -60,19 +63,19 @@ namespace SampleInfo
                 return;
             }
 
-            if(!File.Exists(sTubeSettingsFileName))
-            {
-                SetInfo("ChangeableSettings xml does not exist! at : " + sTubeSettingsFileName, Colors.Red);
-                return;
-            }
+            //if(!File.Exists(sTubeSettingsFileName))
+            //{
+            //    SetInfo("Tube Settings xml does not exist! at : " + sTubeSettingsFileName, Colors.Red);
+            //    return;
+            //}
             
             try
             {
                 s = File.ReadAllText(sPipettingFileName);
                 pipettingSettings = Utility.Deserialize<PipettingSettings>(s);
-                s = File.ReadAllText(sTubeSettingsFileName);
-                tubeSettings.Settings.Clear();
-                tubeSettings = Utility.Deserialize<TubeSettings>(s);
+                //s = File.ReadAllText(sTubeSettingsFileName);
+                //tubeSettings.Settings.Clear();
+                //tubeSettings = Utility.Deserialize<TubeSettings>(s);
             }
             catch (Exception ex)
             {
@@ -160,18 +163,18 @@ namespace SampleInfo
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
-                TubeSetting selectedSetting = new TubeSetting();
-                if(lstSampleSettings.Items.Count != 0)
-                {
-                    tubeSettings.selectIndex = lstSampleSettings.SelectedIndex;
-                    selectedSetting = tubeSettings.Settings[tubeSettings.selectIndex];
-                }
-                else
-                {
-                    tubeSettings.Settings.Add(selectedSetting);
-                }
-                pipettingSettings.msdZDistance = selectedSetting.msdZDistance;
-                pipettingSettings.msdStartPositionAboveBuffy = selectedSetting.msdStartPositionAboveBuffy;
+                //TubeSetting selectedSetting = new TubeSetting();
+                //if(lstSampleSettings.Items.Count != 0)
+                //{
+                //    tubeSettings.selectIndex = lstSampleSettings.SelectedIndex;
+                //    selectedSetting = tubeSettings.Settings[tubeSettings.selectIndex];
+                //}
+                //else
+                //{
+                //    tubeSettings.Settings.Add(selectedSetting);
+                //}
+                //pipettingSettings.msdZDistance = selectedSetting.msdZDistance;
+                //pipettingSettings.msdStartPositionAboveBuffy = selectedSetting.msdStartPositionAboveBuffy;
                 SaveSettings();
            }
            catch (Exception ex)
@@ -206,8 +209,7 @@ namespace SampleInfo
         {
             Utility.WriteExecuteResult(sampleCount);
             Utility.SaveSettings(pipettingSettings, sPipettingFileName);
-            
-            Utility.SaveSettings(tubeSettings, sTubeSettingsFileName);
+            //Utility.SaveSettings(tubeSettings, sTubeSettingsFileName);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -226,7 +228,7 @@ namespace SampleInfo
             txtVolume.Text = pipettingSettings.plasmaGreedyVolume.ToString();
             txtBuffyVolume.Text = pipettingSettings.buffyVolume.ToString();
             txtbuffySliceCnt.Text = pipettingSettings.dstbuffySlice.ToString();
-            InitListView();
+            //InitListView();
             //lstRadius.IsEnabled = false;
 
             //chkHasBuffy.IsChecked = Convert.ToBoolean(Utility.ReadFolder(stringRes.hasBuffyFile));
@@ -234,25 +236,25 @@ namespace SampleInfo
         }
 
 
-        private void InitListView()
-        {
+        //private void InitListView()
+        //{
 
-            DataTable tbl = new DataTable("template");
-            tbl.Columns.Add("radius", typeof(string));
-            tbl.Columns.Add("distance", typeof(string));
-            tbl.Columns.Add("startPos", typeof(string));
+        //    DataTable tbl = new DataTable("template");
+        //    tbl.Columns.Add("radius", typeof(string));
+        //    tbl.Columns.Add("distance", typeof(string));
+        //    tbl.Columns.Add("startPos", typeof(string));
            
-            for (int i = 0; i < tubeSettings.Settings.Count; i++)
-            {
-                object[] objs = new object[3];
-                objs[0] = tubeSettings.Settings[i].r_mm;
-                objs[1] = tubeSettings.Settings[i].msdZDistance;
-                objs[2] = tubeSettings.Settings[i].msdStartPositionAboveBuffy;
-                tbl.Rows.Add(objs);
-            }
-            lstSampleSettings.ItemsSource = tbl.DefaultView;
-            lstSampleSettings.SelectedIndex = tubeSettings.selectIndex;
-        }
+        //    for (int i = 0; i < tubeSettings.Settings.Count; i++)
+        //    {
+        //        object[] objs = new object[3];
+        //        objs[0] = tubeSettings.Settings[i].r_mm;
+        //        objs[1] = tubeSettings.Settings[i].msdZDistance;
+        //        objs[2] = tubeSettings.Settings[i].msdStartPositionAboveBuffy;
+        //        tbl.Rows.Add(objs);
+        //    }
+        //    lstSampleSettings.ItemsSource = tbl.DefaultView;
+        //    lstSampleSettings.SelectedIndex = tubeSettings.selectIndex;
+        //}
 
     }
 }

@@ -12,18 +12,16 @@ namespace Settings
     [Serializable]
     public class CalibrationItem
     {
-        public int tipVolume;
+        //public int tipVolume;
         public int volumeUL;
         public double height;
-        public CalibrationItem(double h, int v,int tipV)
+        public CalibrationItem(double h, int v)
         {
-            tipVolume = tipV;
             volumeUL = v;
             height = h;
         }
         public CalibrationItem()
         {
-
         }
     }
 
@@ -69,32 +67,32 @@ namespace Settings
         public int dstSamplePosition { get; set; }
     }
   
-    [Serializable]
-    public class TubeSetting
-    {
-        public double r_mm;
-        public double msdZDistance;
-        public double msdStartPositionAboveBuffy;
-        public TubeSetting()
-        {
-            r_mm = 5;
-            msdZDistance = 4;
-            msdStartPositionAboveBuffy = 1;
-        }
-    }
+    //[Serializable]
+    //public class TubeSetting
+    //{
+    //    public double r_mm;
+    //    //public double msdZDistance;
+    //    //public double msdStartPositionAboveBuffy;
+    //    public TubeSetting()
+    //    {
+    //        r_mm = 5;
+    //        //msdZDistance = 4;
+    //        //msdStartPositionAboveBuffy = 1;
+    //    }
+    //}
 
-    [Serializable]
-    public class TubeSettings
-    {
-        public List<TubeSetting> Settings;
-        public int selectIndex;
-        public TubeSettings()
-        {
-            Settings = new List<TubeSetting>();
-            //Settings.Add(new TubeSetting());
-            //selectIndex = 0;
-        }
-    }
+    //[Serializable]
+    //public class TubeSettings
+    //{
+    //    public List<TubeSetting> Settings;
+    //    public int selectIndex;
+    //    public TubeSettings()
+    //    {
+    //        Settings = new List<TubeSetting>();
+    //        //Settings.Add(new TubeSetting());
+    //        //selectIndex = 0;
+    //    }
+    //}
 
     [Serializable]
     public class PipettingSettings
