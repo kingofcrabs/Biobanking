@@ -55,35 +55,6 @@ namespace ConfigureTool
             item_Desc.Add("retractHeightcm", "打掉白膜后retract高度，单位为cm。");
             item_Desc.Add("maxVolumePerSlice", "单份最大体积。");
             item_Desc.Add("bottomOffset", "PAZ的偏移量，不要修改。");
-            //public bool onlyOneSlicePerRegion;
-            //public bool msdXYTogether;
-            //public int airGap;
-            //public int bottomOffsetmm;
-            //public int maxVolumePerSlice;
-            //public int retractHeightcm;
-
-
-            //   public int buffyAspirateLayers;
-            //public int dstPlasmaSlice;
-            //public int dstbuffySlice;
-            //public int deltaXYForMSD;
-            //public int buffyVolume;
-            //public int safeDelta;
-            //public double buffySpeedFactor;
-            //public double plasmaGreedyVolume;
-            //public int dstRedCellSlice;
-            //public double redCellGreedyVolume;
-            //public double redCellBottomHeight;
-            //public bool giveUpNotEnough;
-            //public double msdZDistance;
-            //public double msdStartPositionAboveBuffy;
-            //public bool onlyOneSlicePerRegion;
-            //public bool msdXYTogether;
-            //public int airGap;
-            //public int bottomOffsetmm;
-            //public int maxVolumePerSlice;
-            //public int retractHeightcm;
-
         }
 
         public string this[string key]

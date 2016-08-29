@@ -32,7 +32,6 @@ namespace ConfigureTool
             InitializeComponent();
             listView.SelectionChanged += ListView_SelectionChanged;
             this.Loaded += MainWindow_Loaded;
-            this.Closing += MainWindow_Closing;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -62,11 +61,7 @@ namespace ConfigureTool
             SetInfo(descriptionHelper[currentKey]);
         }
 
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            
-        }
-
+     
 
         private void SetInfo(string message, bool isError = false)
         {
@@ -124,7 +119,12 @@ namespace ConfigureTool
             currentSettings[currentKey] = txtCurrentVal.Text;
             tbl.Rows[listView.SelectedIndex][1] = txtCurrentVal.Text;
 
+            bool isConfigSettings = (bool)rdbConfigSettings.IsChecked;
+            bool isLabwareSettings = (bool)rdbLabwareSettings.IsChecked;
+            bool isPipettingSettings = (bool)rdbPipettingSettings.IsChecked;
+            settings.Save(isConfigSettings, isLabwareSettings, isPipettingSettings, currentSettings);
         }
+
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();

@@ -11,22 +11,23 @@ namespace ConfigureTool
 {
     class Setting
     {
-        public Dictionary<string,string> Load(bool configSettings, bool isLabwareSettings, bool isPipettingSettings)
+       
+        string sLabwareSettingFileName = Utility.GetExeFolder() + "\\labwareSettings.xml";
+        string sPipettingFileName = Utility.GetExeFolder() + "\\pipettingSettings.xml";
+        PipettingSettings pipettingSettings = new PipettingSettings();
+        LabwareSettings labwareSettings = new LabwareSettings();
+        public Dictionary<string,string> Load(bool isConfigSettings, bool isLabwareSettings, bool isPipettingSettings)
         {
           
-            if (configSettings)
+            if (isConfigSettings)
             {
                 return LoadConfigSettings();
             }
-            string sLabwareSettingFileName;
-            string sPipettingFileName;
-            string xmlFolder = Utility.GetExeFolder();
-            sLabwareSettingFileName = xmlFolder + "\\labwareSettings.xml";
-            sPipettingFileName = xmlFolder + "\\pipettingSettings.xml";
+          
             string s = File.ReadAllText(sPipettingFileName);
-            var pipettingSettings = Utility.Deserialize<PipettingSettings>(s);
+            pipettingSettings = Utility.Deserialize<PipettingSettings>(s);
             s = File.ReadAllText(sLabwareSettingFileName);
-            var labwareSettings = Utility.Deserialize<LabwareSettings>(s);
+            labwareSettings = Utility.Deserialize<LabwareSettings>(s);
             if (isLabwareSettings)
             {
                 return GetSetting(labwareSettings);
@@ -37,6 +38,64 @@ namespace ConfigureTool
             }
             throw new Exception("不支持的设置！");
         }
+
+
+        public void Save(bool isConfigSettings, bool isLabwareSettings, bool isPipettingSettings,Dictionary<string,string> settings)
+        {
+            if(isConfigSettings)
+            {
+                SaveConfigSettings(settings);
+            }
+            else if(isPipettingSettings)
+            {
+                SetSetting(pipettingSettings, settings);
+                Utility.SaveSettings(pipettingSettings, sPipettingFileName);
+            }
+            else if(isLabwareSettings)
+            {
+                SetSetting(labwareSettings, settings);
+                Utility.SaveSettings(labwareSettings, sLabwareSettingFileName);
+            }
+            else
+                throw new Exception("不支持的配置文件！");
+        }
+        private void SetSetting(Object obj, Dictionary<string, string> settings )
+        {
+            var fieldsType = obj.GetType();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+
+            FieldInfo[] fields = fieldsType.GetFields(BindingFlags.Public
+           | BindingFlags.Instance);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                //settings[fields[i].SetValue()
+                string key = fields[i].Name;
+                object subObj = ParseString(settings[key]);
+                fields[i].SetValue(obj, subObj);
+            }
+        }
+
+
+        object ParseString(string s)
+        {
+            bool result = false;
+            double dVal = 0;
+            int val = 0;
+            if (bool.TryParse(s, out result))
+            {
+                return result;
+            }
+            else if (int.TryParse(s, out val))
+            {
+                return val;
+            }
+            else if (double.TryParse(s, out dVal))
+            {
+                return dVal;
+            }
+            return s;
+        }
+           
 
         private Dictionary<string, string> GetSetting(Object settings)
         {
@@ -57,7 +116,9 @@ namespace ConfigureTool
             return ConfigFile.Read();
         }
 
-        public void SaveConfigSettings(Dictionary<string,string> settings)
+
+
+        private void SaveConfigSettings(Dictionary<string,string> settings)
         {
             ConfigFile.Save(settings);
         }
