@@ -521,7 +521,7 @@ namespace Biobanking
                 int firstColumnSampleCount = endIndexFirstColumn - srcRackIndex * labwareSettings.sourceWells - sampleIndexInRack + 1;
                 List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex,sliceIndex, sampleIndexInRack, firstColumnSampleCount);
                 int grid = 0, site = 0;
-                CalculateDestGridAndSite4OneSlicePerRegion(sliceIndex, ref grid, ref site);
+                CalculateDestGridAndSite4OneSlicePerLabware(sliceIndex, ref grid, ref site);
                 List<double> volumes1;
                 List<double> volumes2;
                 SplitVolumes2Region(volumes, out volumes1, out volumes2, firstColumnSampleCount);
@@ -630,7 +630,7 @@ namespace Biobanking
         }
 
         //in each region, only 1 slice would be dispensed to
-        private void CalculateDestGridAndSite4OneSlicePerRegion(int sliceIndex, ref int grid, ref int site)
+        private void CalculateDestGridAndSite4OneSlicePerLabware(int sliceIndex, ref int grid, ref int site)
         {
             int startGrid = labwareSettings.dstLabwareStartGrid;
             int sitesPerGrid = labwareSettings.sitesPerCarrier;
@@ -791,6 +791,11 @@ namespace Biobanking
                     }
                 }
                 WriteComment("aspirate buffy from slice 1", sw);
+                if(tipOffset == 4) //use last four
+                {
+                    POINT ptZero = new POINT(0, 0); 
+                    pts.InsertRange(0, new List<POINT> { ptZero, ptZero, ptZero, ptZero });
+                }
                 string strAsp = GenerateAspirateCommand(pts, volumes, BB_Buffy_Mix, grid, site, labwareSettings.dstLabwareRows);
                 sw.WriteLine(strAsp);
 
@@ -859,7 +864,7 @@ namespace Biobanking
             int grid = 0, site = 0;
             if(bOnlyOneSlicePerRegion)
             {
-                CalculateDestGridAndSite4OneSlicePerRegion(pipettingSetting.dstPlasmaSlice, ref grid, ref site);
+                CalculateDestGridAndSite4OneSlicePerLabware(pipettingSetting.dstPlasmaSlice, ref grid, ref site);
             }
             else
             {
@@ -1003,7 +1008,7 @@ namespace Biobanking
         }
         private string GetMSDCommand(int deltaXY, int numSegments, int tipSel, int dialutorSteps,  int speedXY, int accXY)
         {
-            bool bTogether = bool.Parse(ConfigurationManager.AppSettings["MSDXYTogether"]);
+            bool bTogether = pipettingSetting.msdXYTogether;//bool.Parse(ConfigurationManager.AppSettings["MSDXYTogether"]);
             string sDeltaXY = bTogether ? deltaXY.ToString() : string.Format("{0},{0}", deltaXY);
 
             string s = string.Format("C5MSD{0},{1},{2},{3},0,{4},{5}", sDeltaXY, numSegments, tipSel, dialutorSteps, speedXY, accXY);
