@@ -71,7 +71,13 @@ namespace Biobanking
             //sciRobotHelper.ReadZValues(ref heights);
             //return heights;
             List<DetectedInfo> heights = new List<DetectedInfo>();
+            List<string> barcodes = null;
+            if(GlobalVars.Instance.DstBarcodeFolder != "")
+            {
+                barcodes = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
+            }
             string reportPath = GlobalVars.Instance.ResultFile;//ConfigurationManager.AppSettings[stringRes.reportPath];
+            int line = 1;
             using (StreamReader sr = new StreamReader(reportPath))
             {
                 string sContent = "";
@@ -93,9 +99,10 @@ namespace Biobanking
                     DetectedInfo detectedInfo = new DetectedInfo();
                     int infoIndex = (curRow - 1);
                     string[] vals = sContent.Split(',');
-                    detectedInfo.Z1 = double.Parse(vals[1]);
-                    detectedInfo.Z2 = double.Parse(vals[2]);
-                    detectedInfo.sBarcode = vals[0];
+                    detectedInfo.Z1 = double.Parse(vals[1])/10;
+                    detectedInfo.Z2 = double.Parse(vals[2])/10;
+                    if(barcodes != null)
+                        detectedInfo.sBarcode = barcodes[line++];//vals[0];
                     heights.Add(detectedInfo);
 
                     if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)
