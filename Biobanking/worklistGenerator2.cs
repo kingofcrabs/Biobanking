@@ -236,14 +236,14 @@ namespace Biobanking
                     POINT ptZero = new POINT(0, 0);
                     ptsAsp.InsertRange(0, new List<POINT>() { ptZero, ptZero, ptZero, ptZero });
                 }
-                //for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
-                //{
-                //    // set tip_volume 
-                //    double z2 = heightsThisTime[tipIndex].Z2;
-                //    int volume2Set = 8000; //high enough
-                //    WriteSetVolString(tipIndex + tipOffSet, volume2Set, sw);
-                //    buffyvolumes.Add(10); //为了让tip_volumen_x起作用，加10ul
-                //}
+                for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
+                {
+                    // set tip_volume 
+                    //double z2 = heightsThisTime[tipIndex].Z2;
+                    //int volume2Set = 8000; //high enough
+                    //WriteSetVolString(tipIndex + tipOffSet, volume2Set, sw);
+                    buffyvolumes.Add(10); //为了让tip_volumen_x起作用，加10ul
+                }
                 int srcGrid = GetSrcGrid(rackIndex);
                 string strAspirateBuffy = GenerateAspirateCommand(ptsAsp, buffyvolumes, BB_Buffy, srcGrid, 0, labwareSettings.sourceWells);
                 sw.WriteLine(strAspirateBuffy);
@@ -880,9 +880,13 @@ namespace Biobanking
             log.Info("Write MSD");
             int samplesInTheBatch = detectedInfos.Count;
             List<double> heights = detectedInfos.Select(x => x.Z2).ToList();
-            foreach(var h in heights)
+          
+
+            List<double> adjustHeights = new List<double>();
+            heights.ForEach(x => adjustHeights.Add(x + pipettingSetting.msdStartPositionAboveBuffy));
+            foreach (var h in adjustHeights)
             {
-                log.InfoFormat("Height: {0}", h + pipettingSetting.safeDelta);
+                log.InfoFormat("Adjust Height: {0}", h);
             }
             //move tips to absolute position
             MoveTipsToAbsolutePosition(sw, heights, tipOffset);
