@@ -20,7 +20,6 @@ namespace Settings
 
     public class Utility
     {
-        static string sSaveFolder = "";
         #region
         static public string GetExeFolder()
         {
@@ -105,13 +104,7 @@ namespace Settings
 
         static public string GetSaveFolder()
         {
-            if (sSaveFolder != "")
-                return sSaveFolder;
-
-            sSaveFolder = ConfigurationManager.AppSettings["SaveFolder"];
-            if (!Directory.Exists(sSaveFolder))
-                Directory.CreateDirectory(sSaveFolder);
-            return sSaveFolder;
+            return GetOutputFolder();
         }
 
       
