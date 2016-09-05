@@ -69,6 +69,17 @@ namespace Biobanking
                     {
                         for (int i = 0; i < pipettingSettings.dstbuffySlice; i++)
                         {
+                            if(sampleIndex + indexInList >= correspondingbarcodes.Count )
+                            {
+                                throw new Exception(string.Format("cannot find the corresponding barcode for sample:{0}", 
+                                    sampleIndex + indexInList));
+                            }
+                            if(pipettingSettings.dstPlasmaSlice + i >= correspondingbarcodes[sampleIndex + indexInList].Count)
+                            {
+                                throw new Exception(string.Format("cannot find the corresponding barcode for sample:{0}, slice:{1}",
+                                    sampleIndex + indexInList, 
+                                    pipettingSettings.dstPlasmaSlice + i));
+                            }
                             var dstBarcode = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i];
                             TrackInfo info = new TrackInfo(srcBarcodes[sampleIndex + indexInList],
                             dstBarcode,
