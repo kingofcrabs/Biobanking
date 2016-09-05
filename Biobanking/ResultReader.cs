@@ -65,16 +65,21 @@ namespace Biobanking
       
         public List<DetectedInfo> Read()
         {
-            //SciRobotHelper sciRobotHelper = new SciRobotHelper();
-            //List<DetectedHeight> heights = new List<DetectedHeight>();
-            ////check capacity
-            //sciRobotHelper.ReadZValues(ref heights);
-            //return heights;
             List<DetectedInfo> heights = new List<DetectedInfo>();
             List<string> barcodes = null;
-            if(GlobalVars.Instance.DstBarcodeFolder != "")
+            List<string> trimedBarcodes = new List<string>();
+            if (GlobalVars.Instance.DstBarcodeFolder != "")
             {
                 barcodes = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
+              
+                barcodes.ForEach(x => trimedBarcodes.Add(x.Trim()));
+                HashSet<string> uniqueBarcodes = new HashSet<string>(trimedBarcodes);
+                if(uniqueBarcodes.Count != trimedBarcodes.Count)
+                {
+                    var duplicates = trimedBarcodes.GroupBy(s => s).Where(grp => grp.Count() > 1);
+                    string duplicated = duplicates.First().Key;
+                    throw new Exception(string.Format("条码:{0}重复",duplicated));
+                }
             }
             string reportPath = GlobalVars.Instance.ResultFile;//ConfigurationManager.AppSettings[stringRes.reportPath];
             int line = 1;
@@ -102,7 +107,7 @@ namespace Biobanking
                     detectedInfo.Z1 = double.Parse(vals[1])/10;
                     detectedInfo.Z2 = double.Parse(vals[2])/10;
                     if(barcodes != null)
-                        detectedInfo.sBarcode = barcodes[line++];//vals[0];
+                        detectedInfo.sBarcode = trimedBarcodes[line++];//vals[0];
                     heights.Add(detectedInfo);
 
                     if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)

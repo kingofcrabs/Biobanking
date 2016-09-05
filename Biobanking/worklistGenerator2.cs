@@ -880,14 +880,7 @@ namespace Biobanking
             log.Info("Write MSD");
             int samplesInTheBatch = detectedInfos.Count;
             List<double> heights = detectedInfos.Select(x => x.Z2).ToList();
-          
-
-            List<double> adjustHeights = new List<double>();
-            heights.ForEach(x => adjustHeights.Add(x + pipettingSetting.msdStartPositionAboveBuffy));
-            foreach (var h in adjustHeights)
-            {
-                log.InfoFormat("Adjust Height: {0}", h);
-            }
+           
             //move tips to absolute position
             MoveTipsToAbsolutePosition(sw, heights, tipOffset);
 
