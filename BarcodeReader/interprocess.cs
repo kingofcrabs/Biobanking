@@ -102,7 +102,7 @@ namespace BarcodeReader
                     pipeServer.Disconnect();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //throw new Exception("Failed to create pipeServer! the detailed messages are: " + ex.Message);
                 //MessageBox.Show(ex.Message);

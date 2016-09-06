@@ -8,21 +8,7 @@ using System.Threading.Tasks;
 
 namespace Biobanking
 {
-    public class TrackInfo
-    {
-        public string sourceBarcode;
-        public string dstBarcode;
-        public string description;
-        public string volume;
-        public TrackInfo(string src, string dst, string desc, string v)
-        {
-            sourceBarcode = src;
-            dstBarcode = dst;
-            description = desc;
-            volume = v;
-        }
-    }
-
+    
     public class BarcodeTracker
     {
         List<TrackInfo> trackInfos = new List<TrackInfo>();
@@ -44,15 +30,30 @@ namespace Biobanking
             }
         }
 
+        private bool IsValidBarcode(string s)
+        {
+            foreach (char ch in s)
+            {
+                if (char.IsDigit(ch))
+                    return true;
+            }
+            return false;
+        }
+
         internal void Track(List<double> plasmaVols, int sliceIndex)
         {
             //trackInfos.Add( new TrackInfo(srcBarcodes[sam))
             int indexInList = 0;
             foreach (var vol in plasmaVols)
             {
+                string correspondingbarcode = correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
+                if(!IsValidBarcode(correspondingbarcode))
+                {
+                    throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1,correspondingbarcode));
+                }
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
-                TrackInfo info = new TrackInfo(srcBarcodes[sampleIndex+ indexInList], 
-                    correspondingbarcodes[sampleIndex+ indexInList][sliceIndex],
+                TrackInfo info = new TrackInfo(srcBarcodes[sampleIndex+ indexInList],
+                    correspondingbarcode,
                     plasmaName,
                     Math.Round(adjustVol, 2).ToString());
                 trackInfos.Add(info);
@@ -96,6 +97,7 @@ namespace Biobanking
 
         internal void WriteResult()
         {
+            Utility.SaveSettings(trackInfos, Utility.GetOutputFolder() + "trackinfo.xml");
             string sFolder = Utility.GetOutputFolder() + DateTime.Now.ToString("yyyyMMdd")+"\\";
             if (!Directory.Exists(sFolder))
                 Directory.CreateDirectory(sFolder);
@@ -119,8 +121,6 @@ namespace Biobanking
             if (!Directory.Exists(csvFolder))
                 Directory.CreateDirectory(csvFolder);
         }
-
-        
 
         private List<string> FormatInfos()
         {

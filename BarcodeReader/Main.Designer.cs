@@ -50,7 +50,7 @@
             this.dataGridView.Location = new System.Drawing.Point(12, 24);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.RowTemplate.Height = 23;
-            this.dataGridView.Size = new System.Drawing.Size(492, 365);
+            this.dataGridView.Size = new System.Drawing.Size(492, 415);
             this.dataGridView.TabIndex = 1;
             // 
             // label1
@@ -65,7 +65,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(10, 511);
+            this.label6.Location = new System.Drawing.Point(346, 8);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(53, 12);
             this.label6.TabIndex = 15;
@@ -74,10 +74,10 @@
             // richTextInfo
             // 
             this.richTextInfo.Font = new System.Drawing.Font("SimSun", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.richTextInfo.Location = new System.Drawing.Point(12, 448);
+            this.richTextInfo.Location = new System.Drawing.Point(12, 497);
             this.richTextInfo.Name = "richTextInfo";
             this.richTextInfo.ReadOnly = true;
-            this.richTextInfo.Size = new System.Drawing.Size(492, 60);
+            this.richTextInfo.Size = new System.Drawing.Size(492, 116);
             this.richTextInfo.TabIndex = 17;
             this.richTextInfo.Text = "";
             // 
@@ -85,7 +85,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("SimSun", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(9, 432);
+            this.label2.Location = new System.Drawing.Point(9, 481);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(72, 13);
             this.label2.TabIndex = 16;
@@ -107,13 +107,12 @@
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
             this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtLog.Size = new System.Drawing.Size(214, 484);
+            this.txtLog.Size = new System.Drawing.Size(214, 589);
             this.txtLog.TabIndex = 19;
             // 
             // btnConfirm
             // 
-            this.btnConfirm.Enabled = false;
-            this.btnConfirm.Location = new System.Drawing.Point(429, 395);
+            this.btnConfirm.Location = new System.Drawing.Point(429, 445);
             this.btnConfirm.Name = "btnConfirm";
             this.btnConfirm.Size = new System.Drawing.Size(75, 23);
             this.btnConfirm.TabIndex = 20;
@@ -123,7 +122,7 @@
             // 
             // btnSimulateBarcode
             // 
-            this.btnSimulateBarcode.Location = new System.Drawing.Point(348, 395);
+            this.btnSimulateBarcode.Location = new System.Drawing.Point(348, 445);
             this.btnSimulateBarcode.Name = "btnSimulateBarcode";
             this.btnSimulateBarcode.Size = new System.Drawing.Size(75, 23);
             this.btnSimulateBarcode.TabIndex = 21;
@@ -135,7 +134,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(746, 535);
+            this.ClientSize = new System.Drawing.Size(751, 625);
             this.Controls.Add(this.btnSimulateBarcode);
             this.Controls.Add(this.btnConfirm);
             this.Controls.Add(this.txtLog);

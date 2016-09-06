@@ -26,6 +26,7 @@ namespace BarcodeReader
         public MainForm()
         {
             InitializeComponent();
+            WriteResult(false);
             this.FormClosed += MainForm_FormClosed;
             this.Load += MainForm_Load;
         }
@@ -35,7 +36,7 @@ namespace BarcodeReader
             bool isSimulation = bool.Parse(ConfigurationManager.AppSettings["Simulation"]);
             if(isSimulation)
             {
-                for(int i = 0;i< 16;i++)
+                for(int i = 0;i< 32;i++)
                 {
                     simulateBarcodes.Add(string.Format("{0}", i+1));
                 }
@@ -64,6 +65,9 @@ namespace BarcodeReader
             if (e.ColumnIndex >= dataGridView.Rows[0].Cells.Count)
                 return;
             int grid = e.ColumnIndex + 1;
+            if(e.ColumnIndex *16 + e.RowIndex+1 > totalSampleCnt)
+                return;
+
             var cell = dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex];
             string newBarcode = cell.Value.ToString();
 
@@ -75,7 +79,7 @@ namespace BarcodeReader
             {
                 btnConfirm.Enabled = true;
                 cell.Style.BackColor = Color.Orange;
-                cell.ReadOnly = true;
+                //cell.ReadOnly = true;
                 string hint = string.Format("Grid:{0} 第{1}个样品管的条码得到修复。"
                     , grid, e.RowIndex + 1);
             }
@@ -94,30 +98,41 @@ namespace BarcodeReader
             catch (Exception ex)
             {
                 AddErrorInfo(ex.Message);
+                return;
             }
+            AddInfo("检查通过！");
+            WriteResult(true);
             ProcessHelper.CloseWaiter();
-            btnConfirm.Enabled = false;
+            this.Close();
+            //btnConfirm.Enabled = false;
         }
 
         private void CheckBarcodes()
         {
-            //List<string> aheadBarcodes = barcodes.Take(rowIndex).ToList();
-            //foreach (var pair in eachGridBarcodes)
-            //{
-            //    int tmpGrid = pair.Key;
-            //    var tmpBarcode = pair.Value;
-            //    if (tmpGrid >= grid)
-            //        continue;
-            //    if (tmpBarcode.Contains(sCurrentBarcode))
-            //    {
-            //        errMsg = string.Format("Grid{0}中第{1}个条码:{2}在Grid{3}中已经存在！",
-            //        grid,
-            //        rowIndex + 1,
-            //        sCurrentBarcode,
-            //        tmpGrid);
-            //        return false;
-            //    }
-            //}
+            var eachGridBarcodes = GetEachGridBarcodes();
+            string errMsg = "";
+            for(int r = 0; r< dataGridView.Rows.Count; r++)
+            {
+                for(int c = 0; c < dataGridView.Rows[r].Cells.Count;c++)
+                {
+                    if (c * 16 + r + 1 > totalSampleCnt)
+                        continue;
+                    var cellVal = dataGridView[c, r].Value;
+                    string barcode = cellVal == null? "": cellVal.ToString();
+                    bool bok = IsValidBarcode(barcode, eachGridBarcodes, c + 1, r, ref errMsg);
+                    if (!bok)
+                        throw new Exception(errMsg);
+                }
+            }
+            int totalBarcodeCnt = 0;
+            foreach(var pair in eachGridBarcodes)
+            {
+                totalBarcodeCnt += pair.Value.Count;
+            }
+            if(totalBarcodeCnt < totalSampleCnt)
+            {
+                throw new Exception(string.Format("只有{0}个样品被赋予条码!", totalBarcodeCnt));
+            }
         }
 
         private void btnSimulateBarcode_Click(object sender, EventArgs e)
@@ -128,10 +143,7 @@ namespace BarcodeReader
 
         private void OnNewBarcode(string newBarcode)
         {
-            
             txtLog.AppendText(newBarcode+"\r\n");
-           
-
             var gridID = (tubeID + 15) / 16;
             int rowIndex = tubeID - (gridID - 1) * 16 -1;
             programModify = true;
@@ -179,25 +191,27 @@ namespace BarcodeReader
             return eachGridBarcodes;
         }
 
-        private bool IsValidBarcode(string currentBarcode,Dictionary<int,List<string>>eachGridBarcodes, int grid, int rowIndex, ref string errMsg)
+        private bool IsValidBarcode(string currentBarcode,Dictionary<int,List<string>>eachGridBarcodes, int gridID, int rowIndex, ref string errMsg)
         {
             if(currentBarcode == "")
             {
-                errMsg = string.Format("Grid{0}中第{1}个条码为空！", grid + 1, rowIndex + 1);
+                errMsg = string.Format("Grid{0}中第{1}个条码为空！", gridID, rowIndex + 1);
                 return false;
             }
             foreach (var pair in eachGridBarcodes)
             {
                 int tmpGrid = pair.Key;
                 var tmpBarcodes = pair.Value;
-                if (tmpGrid > grid)
-                    continue;
-                for( int r = 0; r< rowIndex; r++)
+
+                
+                for( int r = 0; r< tmpBarcodes.Count; r++)
                 {
-                    if(tmpBarcodes[r] == currentBarcode)
+                    if (tmpGrid == gridID && rowIndex == r) //dont compare to itself
+                        continue;
+                    if (tmpBarcodes[r] == currentBarcode)
                     {
                         errMsg = string.Format("Grid{0}中第{1}个条码:{2}在Grid{3}中已经存在！",
-                                       grid,
+                                       gridID,
                                        rowIndex + 1,
                                        currentBarcode,
                                        tmpGrid);
@@ -208,23 +222,16 @@ namespace BarcodeReader
             return true;
         }
 
-        //private bool IsValidBarcode(string newBarcode,ref string msg)
-        //{
-        //    bool alreadyExist = BarcodeAlreadyExists(newBarcode);
-        //    if(alreadyExist)
-        //    {
-        //        msg = "条码已经存在！";
-        //    }
-        //    if(newBarcode == "")
-        //    {
-        //        msg = "条码不得为空！";
-        //    }
-        //    return !alreadyExist && newBarcode != "";
-        //}
 
         private void AddErrorInfo(string txt)
         {
             richTextInfo.SelectionColor = Color.Red;
+            richTextInfo.AppendText(txt + "\r\n");
+        }
+
+        private void AddInfo(string txt)
+        {
+            richTextInfo.SelectionColor = Color.Green;
             richTextInfo.AppendText(txt + "\r\n");
         }
 
@@ -254,14 +261,6 @@ namespace BarcodeReader
                 dataGridView.Rows.Add(strs.ToArray());
                 dataGridView.Rows[i].HeaderCell.Value = string.Format("行{0}", i + 1);
             }
-
-            //for(int r = 0; r < dataGridView.Rows.Count; r++)
-            //{
-            //    for( int c = 0; c < dataGridView.Rows[0].Cells.Count; c++)
-            //    {
-            //        dataGridView.Rows[r].Cells[c].Value = "";
-            //    }
-            //}
         }
      
 

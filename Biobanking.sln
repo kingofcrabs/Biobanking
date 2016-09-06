@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigureTool", "ConfigureT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarcodeReader", "BarcodeReader\BarcodeReader.csproj", "{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TubeChecker", "TubeChecker\TubeChecker.csproj", "{8342B717-2C3F-47C3-8DFB-6BB01235E31A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -145,6 +147,18 @@ Global
 		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|x86.ActiveCfg = Release|Any CPU
 		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|x86.Build.0 = Release|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Debug|x86.Build.0 = Debug|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|x86.ActiveCfg = Release|Any CPU
+		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

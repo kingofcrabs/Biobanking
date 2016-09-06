@@ -12,6 +12,28 @@ using System.Configuration;
 
 namespace Settings
 {
+
+    [Serializable]
+    public class TrackInfo
+    {
+        public string sourceBarcode;
+        public string dstBarcode;
+        public string description;
+        public string volume;
+        public TrackInfo()
+        {
+
+        }
+        public TrackInfo(string src, string dst, string desc, string v)
+        {
+            sourceBarcode = src;
+            dstBarcode = dst;
+            description = desc;
+            volume = v;
+        }
+    }
+
+
     public sealed class Utf8StringWriter : StringWriter
     {
         public override Encoding Encoding { get { return Encoding.UTF8; } }
