@@ -18,7 +18,10 @@ namespace Biobanking
         int startIndex = 0;
         LabwareSettings labwareSettings;
         PipettingSettings pipettingSettings;
-        public List<List<string>> ReadBarcodes(LabwareSettings labwareSettings, PipettingSettings pipettingSettings)
+        public List<List<string>> ReadBarcodes(LabwareSettings labwareSettings,
+            PipettingSettings pipettingSettings,
+            Dictionary<string, string> plateBarcodes, 
+            Dictionary<string,string> barcode_Position)
         {
             startIndex = 0;
             this.labwareSettings = labwareSettings;
@@ -37,7 +40,7 @@ namespace Biobanking
                 throw new Exception("Cannot find file of this experiment!");
             }
             List<List<string>> correspondingbarcodes = new List<List<string>>();
-            files.ForEach(x => ReadBarcode(correspondingbarcodes, x.FullName));
+            files.ForEach(x => ReadBarcode(correspondingbarcodes, plateBarcodes,barcode_Position, x.FullName));
             return correspondingbarcodes;
         }
 
@@ -46,9 +49,18 @@ namespace Biobanking
             return int.Parse(d.Name.Substring(5));
         }
 
-        private void ReadBarcode(List<List<string>> barcodesAllSrcTube, string sFile)
+        private void ReadBarcode(List<List<string>> barcodesAllSrcTube,
+            Dictionary<string, string>barcode_plateBarcode,
+            Dictionary<string,string> barcode_Position,
+            string sFile)
         {
             var strs = File.ReadAllLines(sFile).ToList();
+            string firstLine = strs[0];
+            var indexOfID = strs[0].IndexOf("ID:");
+            string plateBarcode = strs[0].Substring(indexOfID);
+            if (plateBarcode == "")
+                throw new Exception(string.Format("文件：{0}中Box ID为空", sFile));
+            //plateBarcodes.Add(plateBarcode);
             strs = strs.Skip(1).ToList();
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
             Dictionary<string, string> barcodesThisPlate = new Dictionary<string, string>();
@@ -59,8 +71,9 @@ namespace Biobanking
                 string position = GetDescription(sampleID);
                 var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
                 barcodesThisPlate.Add(position, barcode);
-                
-                if(barcodesThisPlate.Where(x=>x.Value == barcode).Count() > 1)
+                barcode_Position.Add(barcode, position);
+                barcode_plateBarcode.Add(barcode, plateBarcode);
+                if (barcodesThisPlate.Where(x=>x.Value == barcode).Count() > 1)
                 {
                     var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
                     throw new Exception(string.Format("位于:{0}与:{1}处的条码重复！", wells[0], wells[1]));
@@ -87,7 +100,6 @@ namespace Biobanking
                     }
                     barcodesAllSrcTube.Add(subRegionBarcodes);
                 }
-
             }
         }
 

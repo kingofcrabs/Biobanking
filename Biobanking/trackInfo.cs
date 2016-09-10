@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
+using System.Data.OleDb;
+using System.Data;
 
 namespace Biobanking
 {
@@ -14,6 +17,8 @@ namespace Biobanking
         List<TrackInfo> trackInfos = new List<TrackInfo>();
         PipettingSettings pipettingSettings = null;
         List<List<string>> correspondingbarcodes;
+        Dictionary<string, string> barcode_plateBarcodes = new Dictionary<string, string>();
+        Dictionary<string, string> barcode_Position = new Dictionary<string, string>();
         List<string> srcBarcodes;
         int sampleIndex = 0;
         const string buffyName = "Blood-Buffy";
@@ -23,7 +28,10 @@ namespace Biobanking
             this.srcBarcodes = srcBarcodes;
             this.pipettingSettings = pipettingSettings;
             ExcelReader excelReader = new ExcelReader();
-            correspondingbarcodes = excelReader.ReadBarcodes(labwareSettings,pipettingSettings);
+            correspondingbarcodes = excelReader.ReadBarcodes(labwareSettings,
+                pipettingSettings,
+                barcode_plateBarcodes,
+                barcode_Position);
             if(srcBarcodes.Count > correspondingbarcodes.Count)
             {
                 throw new Exception("source barcodes' count > dest barcodes' count");
@@ -46,16 +54,18 @@ namespace Biobanking
             int indexInList = 0;
             foreach (var vol in plasmaVols)
             {
-                string correspondingbarcode = correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
-                if(!IsValidBarcode(correspondingbarcode))
+                string dstBarcode = correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
+                if(!IsValidBarcode(dstBarcode))
                 {
-                    throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1,correspondingbarcode));
+                    throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1,dstBarcode));
                 }
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                 TrackInfo info = new TrackInfo(srcBarcodes[sampleIndex+ indexInList],
-                    correspondingbarcode,
+                    dstBarcode,
                     plasmaName,
-                    Math.Round(adjustVol, 2).ToString());
+                    Math.Round(adjustVol, 2).ToString(),
+                    barcode_plateBarcodes[dstBarcode],
+                    barcode_Position[dstBarcode]);
                 trackInfos.Add(info);
                 indexInList++;
             }
@@ -85,7 +95,9 @@ namespace Biobanking
                             TrackInfo info = new TrackInfo(srcBarcodes[sampleIndex + indexInList],
                             dstBarcode,
                             buffyName,
-                            Math.Round(vol, 2).ToString());
+                            Math.Round(vol, 2).ToString(), 
+                            barcode_plateBarcodes[dstBarcode],
+                            barcode_Position[dstBarcode]);
                             trackInfos.Add(info);
                         }
                     }
@@ -111,9 +123,31 @@ namespace Biobanking
                 Directory.CreateDirectory(sFolder);
             var sCSVFile = csvFolder + sTime + ".csv";
             var sExcelFile = excelFolder + sTime + ".xls";
+            WriteResult2SqlServer();
             List<string> strs = FormatInfos();
             File.WriteAllLines(sCSVFile, strs);
             ExcelReader.SaveAsExcel(sCSVFile, sExcelFile);
+        }
+
+        private void WriteResult2SqlServer()
+        {
+            SqlConnection con = new SqlConnection();
+            foreach(var info in trackInfos)
+            {
+                string str = string.Format(@"insert into interface_tecan_info
+(SourceBarcode,
+DestBarcode,Volume,TypeDescription,DestPlateBarcode,PositionInPlate) values 
+('{0}','{1}','{2}','{3}','{4}','{5}')", 
+            info.sourceBarcode,
+            info.dstBarcode,
+            info.volume,
+            info.description,
+            info.plateBarcode,
+            info.position);
+                SqlCommand command = new SqlCommand(str, con);
+                command.ExecuteNonQuery();
+            }
+            con.Close();//关闭数据库
         }
 
         private void CreateIfNotExist(string csvFolder)

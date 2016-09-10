@@ -107,7 +107,8 @@ namespace Biobanking
                     detectedInfo.Z1 = double.Parse(vals[1])/10;
                     detectedInfo.Z2 = double.Parse(vals[2])/10;
                     if(barcodes != null)
-                        detectedInfo.sBarcode = trimedBarcodes[line++];//vals[0];
+                        detectedInfo.sBarcode = trimedBarcodes[line-1];//vals[0];
+                    line++;
                     heights.Add(detectedInfo);
 
                     if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)
