@@ -20,16 +20,20 @@ namespace Settings
         public string dstBarcode;
         public string description;
         public string volume;
+        public string plateBarcode;
+        public string position;
         public TrackInfo()
         {
 
         }
-        public TrackInfo(string src, string dst, string desc, string v)
+        public TrackInfo(string src, string dst, string desc, string v,string plateBarcode, string position)
         {
             sourceBarcode = src;
             dstBarcode = dst;
             description = desc;
             volume = v;
+            this.plateBarcode = plateBarcode;
+            this.position = position;
         }
     }
 
