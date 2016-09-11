@@ -16,6 +16,6 @@
             <ColumnDefinition Width ="200"/>
         </Grid.ColumnDefinitions>
         <Grid Name="canvas"/>
-        <ListBox Name="lstFiles" Grid.Column="1" SelectionChanged="lstFiles_SelectionChanged"></ListBox>
+        <ListBox Name="lstPlateBarcodes" Grid.Column="1" SelectionChanged="lstPlateBarcodes_SelectionChanged"></ListBox>
     </Grid>
 </Window>

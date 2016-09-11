@@ -24,41 +24,31 @@ namespace TubeChecker
     public partial class MainWindow : Window
     {
         PlateViewer plateViewer;
-        List<string> barcodeFilePaths;
-        List<string> usedBarcodes;
+        List<TrackInfo> trackInfos;
+        
         public MainWindow()
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
-            barcodeFilePaths = GetBarcodeFiles();
-            usedBarcodes = GetUsedBarcodes();
-            lstFiles.ItemsSource = barcodeFilePaths;
-           
+            trackInfos = ReadTrackInfos();
+            var plateBarcodes = trackInfos.Select(x => x.plateBarcode).Distinct().ToList();
+            lstPlateBarcodes.ItemsSource = plateBarcodes;
+         
         }
 
-        private List<string> GetUsedBarcodes()
+        private List<TrackInfo> ReadTrackInfos()
         {
             string trackInfoFile = Utility.GetOutputFolder() + "trackinfo.xml";
             string xml = File.ReadAllText(trackInfoFile);
             var trackInfos = Utility.Deserialize<List<TrackInfo>>(xml);
-            var barcodes = new List<string>();
-            trackInfos.ForEach(x => barcodes.Add(x.dstBarcode));
-            return barcodes;
-        }
-
-        private List<string> GetBarcodeFiles()
-        {
-            string exePath = Utility.GetExeFolder() + "Biobanking.exe";
-            Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-            var folder = config.AppSettings.Settings["DstBarcodeFolder"].Value;
-            DirectoryInfo di = new DirectoryInfo(folder);
-            return di.EnumerateFiles("*.csv").Select(x=>x.FullName).ToList();
+            return trackInfos;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             plateViewer = new PlateViewer(new Size(600, 400), new Size(30, 40));
             canvas.Children.Add(plateViewer);
+            lstPlateBarcodes.SelectedIndex = 0;
             //List<int> wellIDs = new List<int>()
             //{
             //    1,2,3,5,8,12,20,89
@@ -66,23 +56,34 @@ namespace TubeChecker
             //plateViewer.SetEmpty(wellIDs);
         }
 
-        private void lstFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    
+
+        private void lstPlateBarcodes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (lstFiles.SelectedIndex == -1)
-                return;
-            var strs = File.ReadAllLines(lstFiles.SelectedItem.ToString()).Skip(1).ToList();
-            Dictionary<int, string> well_Barcode = new Dictionary<int, string>();
-            List<int> notUsedWells = new List<int>();
-            int wellID = 1;
-            foreach (var s in strs)
+            if (lstPlateBarcodes.SelectedIndex == -1)
+               return;
+            var thisPlateInfos = trackInfos.Where(x => x.plateBarcode == lstPlateBarcodes.SelectedItem.ToString()).ToList();
+            List<int> usedWellIDs = new List<int>();
+            foreach(var info in thisPlateInfos)
             {
-                var subStrs = s.Split(',');
-                var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex].Trim();
-                if (!usedBarcodes.Contains(barcode))
-                    notUsedWells.Add(wellID);
-                wellID++;
+                usedWellIDs.Add(ParseID(info.position));
             }
-            plateViewer.SetNotUsed(notUsedWells);
+            List<int> notUsedWellIDs = new List<int>();
+            for(int i = 0; i< 96; i++)
+            {
+                int id = i + 1;
+                if(!usedWellIDs.Contains(id))
+                    notUsedWellIDs.Add(id);
+            }
+
+            plateViewer.SetNotUsed(notUsedWellIDs);
+        }
+
+        private int ParseID(string position)
+        {
+            int rowIndex = position[0] - 'A';
+            int colID = int.Parse(position.Substring(1));
+            return (colID-1) * 8 + rowIndex + 1;
         }
     }
 }
