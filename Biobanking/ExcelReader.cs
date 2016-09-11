@@ -57,7 +57,9 @@ namespace Biobanking
             var strs = File.ReadAllLines(sFile).ToList();
             string firstLine = strs[0];
             var indexOfID = strs[0].IndexOf("ID:");
-            string plateBarcode = strs[0].Substring(indexOfID);
+            if (indexOfID == -1)
+                throw new Exception("无法找到Plate ID！");
+            string plateBarcode = strs[0].Substring(indexOfID+3);
             if (plateBarcode == "")
                 throw new Exception(string.Format("文件：{0}中Box ID为空", sFile));
             //plateBarcodes.Add(plateBarcode);

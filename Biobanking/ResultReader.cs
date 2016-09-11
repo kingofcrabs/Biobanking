@@ -83,6 +83,11 @@ namespace Biobanking
             }
             string reportPath = GlobalVars.Instance.ResultFile;//ConfigurationManager.AppSettings[stringRes.reportPath];
             int line = 1;
+
+            var unitIsMM = ConfigurationManager.AppSettings["UnitIsMM"];
+            double ratio = 1;
+            if (unitIsMM != null && !bool.Parse(unitIsMM))
+                ratio = 0.1;
             using (StreamReader sr = new StreamReader(reportPath))
             {
                 string sContent = "";
@@ -104,8 +109,8 @@ namespace Biobanking
                     DetectedInfo detectedInfo = new DetectedInfo();
                     int infoIndex = (curRow - 1);
                     string[] vals = sContent.Split(',');
-                    detectedInfo.Z1 = double.Parse(vals[1])/10;
-                    detectedInfo.Z2 = double.Parse(vals[2])/10;
+                    detectedInfo.Z1 = double.Parse(vals[1]) * ratio;
+                    detectedInfo.Z2 = double.Parse(vals[2]) * ratio;
                     if(barcodes != null)
                         detectedInfo.sBarcode = trimedBarcodes[line-1];//vals[0];
                     line++;

@@ -131,6 +131,9 @@ namespace Biobanking
 
         private void WriteResult2SqlServer()
         {
+#if　DEBUG
+            return;
+#endif
             SqlConnection con = new SqlConnection();
             foreach(var info in trackInfos)
             {

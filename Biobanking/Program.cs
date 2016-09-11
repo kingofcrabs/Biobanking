@@ -32,7 +32,10 @@ namespace Biobanking
 #else
             catch (Exception ex)
             {
-                Utility.Write2File(Utility.GetOutputFolder() + "errMsg.txt", ex.Message + ex.StackTrace);
+                Console.WriteLine(ex.Message + ex.StackTrace);
+                Console.WriteLine("Press any key to exit!");
+                Console.ReadKey();
+                //Utility.Write2File(Utility.GetOutputFolder() + "errMsg.txt", ex.Message + ex.StackTrace);
                 log.Info(ex.Message);
             }
 #endif
