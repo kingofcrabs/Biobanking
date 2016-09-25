@@ -71,14 +71,14 @@ namespace Biobanking
             if (GlobalVars.Instance.DstBarcodeFolder != "")
             {
                 barcodes = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
-              
+                barcodes.RemoveAll(x => x.Trim() == "");
                 barcodes.ForEach(x => trimedBarcodes.Add(x.Trim()));
                 HashSet<string> uniqueBarcodes = new HashSet<string>(trimedBarcodes);
                 if(uniqueBarcodes.Count != trimedBarcodes.Count)
                 {
                     var duplicates = trimedBarcodes.GroupBy(s => s).Where(grp => grp.Count() > 1);
                     string duplicated = duplicates.First().Key;
-                    throw new Exception(string.Format("条码:{0}重复",duplicated));
+                    throw new Exception(string.Format("duplicated barcode:{0}",duplicated));
                 }
             }
             string reportPath = GlobalVars.Instance.ResultFile;//ConfigurationManager.AppSettings[stringRes.reportPath];
@@ -174,6 +174,9 @@ namespace Biobanking
                 {
                     case "TIU":
                         impliment = new TIUReader();
+                        break;
+                    case "SCIRobotic":
+                        impliment = new SciRobotReader();
                         break;
                     default:
                         impliment = new RelaxReader();

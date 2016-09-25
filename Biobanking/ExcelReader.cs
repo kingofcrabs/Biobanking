@@ -56,12 +56,13 @@ namespace Biobanking
         {
             var strs = File.ReadAllLines(sFile).ToList();
             string firstLine = strs[0];
-            var indexOfID = strs[0].IndexOf("ID:");
+            firstLine = firstLine.ToLower();
+            var indexOfID = firstLine.IndexOf("id:");
             if (indexOfID == -1)
-                throw new Exception("无法找到Plate ID！");
+                throw new Exception("cannot find Plate ID！");
             string plateBarcode = strs[0].Substring(indexOfID+3);
             if (plateBarcode == "")
-                throw new Exception(string.Format("文件：{0}中Box ID为空", sFile));
+                throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
             //plateBarcodes.Add(plateBarcode);
             strs = strs.Skip(1).ToList();
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;

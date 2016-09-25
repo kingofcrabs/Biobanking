@@ -267,7 +267,7 @@ namespace Biobanking
                 }
             }
 
-            sw.WriteLine(string.Format(breakPrefix + "DropDiti(255,{1},2,10,70,0);", ditiMask,labwareSettings.wasteGrid));
+            sw.WriteLine(string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask,labwareSettings.wasteGrid));
 
             int endSampleID = rackIndex * 16 + sampleIndexInRack + heightsThisTime.Count;
             if (endSampleID >= detectInfos.Count)
