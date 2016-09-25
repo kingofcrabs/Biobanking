@@ -20,8 +20,8 @@ namespace BarcodeReader
         SerialPort serialPort;
         bool programModify = false;
         int totalSampleCnt = 0;
-        int tubeID = 0;
-        
+        int tubeID = 1;
+        bool autoNext = false;
         List<string> simulateBarcodes = new List<string>();
         public MainForm()
         {
@@ -29,6 +29,7 @@ namespace BarcodeReader
             WriteResult(false);
             this.FormClosed += MainForm_FormClosed;
             this.Load += MainForm_Load;
+            lblVersion.Text = string.Format("版本号:{0}", strings.version);
         }
 
         void MainForm_Load(object sender, EventArgs e)
@@ -50,10 +51,14 @@ namespace BarcodeReader
                 serialPort = new SerialPort("COM" + sPortNum);
                 serialPort.Open();
                 serialPort.DataReceived += serialPort_DataReceived;
+                totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
+                txtSampleCnt.Text = totalSampleCnt.ToString();
+                txtSampleCnt.Enabled = false;
+                btnSet.Enabled = false;
+                InitDataGridView();
             }
             dataGridView.CellValueChanged += DataGridView_CellValueChanged;
-            InitDataGridView();
-            
+            autoNext = bool.Parse(ConfigurationManager.AppSettings["AutoNext"]);
         }
 
         private void DataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -101,10 +106,28 @@ namespace BarcodeReader
                 return;
             }
             AddInfo("检查通过！");
+            //var eachGridBarcodes = GetEachGridBarcodes();
             WriteResult(true);
+            WriteBarcodes();
             ProcessHelper.CloseWaiter();
             this.Close();
             //btnConfirm.Enabled = false;
+        }
+
+        private void WriteBarcodes()
+        {
+            string exePath = Utility.GetExeFolder() + "Biobanking.exe";
+            Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
+            string srcBarcodeFile = config.AppSettings.Settings["SrcBarcodeFile"].Value;
+            var eachGridBarcodes = GetEachGridBarcodes();
+            List<string> barcodes = new List<string>(); 
+
+            foreach(var pair in eachGridBarcodes)
+            {
+                //pair.Value.ForEach()
+                barcodes.AddRange(pair.Value);
+            }
+            File.WriteAllLines(srcBarcodeFile, barcodes);
         }
 
         private void CheckBarcodes()
@@ -138,22 +161,31 @@ namespace BarcodeReader
         private void btnSimulateBarcode_Click(object sender, EventArgs e)
         {
             tubeID++;
+           
             OnNewBarcode(simulateBarcodes[tubeID - 1]);
         }
 
         private void OnNewBarcode(string newBarcode)
         {
-            txtLog.AppendText(newBarcode+"\r\n");
-            var gridID = (tubeID + 15) / 16;
-            int rowIndex = tubeID - (gridID - 1) * 16 -1;
-            programModify = true;
-            UpdateGridCell(gridID, rowIndex, newBarcode);
-            programModify = false;
+                txtLog.AppendText(newBarcode + "\r\n");
+                var gridID = (tubeID + 15) / 16;
+                int rowIndex = tubeID - (gridID - 1) * 16 - 1;
+                programModify = true;
+                UpdateGridCell(gridID, rowIndex, newBarcode);
+                programModify = false;
         }
         private void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             string newBarcode = serialPort.ReadLine();
-            OnNewBarcode(newBarcode);
+            this.Invoke(new Action(delegate ()
+            {
+                if(dataGridView.Rows.Count == 0)
+                {
+                    AddErrorInfo("请先设置样本数！");
+                    return;
+                }
+                OnNewBarcode(newBarcode);
+            }));
         }
 
         private void UpdateGridCell(int gridID, int rowIndex, string barcode)
@@ -166,10 +198,13 @@ namespace BarcodeReader
             if(!bValid)
             {
                 AddErrorInfo(errMsg);
+                return;
             }
-
+            else if(autoNext)
+            {
+                tubeID++;
+            }
         }
-
      
         private Dictionary<int, List<string>> GetEachGridBarcodes()
         {
@@ -185,7 +220,6 @@ namespace BarcodeReader
                         break;
                     var cellVal = /**/dataGridView.Rows[r].Cells[c].Value;
                     eachGridBarcodes[c + 1].Add(cellVal == null ? "": cellVal.ToString());
-
                 }
             }
             return eachGridBarcodes;
@@ -241,7 +275,6 @@ namespace BarcodeReader
             dataGridView.EnableHeadersVisualStyles = false;
             dataGridView.Columns.Clear();
             List<string> strs = new List<string>();
-            totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
             int gridCnt = (totalSampleCnt + 15) / 16;
 
             int srcStartGrid = 1;
@@ -252,7 +285,6 @@ namespace BarcodeReader
                 column.HeaderCell.Style.BackColor = Color.LightSeaGreen;
                 dataGridView.Columns.Add(column);
                 dataGridView.Columns[i].SortMode = DataGridViewColumnSortMode.Programmatic;
-                
             }
 
             dataGridView.RowHeadersWidth = 80;
@@ -262,7 +294,8 @@ namespace BarcodeReader
                 dataGridView.Rows[i].HeaderCell.Value = string.Format("行{0}", i + 1);
             }
         }
-     
+        
+
 
         void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -276,7 +309,6 @@ namespace BarcodeReader
                 this.Close();
                 return;
             }
-
             if (sCommand == "read")
             {
                 tubeID++;
@@ -301,7 +333,40 @@ namespace BarcodeReader
             File.WriteAllText(resultFile, bok.ToString());
         }
 
-        
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            tubeID--;
+            var gridID = (tubeID + 15) / 16;
+            int rowIndex = tubeID - (gridID - 1) * 16 - 1;
+            UpdateGridCell(gridID, rowIndex, "");
+            
+        }
+
+        private void btnSet_Click(object sender, EventArgs e)
+        {
+            try
+            {
+               CheckTotalSample();
+               InitDataGridView();
+               tubeID = 1;
+            }
+            catch(Exception ex)
+            {
+                AddErrorInfo(ex.Message);
+            }
+        }
+
+        private void CheckTotalSample()
+        {
+            totalSampleCnt = int.Parse(txtSampleCnt.Text);
+            if (totalSampleCnt <= 0)
+                throw new Exception("样本数不得小于0!");
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            richTextInfo.Clear();
+        }
     }
 
 }
