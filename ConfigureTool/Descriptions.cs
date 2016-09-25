@@ -19,7 +19,8 @@ namespace ConfigureTool
             item_Desc.Add("PlasmaMaxCount", "最多允许客户设置几份Plasma。");
             item_Desc.Add("BuffyMaxCount", "最多允许客户设置几份Buffy");
             item_Desc.Add("maxSampleCount", "一次分液最多允许多少个样品。");
-
+            item_Desc.Add("UnitIsMM", "单位是否是毫米，永远是true;只有老的TIU是1/10mm,为false。");
+        
             //labwareSettings
             item_Desc.Add("tipCount", "使用多少根枪头加样。");
             item_Desc.Add("dstLabwareRows", "目标Labware的行数，96孔板的话就是8行，16孔载架就是16。");
