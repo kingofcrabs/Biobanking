@@ -218,7 +218,7 @@ namespace Biobanking
             
             //2 aspirate & dispense buffy
             bool bhasBuffyCoat = pipettingSetting.dstbuffySlice > 0;//ResultReader.Instance.HasBuffyCoat();
-            bool inSameColumn = IsDstWellsInSamColumn(rackIndex, sampleIndexInRack, ptsAsp.Count);
+            bool inSameColumn = IsDstWellsInSameColumn(rackIndex, sampleIndexInRack, ptsAsp.Count);
             int globalSampleIndex = GetGlobalSampleIndex(rackIndex, sampleIndexInRack);
             //int secondRegionStartSampleIndex = GetEndIndexForFirstRegion(rackIndex, startSample) + 1;
 
@@ -484,8 +484,8 @@ namespace Biobanking
         private void ProcessSliceOnce(List<POINT> ptsAspOrg, List<double> volumes, string liquidClass ,
              int srcRackIndex,int sliceIndex, int sampleIndexInRack,StreamWriter sw)
         {
-            //有时候，液体需要被喷到不同行，
-            bool inSameColumn = IsDstWellsInSamColumn(srcRackIndex, sampleIndexInRack, ptsAspOrg.Count);
+            //有时候，液体需要被喷到不同行，比如目标载架为4*6时
+            bool inSameColumn = IsDstWellsInSameColumn(srcRackIndex, sampleIndexInRack, ptsAspOrg.Count);
             int srcGrid = GetSrcGrid(srcRackIndex);
             int globalSampleIndex = GetGlobalSampleIndex(srcRackIndex, sampleIndexInRack); //
             bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
@@ -683,7 +683,7 @@ namespace Biobanking
         }
 
 
-        private bool IsDstWellsInSamColumn(int srcRackIndex, int startSample, int sampleCount)
+        private bool IsDstWellsInSameColumn(int srcRackIndex, int startSample, int sampleCount)
         {
             //if (isPlasma && !pipettingSetting.mov2NextRegionEachPlasmaRack) //无视rack的变化，总是同一region
             //    return true;
