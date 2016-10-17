@@ -70,6 +70,7 @@ namespace BarcodeReader
             char[] chars = new char[BufferSize];
             int numBytes = 0;
             StringBuilder msg = new StringBuilder();
+            ownerInvoker = new Invoker(owner);
             ownerInvoker.sDel = ExecuteCommand;
             pipeName = "BarcodeServer";
             try

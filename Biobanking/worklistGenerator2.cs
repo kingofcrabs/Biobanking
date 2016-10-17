@@ -139,12 +139,13 @@ namespace Biobanking
             int sourceRackCount = (int)Math.Ceiling((double)detectInfos.Count / labwareSettings.sourceWells);
             WriteRacksCount(sourceRackCount);
             string sOrgOutPut = sOutput;
+            RunResult runResult = new RunResult();
             for (int srcRack = 0; srcRack < sourceRackCount; srcRack++)
             {
                 sOutput = sOrgOutPut + "\\srcRack" + (srcRack + 1).ToString() + "\\";
                 if (!Directory.Exists(sOutput))
                     Directory.CreateDirectory(sOutput);
-
+                
                 int thisRackSamples = srcRack == sourceRackCount - 1 ? (detectInfos.Count - srcRack * labwareSettings.sourceWells) : labwareSettings.sourceWells;
                 Utility.Write2File(sOutput + "totalSample.txt", thisRackSamples.ToString());
                 int batchNum = (int)Math.Ceiling((double)thisRackSamples / labwareSettings.tipCount);
@@ -159,11 +160,13 @@ namespace Biobanking
                         heightsThisTime.Add(detectInfos[srcRack*labwareSettings.sourceWells+ startSample + tip]);
                     }
                     GenerateForBatch(sOutput,srcRack, startSample, heightsThisTime);
+                    AddEachSampleInfo2RunResult(srcRack, startSample, heightsThisTime, runResult);
                 }
             }
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker.WriteResult();
-            
+            AddCommonInfo2RunResult(runResult);
+            SaveRunResult(runResult);
             return true;
         }
 
@@ -1160,5 +1163,72 @@ namespace Biobanking
             var sOutput = Utility.GetOutputFolder();
             Utility.Write2File(sOutput + "RacksCount.txt", n.ToString());
         }
+
+
+        #region 
+        private void SaveRunResult(RunResult runResult)
+        {
+            string sRunResultPath = Utility.GetOutputFolder() + "runResult.xml";
+            if (File.Exists(sRunResultPath))
+                File.Delete(sRunResultPath);
+
+            string sContent = Utility.Serialize(runResult);
+            File.WriteAllText(sRunResultPath, sContent);
+        }
+
+        private void AddCommonInfo2RunResult(RunResult runResult)
+        {
+            runResult.buffySlice = pipettingSetting.dstbuffySlice;//ResultReader.Instance.HasBuffyCoat() ? 1 : 0;
+            runResult.buffyVolume = pipettingSetting.buffyVolume;
+            runResult.plasmaVolume = pipettingSetting.plasmaGreedyVolume;
+            runResult.plasmaTotalSlice = pipettingSetting.dstPlasmaSlice;
+        }
+
+        private void AddEachSampleInfo2RunResult(int srcRackIndex, int startSampleIndex, List<DetectedInfo> heightsThisTime, RunResult runResult)
+        {
+            double area = mappingCalculator.GetArea();
+            for (int i = 0; i < heightsThisTime.Count; i++)
+            {
+                double z1 = heightsThisTime[i].Z1;
+                double z2 = heightsThisTime[i].Z2;
+                
+                double totalPlasmaVolume = mappingCalculator.GetVolumeFromHeight(z1) -
+                    mappingCalculator.GetVolumeFromHeight(z2) - pipettingSetting.safeDelta *area;
+            
+                int plasmaSlice = pipettingSetting.dstPlasmaSlice;
+                if (pipettingSetting.plasmaGreedyVolume != 0)
+                {
+                    int maxPlasmaSlice = (int)Math.Ceiling(totalPlasmaVolume / pipettingSetting.plasmaGreedyVolume);
+                    plasmaSlice = Math.Min(plasmaSlice, maxPlasmaSlice);
+                }
+                int startSampleID = srcRackIndex * labwareSettings.sourceWells + i + startSampleIndex + 1;
+
+                runResult.plasmaRealSlices.Add(plasmaSlice);
+                //sw.WriteLine(string.Format("{0};{1};{2};{3}{4}", startSampleID, plasmaSlice, pipettingSetting.dstPlasmaSlice, buffySlice, pipettingSetting));
+            }
+        }
+
+        private void WriteRunResult(int srcRackIndex, int startSampleIndex, List<DetectedInfo> heightsThisTime, StreamWriter sw)
+        {
+            double area = mappingCalculator.GetArea();
+            for (int i = 0; i < heightsThisTime.Count; i++)
+            {
+                double z1 = heightsThisTime[i].Z1;
+                double z2 = heightsThisTime[i].Z2;
+                double totalPlasmaVolume = (z1 - z2 - pipettingSetting.safeDelta) * area;
+                int plasmaSlice = pipettingSetting.dstPlasmaSlice;
+                if (pipettingSetting.plasmaGreedyVolume != 0)
+                {
+                    int maxPlasmaSlice = (int)Math.Ceiling(totalPlasmaVolume / pipettingSetting.plasmaGreedyVolume);
+                    plasmaSlice = Math.Min(plasmaSlice, maxPlasmaSlice);
+                }
+                int startSampleID = srcRackIndex * labwareSettings.sourceWells + i + startSampleIndex + 1;
+                int buffySlice = pipettingSetting.dstbuffySlice;//ResultReader.Instance.HasBuffyCoat() ? 1:0;
+                sw.WriteLine(string.Format("{0};{1};{2};{3}{4}", startSampleID, plasmaSlice, pipettingSetting.dstPlasmaSlice, buffySlice, pipettingSetting));
+            }
+
+        }
+        #endregion
+
     }
 }

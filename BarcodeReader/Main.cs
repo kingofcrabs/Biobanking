@@ -22,6 +22,7 @@ namespace BarcodeReader
         int totalSampleCnt = 0;
         int tubeID = 1;
         bool autoNext = false;
+        Dictionary<int, string> tubeID_Barcodes = new Dictionary<int, string>();
         List<string> simulateBarcodes = new List<string>();
         public MainForm()
         {
@@ -47,15 +48,29 @@ namespace BarcodeReader
             }
             else
             {
-                string sPortNum = ConfigurationManager.AppSettings["PortNum"];
-                serialPort = new SerialPort("COM" + sPortNum);
-                serialPort.Open();
-                serialPort.DataReceived += serialPort_DataReceived;
-                totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
-                txtSampleCnt.Text = totalSampleCnt.ToString();
-                txtSampleCnt.Enabled = false;
-                btnSet.Enabled = false;
-                InitDataGridView();
+                try
+                {
+                    CreateNamedPipeServer();
+                    totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
+                    txtSampleCnt.Text = totalSampleCnt.ToString();
+                    btnSet.Enabled = false;
+                    string sPortNum = ConfigurationManager.AppSettings["PortNum"];
+                    serialPort = new SerialPort("COM" + sPortNum);
+                    serialPort.Open();
+                    serialPort.DataReceived += serialPort_DataReceived;
+                   
+                    txtSampleCnt.Enabled = false;
+                  
+                    InitDataGridView();
+                    btnSet.PerformClick();
+                }
+                catch(Exception ex)
+                {
+                    AddErrorInfo(string.Format("无法打开端口,原因是：{0}", ex.Message));
+                    return;
+                }
+               
+              
             }
             dataGridView.CellValueChanged += DataGridView_CellValueChanged;
             autoNext = bool.Parse(ConfigurationManager.AppSettings["AutoNext"]);
@@ -161,7 +176,6 @@ namespace BarcodeReader
         private void btnSimulateBarcode_Click(object sender, EventArgs e)
         {
             tubeID++;
-           
             OnNewBarcode(simulateBarcodes[tubeID - 1]);
         }
 
@@ -184,7 +198,8 @@ namespace BarcodeReader
                     AddErrorInfo("请先设置样本数！");
                     return;
                 }
-                OnNewBarcode(newBarcode);
+                if(!tubeID_Barcodes.ContainsKey(tubeID))
+                    OnNewBarcode(newBarcode);
             }));
         }
 
@@ -200,10 +215,15 @@ namespace BarcodeReader
                 AddErrorInfo(errMsg);
                 return;
             }
-            else if(autoNext)
+            else
             {
-                tubeID++;
+                tubeID_Barcodes.Add(tubeID, barcode);
+                if (autoNext)
+                {
+                    tubeID++;
+                }
             }
+           
         }
      
         private Dictionary<int, List<string>> GetEachGridBarcodes()
@@ -312,7 +332,7 @@ namespace BarcodeReader
             if (sCommand == "read")
             {
                 tubeID++;
-                txtLog.AppendText("read");
+                txtLog.AppendText("read\r\n");
             }
         }
 
