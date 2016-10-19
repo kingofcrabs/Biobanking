@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biobanking", "Biobanking\Biobanking.csproj", "{004F4612-696B-4426-AD95-963076908E27}"
 EndProject
@@ -24,6 +24,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarcodeReader", "BarcodeReader\BarcodeReader.csproj", "{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TubeChecker", "TubeChecker\TubeChecker.csproj", "{8342B717-2C3F-47C3-8DFB-6BB01235E31A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monitor", "Monitor\Monitor.csproj", "{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -159,6 +161,16 @@ Global
 		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|x86.ActiveCfg = Release|Any CPU
 		{8342B717-2C3F-47C3-8DFB-6BB01235E31A}.Release|x86.Build.0 = Release|Any CPU
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Debug|x86.ActiveCfg = Debug|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Debug|x86.Build.0 = Debug|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Release|Any CPU.ActiveCfg = Release|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Release|Mixed Platforms.Build.0 = Release|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Release|x86.ActiveCfg = Release|x86
+		{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
