@@ -254,7 +254,6 @@ namespace Biobanking
                 //4 asp buffy using MSD
                 WriteMSDCommands(sw, heightsThisTime, tipOffSet);
 
-
                 //5 dispense buffy
                 if (inSameColumn)
                 {
@@ -382,22 +381,8 @@ namespace Biobanking
                     if (smalleastDiff < 5)
                     {
                         sLiquidClass = BBPlasmaSlow;
-                        //if (pipettingSetting.fixedPositionNearBuffy)
-                        //{
-                        //    var thisTimeCommands = eachTimesCommands[times];
-                        //    for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
-                        //    {
-                        //        if (volumes[tipIndex] != 0)
-                        //        {
-                        //            WriteComment(string.Format("aspirate at height: {0} for tip {1}", heights[tipIndex], tipIndex + tipOffset + 1), sw);
-                        //            foreach (string s in thisTimeCommands[tipIndex])
-                        //                sw.WriteLine(s);
-                        //        }
-                        //    }
-                        //}
                     }
                 }
-                
                 ProcessSliceOnce(ptsAsp, volumes, sLiquidClass, srcRackIndex, slice, sampleIndexInRack, sw);
             }
             return vols;
@@ -536,39 +521,6 @@ namespace Biobanking
                 sw.WriteLine(strDispense);
             }
         }
-
-        //private void ProcessSliceDirectCommands(List<POINT> ptsAsp, List<double> volumes, int srcRackIndex, int sliceIndex,
-        //    int sampleIndexInRack, StreamWriter sw)
-        //{
-        //    var sampleCnt = ptsAsp.Count;
-        //    bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
-        //    int tipOffset = GetTipOffSet(bNeedUseLastFour);
-        //    //string sMoveLiha = string.Format(breakPrefix + "MoveLiha({0},{1},{2},1,\"{3}\",0,1,0,10,0,0);", ditiMask, grid, site, sWellSelection);
-        //    //sw.WriteLine(sMoveLiha);
-        //    WriteComment("Set end speed for plungers", sw);
-        //    string sSEP = GetSEPString(sampleCnt, 2400, tipOffset);
-        //    WriteComand(sSEP, sw);
-        //    WriteComment("Set stop speed for plungers", sw);
-        //    string sSPP = GetSPPString(sampleCnt, 1500, tipOffset);
-        //    WriteComand(sSPP, sw);
-        //    WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
-        //    string sPPA = GetPPAString(sampleCnt, 0, tipOffset);
-        //    WriteComand(sPPA, sw);
-
-        //    WriteComment(string.Format("Move LiHa up to {0}cm", pipettingSetting.retractHeightcm), sw);
-        //    var sMoveAbsoluteZ = GetMoveLihaAbsoluteZSlow(sampleCnt, pipettingSetting.retractHeightcm, tipOffset);
-        //    WriteComand(sMoveAbsoluteZ, sw);
-
-        //    WriteComment("Set end speed for plungers", sw);
-        //    sSEP = GetSEPString(sampleCnt, 2400, tipOffset);
-        //    WriteComand(sSEP, sw);
-        //    WriteComment("Set stop speed for plungers", sw);
-        //    sSPP = GetSPPString(sampleCnt, 1500, tipOffset);
-        //    WriteComand(sSPP, sw);
-        //    WriteComment(string.Format("Aspirate air gap: {0}", pipettingSetting.airGap), sw);
-        //    sPPA = GetPPAString(sampleCnt, pipettingSetting.airGap, tipOffset);
-        //    WriteComand(sPPA, sw);
-        //}
 
         private int GetGlobalSampleIndex(int rackIndex, int startSample)
         {

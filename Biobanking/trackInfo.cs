@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data.OleDb;
 using System.Data;
+using System.Configuration;
 
 namespace Biobanking
 {
@@ -38,15 +39,7 @@ namespace Biobanking
             }
         }
 
-        private bool IsValidBarcode(string s)
-        {
-            foreach (char ch in s)
-            {
-                if (char.IsDigit(ch))
-                    return true;
-            }
-            return false;
-        }
+        
 
         internal void Track(List<double> plasmaVols, int sliceIndex)
         {
@@ -55,9 +48,13 @@ namespace Biobanking
             foreach (var vol in plasmaVols)
             {
                 string dstBarcode = correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
-                if(!IsValidBarcode(dstBarcode))
+                if(!Utility.IsValidBarcode(dstBarcode))
                 {
-                    throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1,dstBarcode));
+                    int sampleID =sampleIndex + indexInList + 1;
+                    int rackID = (sampleID - 1) / 16 + 1;
+                    int IDInRack = sampleID - (rackID - 1) * 16;
+                    string sDesc = string.Format("rack:{0} position:{1}", rackID, IDInRack);
+                    throw new Exception(string.Format("The {0} slice of sample at {1}'s barocde:{2} is illegal.", sliceIndex + 1, sDesc, dstBarcode));
                 }
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                 TrackInfo info = new TrackInfo(srcBarcodes[sampleIndex+ indexInList],
@@ -134,9 +131,21 @@ namespace Biobanking
 #if　DEBUG
             return;
 #endif
+            string conStr = ConfigurationManager.AppSettings["sqlConnectionString"];
+         
+            if (conStr == "")
+            {
+                Console.WriteLine("No sql connection string.");
+                return;
+            }
+            Console.WriteLine("Writing result into sql, it takes a long time, please wait...");
             SqlConnection con = new SqlConnection();
+            con.ConnectionString = conStr; //"server=192.168.10.128;database=BioBank_tecan;uid=sa;pwd=wonders,1";
+            
+            con.Open();
             foreach(var info in trackInfos)
             {
+
                 string str = string.Format(@"insert into interface_tecan_info
 (SourceBarcode,
 DestBarcode,Volume,TypeDescription,DestPlateBarcode,PositionInPlate) values 

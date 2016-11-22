@@ -30,15 +30,6 @@ namespace Biobanking
             var di = new DirectoryInfo(sFolder);
             var files = di.EnumerateFiles("*.csv").ToList();
             files = files.OrderBy(x => x.CreationTime).ToList();
-            var latestFile = files.Last();
-            string sTimeFile = Utility.GetOutputFolder() + "barcodeTime.txt";
-            var experimentTime = File.ReadAllText(sTimeFile);
-            var fileTime = latestFile.LastWriteTime.ToString("HHmm");
-            if (int.Parse(fileTime) < int.Parse(experimentTime))
-            {
-                log.InfoFormat("File time is:{0}, experiment time is:{1}", fileTime, experimentTime);
-                throw new Exception("Cannot find file of this experiment!");
-            }
             List<List<string>> correspondingbarcodes = new List<List<string>>();
             files.ForEach(x => ReadBarcode(correspondingbarcodes, plateBarcodes,barcode_Position, x.FullName));
             return correspondingbarcodes;
@@ -71,16 +62,27 @@ namespace Biobanking
             foreach (var s in strs)
             {
                 var subStrs = s.Split(',');
-                string position = GetDescription(sampleID);
+                string position = Utility.GetDescription(sampleID);
                 var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
+                barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
-                barcode_Position.Add(barcode, position);
-                barcode_plateBarcode.Add(barcode, plateBarcode);
-                if (barcodesThisPlate.Where(x=>x.Value == barcode).Count() > 1)
+                if (!IsValidBarcode(barcode))
+                {
+                    sampleID++;
+                    continue;
+                }
+                    
+               
+                if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
                 {
                     var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
-                    throw new Exception(string.Format("位于:{0}与:{1}处的条码重复！", wells[0], wells[1]));
+                    throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
+                         wells[0], wells[1], barcode));
                 }
+                
+                barcode_Position.Add(barcode, position);
+                barcode_plateBarcode.Add(barcode, plateBarcode);
+                
                 sampleID++;
             }
             
@@ -106,15 +108,27 @@ namespace Biobanking
             }
         }
 
+        private bool IsValidBarcode(string barcode)
+        {
+            foreach(char ch in barcode)
+            {
+                if(!char.IsDigit(ch))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
       
 
-        private string GetDescription(int sampleID)
-        {
-            int sampleIndex = sampleID - 1;
-            int colIndex = sampleIndex / 8;
-            int rowIndex = sampleIndex - colIndex * 8;
-            return string.Format("{0}{1:D2}", (char)('A' + rowIndex), colIndex + 1);
-        }
+        //private string GetDescription(int sampleID)
+        //{
+        //    int sampleIndex = sampleID - 1;
+        //    int colIndex = sampleIndex / 8;
+        //    int rowIndex = sampleIndex - colIndex * 8;
+        //    return string.Format("{0}{1:D2}", (char)('A' + rowIndex), colIndex + 1);
+        //}
 
         private void SaveAsCSV(List<string> sheetPaths)
         {

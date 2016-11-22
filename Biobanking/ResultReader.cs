@@ -73,13 +73,13 @@ namespace Biobanking
                 barcodes = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
                 barcodes.RemoveAll(x => x.Trim() == "");
                 barcodes.ForEach(x => trimedBarcodes.Add(x.Trim()));
-                HashSet<string> uniqueBarcodes = new HashSet<string>(trimedBarcodes);
-                if(uniqueBarcodes.Count != trimedBarcodes.Count)
-                {
-                    var duplicates = trimedBarcodes.GroupBy(s => s).Where(grp => grp.Count() > 1);
-                    string duplicated = duplicates.First().Key;
-                    throw new Exception(string.Format("duplicated barcode:{0}",duplicated));
-                }
+                //HashSet<string> uniqueBarcodes = new HashSet<string>(trimedBarcodes);
+                //if(uniqueBarcodes.Count != trimedBarcodes.Count)
+                //{
+                //    var duplicates = trimedBarcodes.GroupBy(s => s).Where(grp => grp.Count() > 1);
+                //    string duplicated = duplicates.First().Key;
+                //    throw new Exception(string.Format("duplicated barcode:{0}",duplicated));
+                //}
             }
             string reportPath = GlobalVars.Instance.ResultFile;//ConfigurationManager.AppSettings[stringRes.reportPath];
             int line = 1;
@@ -112,7 +112,12 @@ namespace Biobanking
                     detectedInfo.Z1 = double.Parse(vals[1]) * ratio;
                     detectedInfo.Z2 = double.Parse(vals[2]) * ratio;
                     if(barcodes != null)
-                        detectedInfo.sBarcode = trimedBarcodes[line-1];//vals[0];
+                    {
+                        if (trimedBarcodes.Count < line)
+                            throw new Exception(string.Format("Source barcodes' count:{0} < detected tubes' count!{1}", trimedBarcodes.Count,line));
+                        detectedInfo.sBarcode = trimedBarcodes[line - 1];//vals[0];
+                    }
+                        
                     line++;
                     heights.Add(detectedInfo);
 

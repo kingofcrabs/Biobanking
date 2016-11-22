@@ -21,6 +21,7 @@ namespace Biobanking
             try
 #endif
             {
+                Utility.Write2File(Utility.GetOutputFolder() + "result.txt", bok.ToString());
                 if(args.Length != 0)
                 {
                     CopyConfigurationFiles(args[0]);

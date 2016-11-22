@@ -191,6 +191,8 @@ namespace BarcodeReader
         private void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             string newBarcode = serialPort.ReadLine();
+            if (newBarcode == "")
+                return;
             this.Invoke(new Action(delegate ()
             {
                 if(dataGridView.Rows.Count == 0)
@@ -250,30 +252,8 @@ namespace BarcodeReader
             if(currentBarcode == "")
             {
                 errMsg = string.Format("Grid{0}中第{1}个条码为空！", gridID, rowIndex + 1);
-                return false;
             }
-            foreach (var pair in eachGridBarcodes)
-            {
-                int tmpGrid = pair.Key;
-                var tmpBarcodes = pair.Value;
-
-                
-                for( int r = 0; r< tmpBarcodes.Count; r++)
-                {
-                    if (tmpGrid == gridID && rowIndex == r) //dont compare to itself
-                        continue;
-                    if (tmpBarcodes[r] == currentBarcode)
-                    {
-                        errMsg = string.Format("Grid{0}中第{1}个条码:{2}在Grid{3}中已经存在！",
-                                       gridID,
-                                       rowIndex + 1,
-                                       currentBarcode,
-                                       tmpGrid);
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return currentBarcode != "";
         }
 
 

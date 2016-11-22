@@ -53,6 +53,15 @@ namespace Settings
             return s+"\\";
         }
 
+        static public string GetDescription(int sampleID)
+        {
+            int sampleIndex = sampleID - 1;
+            int colIndex = sampleIndex / 8;
+            int rowIndex = sampleIndex - colIndex * 8;
+            return string.Format("{0}{1:D2}", (char)('A' + rowIndex), colIndex + 1);
+        }
+
+
         static public void WriteExecuteResult(bool bok, string sPath)
         {
 
@@ -208,6 +217,16 @@ namespace Settings
                     return (T)serializer.Deserialize(xmlReader);
                 }
             }
+        }
+
+        public static bool IsValidBarcode(string s)
+        {
+            foreach (char ch in s)
+            {
+                if (char.IsDigit(ch))
+                    return true;
+            }
+            return false;
         }
     }
 
