@@ -2,6 +2,7 @@
 using Settings;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,7 +21,7 @@ namespace Biobanking
         PipettingSettings pipettingSettings;
         public List<List<string>> ReadBarcodes(LabwareSettings labwareSettings,
             PipettingSettings pipettingSettings,
-            Dictionary<string, string> plateBarcodes, 
+            Dictionary<string, string> barcode_plateBarcode, 
             Dictionary<string,string> barcode_Position)
         {
             startIndex = 0;
@@ -31,7 +32,7 @@ namespace Biobanking
             var files = di.EnumerateFiles("*.csv").ToList();
             files = files.OrderBy(x => x.CreationTime).ToList();
             List<List<string>> correspondingbarcodes = new List<List<string>>();
-            files.ForEach(x => ReadBarcode(correspondingbarcodes, plateBarcodes,barcode_Position, x.FullName));
+            files.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode,barcode_Position, x.FullName));
             return correspondingbarcodes;
         }
 
@@ -46,16 +47,24 @@ namespace Biobanking
             string sFile)
         {
             var strs = File.ReadAllLines(sFile).ToList();
-            string firstLine = strs[0];
-            firstLine = firstLine.ToLower();
-            var indexOfID = firstLine.IndexOf("id:");
-            if (indexOfID == -1)
-                throw new Exception("cannot find Plate ID！");
-            string plateBarcode = strs[0].Substring(indexOfID+3);
-            if (plateBarcode == "")
-                throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
+            string plateBarcode = "dummy";
+            if(ConfigurationManager.AppSettings["2DBarcodeVendor"] == "HR") //no plateID
+            {
+            }
+            else
+            {
+                string firstLine = strs[0];
+                firstLine = firstLine.ToLower();
+                var indexOfID = firstLine.IndexOf("id:");
+                if (indexOfID == -1)
+                    throw new Exception("cannot find Plate ID！");
+                plateBarcode = strs[0].Substring(indexOfID + 3);
+                if (plateBarcode == "")
+                    throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
+                strs = strs.Skip(1).ToList();
+            }
+            
             //plateBarcodes.Add(plateBarcode);
-            strs = strs.Skip(1).ToList();
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
             Dictionary<string, string> barcodesThisPlate = new Dictionary<string, string>();
             int sampleID = 1;
@@ -71,18 +80,14 @@ namespace Biobanking
                     sampleID++;
                     continue;
                 }
-                    
-               
                 if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
                 {
                     var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
                     throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
                          wells[0], wells[1], barcode));
                 }
-                
                 barcode_Position.Add(barcode, position);
                 barcode_plateBarcode.Add(barcode, plateBarcode);
-                
                 sampleID++;
             }
             
