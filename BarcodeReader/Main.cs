@@ -20,9 +20,8 @@ namespace BarcodeReader
         SerialPort serialPort;
         bool programModify = false;
         int totalSampleCnt = 0;
-        int tubeID = 1;
-        bool autoNext = false;
-        Dictionary<int, string> tubeID_Barcodes = new Dictionary<int, string>();
+        int tubeID = 0;
+        
         List<string> simulateBarcodes = new List<string>();
         public MainForm()
         {
@@ -30,7 +29,6 @@ namespace BarcodeReader
             WriteResult(false);
             this.FormClosed += MainForm_FormClosed;
             this.Load += MainForm_Load;
-            lblVersion.Text = string.Format("版本号:{0}", strings.version);
         }
 
         void MainForm_Load(object sender, EventArgs e)
@@ -48,32 +46,14 @@ namespace BarcodeReader
             }
             else
             {
-                try
-                {
-                    CreateNamedPipeServer();
-                    totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
-                    txtSampleCnt.Text = totalSampleCnt.ToString();
-                    btnSet.Enabled = false;
-                    string sPortNum = ConfigurationManager.AppSettings["PortNum"];
-                    serialPort = new SerialPort("COM" + sPortNum);
-                    serialPort.Open();
-                    serialPort.DataReceived += serialPort_DataReceived;
-                   
-                    txtSampleCnt.Enabled = false;
-                  
-                    InitDataGridView();
-                    btnSet.PerformClick();
-                }
-                catch(Exception ex)
-                {
-                    AddErrorInfo(string.Format("无法打开端口,原因是：{0}", ex.Message));
-                    return;
-                }
-               
-              
+                string sPortNum = ConfigurationManager.AppSettings["PortNum"];
+                serialPort = new SerialPort("COM" + sPortNum);
+                serialPort.Open();
+                serialPort.DataReceived += serialPort_DataReceived;
             }
             dataGridView.CellValueChanged += DataGridView_CellValueChanged;
-            autoNext = bool.Parse(ConfigurationManager.AppSettings["AutoNext"]);
+            InitDataGridView();
+            
         }
 
         private void DataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -109,6 +89,9 @@ namespace BarcodeReader
             }
         }
 
+
+
+
         private void btnConfirm_Click(object sender, EventArgs e)
         {
             try
@@ -121,7 +104,6 @@ namespace BarcodeReader
                 return;
             }
             AddInfo("检查通过！");
-            //var eachGridBarcodes = GetEachGridBarcodes();
             WriteResult(true);
             WriteBarcodes();
             ProcessHelper.CloseWaiter();
@@ -133,16 +115,14 @@ namespace BarcodeReader
         {
             string exePath = Utility.GetExeFolder() + "Biobanking.exe";
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-            string srcBarcodeFile = config.AppSettings.Settings["SrcBarcodeFile"].Value;
+            string file = config.AppSettings.Settings["SrcBarcodeFile"].Value;
             var eachGridBarcodes = GetEachGridBarcodes();
-            List<string> barcodes = new List<string>(); 
-
-            foreach(var pair in eachGridBarcodes)
+            List<string> allBarcodes = new List<string>();
+            foreach(var gridBarcodes in eachGridBarcodes)
             {
-                //pair.Value.ForEach()
-                barcodes.AddRange(pair.Value);
+                allBarcodes.AddRange(gridBarcodes.Value);
             }
-            File.WriteAllLines(srcBarcodeFile, barcodes);
+            File.WriteAllLines(file, allBarcodes);
         }
 
         private void CheckBarcodes()
@@ -181,28 +161,17 @@ namespace BarcodeReader
 
         private void OnNewBarcode(string newBarcode)
         {
-                txtLog.AppendText(newBarcode + "\r\n");
-                var gridID = (tubeID + 15) / 16;
-                int rowIndex = tubeID - (gridID - 1) * 16 - 1;
-                programModify = true;
-                UpdateGridCell(gridID, rowIndex, newBarcode);
-                programModify = false;
+            txtLog.AppendText(newBarcode+"\r\n");
+            var gridID = (tubeID + 15) / 16;
+            int rowIndex = tubeID - (gridID - 1) * 16 -1;
+            programModify = true;
+            UpdateGridCell(gridID, rowIndex, newBarcode);
+            programModify = false;
         }
         private void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             string newBarcode = serialPort.ReadLine();
-            if (newBarcode == "")
-                return;
-            this.Invoke(new Action(delegate ()
-            {
-                if(dataGridView.Rows.Count == 0)
-                {
-                    AddErrorInfo("请先设置样本数！");
-                    return;
-                }
-                if(!tubeID_Barcodes.ContainsKey(tubeID))
-                    OnNewBarcode(newBarcode);
-            }));
+            OnNewBarcode(newBarcode);
         }
 
         private void UpdateGridCell(int gridID, int rowIndex, string barcode)
@@ -215,18 +184,10 @@ namespace BarcodeReader
             if(!bValid)
             {
                 AddErrorInfo(errMsg);
-                return;
             }
-            else
-            {
-                tubeID_Barcodes.Add(tubeID, barcode);
-                if (autoNext)
-                {
-                    tubeID++;
-                }
-            }
-           
+
         }
+
      
         private Dictionary<int, List<string>> GetEachGridBarcodes()
         {
@@ -242,6 +203,7 @@ namespace BarcodeReader
                         break;
                     var cellVal = /**/dataGridView.Rows[r].Cells[c].Value;
                     eachGridBarcodes[c + 1].Add(cellVal == null ? "": cellVal.ToString());
+
                 }
             }
             return eachGridBarcodes;
@@ -252,8 +214,30 @@ namespace BarcodeReader
             if(currentBarcode == "")
             {
                 errMsg = string.Format("Grid{0}中第{1}个条码为空！", gridID, rowIndex + 1);
+                return false;
             }
-            return currentBarcode != "";
+            foreach (var pair in eachGridBarcodes)
+            {
+                int tmpGrid = pair.Key;
+                var tmpBarcodes = pair.Value;
+
+                
+                for( int r = 0; r< tmpBarcodes.Count; r++)
+                {
+                    if (tmpGrid == gridID && rowIndex == r) //dont compare to itself
+                        continue;
+                    if (tmpBarcodes[r] == currentBarcode)
+                    {
+                        errMsg = string.Format("Grid{0}中第{1}个条码:{2}在Grid{3}中已经存在！",
+                                       gridID,
+                                       rowIndex + 1,
+                                       currentBarcode,
+                                       tmpGrid);
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
 
@@ -275,6 +259,7 @@ namespace BarcodeReader
             dataGridView.EnableHeadersVisualStyles = false;
             dataGridView.Columns.Clear();
             List<string> strs = new List<string>();
+            totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
             int gridCnt = (totalSampleCnt + 15) / 16;
 
             int srcStartGrid = 1;
@@ -285,6 +270,7 @@ namespace BarcodeReader
                 column.HeaderCell.Style.BackColor = Color.LightSeaGreen;
                 dataGridView.Columns.Add(column);
                 dataGridView.Columns[i].SortMode = DataGridViewColumnSortMode.Programmatic;
+                
             }
 
             dataGridView.RowHeadersWidth = 80;
@@ -294,8 +280,7 @@ namespace BarcodeReader
                 dataGridView.Rows[i].HeaderCell.Value = string.Format("行{0}", i + 1);
             }
         }
-        
-
+     
 
         void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -309,10 +294,11 @@ namespace BarcodeReader
                 this.Close();
                 return;
             }
+
             if (sCommand == "read")
             {
                 tubeID++;
-                txtLog.AppendText("read\r\n");
+                txtLog.AppendText("read");
             }
         }
 
@@ -333,40 +319,7 @@ namespace BarcodeReader
             File.WriteAllText(resultFile, bok.ToString());
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
-        {
-            tubeID--;
-            var gridID = (tubeID + 15) / 16;
-            int rowIndex = tubeID - (gridID - 1) * 16 - 1;
-            UpdateGridCell(gridID, rowIndex, "");
-            
-        }
-
-        private void btnSet_Click(object sender, EventArgs e)
-        {
-            try
-            {
-               CheckTotalSample();
-               InitDataGridView();
-               tubeID = 1;
-            }
-            catch(Exception ex)
-            {
-                AddErrorInfo(ex.Message);
-            }
-        }
-
-        private void CheckTotalSample()
-        {
-            totalSampleCnt = int.Parse(txtSampleCnt.Text);
-            if (totalSampleCnt <= 0)
-                throw new Exception("样本数不得小于0!");
-        }
-
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            richTextInfo.Clear();
-        }
+        
     }
 
 }

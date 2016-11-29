@@ -30,13 +30,10 @@ namespace TubeChecker
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
-#if DEBUG
-#else
             trackInfos = ReadTrackInfos();
             var plateBarcodes = trackInfos.Select(x => x.plateBarcode).Distinct().ToList();
             lstPlateBarcodes.ItemsSource = plateBarcodes;
-#endif
-
+         
         }
 
         private List<TrackInfo> ReadTrackInfos()
@@ -52,26 +49,9 @@ namespace TubeChecker
             plateViewer = new PlateViewer(new Size(600, 400), new Size(30, 40));
             canvas.Children.Add(plateViewer);
             lstPlateBarcodes.SelectedIndex = 0;
-
-#if DEBUG
-            List<int> usedWellIDs = new List<int>()
-            {
-                1,2,3,4,9,10,11,12,17,18,19,20,25,26,27,28,33,34,35,36,41,42,43,44
-            };
-            List<int> allWellIDs = new List<int>();
-            for (int i = 0; i < 96; i++)
-                allWellIDs.Add(i + 1);
-            var notUsedWells = allWellIDs.Except(usedWellIDs).ToList();
-            plateViewer.SetNotUsed(notUsedWells);
-#endif
-            //List<int> wellIDs = new List<int>()
-            //{
-            //    1,2,3,5,8,12,20,89
-            //};
-            //plateViewer.SetEmpty(wellIDs);
         }
 
-
+    
 
         private void lstPlateBarcodes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

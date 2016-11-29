@@ -22,11 +22,12 @@ namespace Settings
         public string volume;
         public string plateBarcode;
         public string position;
+        public string name;
         public TrackInfo()
         {
 
         }
-        public TrackInfo(string src, string dst, string desc, string v,string plateBarcode, string position)
+        public TrackInfo(string src, string dst, string desc, string v,string plateBarcode, string position,string name = "")
         {
             sourceBarcode = src;
             dstBarcode = dst;
@@ -34,6 +35,7 @@ namespace Settings
             volume = v;
             this.plateBarcode = plateBarcode;
             this.position = position;
+            this.name = name;
         }
     }
 

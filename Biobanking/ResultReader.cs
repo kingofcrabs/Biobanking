@@ -11,10 +11,22 @@ namespace Biobanking
     {
         //bool HasBuffyCoat();
         List<DetectedInfo> Read();
-
+        List<PatientInfo> ReadPatientInfos();
     }
+    class BaseReader:IResultReader
+    {
+        public List<PatientInfo> ReadPatientInfos()
+        {
+            PatientInfoReader reader = new PatientInfoReader();
+            return reader.Read();
+        }
 
-    class SciRobotReader : IResultReader
+        virtual public List<DetectedInfo> Read()
+        {
+            throw new NotImplementedException();
+        }
+    }
+    class SciRobotReader : BaseReader
     {
         private bool HasBuffyCoat(string sFile)
         {
@@ -34,7 +46,7 @@ namespace Biobanking
             return HasBuffyCoat(buffyCoatFile);
         }
 
-        public List<DetectedInfo> Read()
+        public override List<DetectedInfo> Read()
         {
             SciRobotHelper sciRobotHelper = new SciRobotHelper();
             List<DetectedInfo> heights = new List<DetectedInfo>();
@@ -42,9 +54,49 @@ namespace Biobanking
             sciRobotHelper.ReadZValues(ref heights);
             return heights;
         }
-    }
 
-    class TIUReader : IResultReader
+
+        
+    }
+    public class PatientInfo
+    {
+        public string id;
+        public string name;
+        public PatientInfo(string id, string name)
+        {
+            this.id = id;
+            this.name = name;
+        }
+    }
+    class PatientInfoReader
+    {
+        public  List<PatientInfo> Read()
+        {
+            List<string> contents = null;
+            if (GlobalVars.Instance.DstBarcodeFolder == "")
+                return null;
+            List<string> trimedBarcodes = new List<string>();
+            contents = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
+            contents.RemoveAll(x => x.Trim() == "");
+            List<PatientInfo> patientInfos = new List<PatientInfo>();
+            contents.ForEach(x=>patientInfos.Add(Parse(x)));
+            return patientInfos;
+        }
+
+        private PatientInfo Parse(string content)
+        {
+            if (content.Contains(','))
+            {
+                string[] strs = content.Split(',');
+                return new PatientInfo(strs[0], strs[1]);
+            }
+            else
+                return new PatientInfo(content, "");
+        }
+
+    }
+      
+    class TIUReader : BaseReader
     {
         //public bool HasBuffyCoat()
         //{
@@ -62,25 +114,13 @@ namespace Biobanking
         //    }
         //    return bHasBuffy;
         //}
-      
-        public List<DetectedInfo> Read()
+
+        public override List<DetectedInfo> Read()
         {
             List<DetectedInfo> heights = new List<DetectedInfo>();
-            List<string> barcodes = null;
-            List<string> trimedBarcodes = new List<string>();
-            if (GlobalVars.Instance.DstBarcodeFolder != "")
-            {
-                barcodes = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
-                barcodes.RemoveAll(x => x.Trim() == "");
-                barcodes.ForEach(x => trimedBarcodes.Add(x.Trim()));
-                //HashSet<string> uniqueBarcodes = new HashSet<string>(trimedBarcodes);
-                //if(uniqueBarcodes.Count != trimedBarcodes.Count)
-                //{
-                //    var duplicates = trimedBarcodes.GroupBy(s => s).Where(grp => grp.Count() > 1);
-                //    string duplicated = duplicates.First().Key;
-                //    throw new Exception(string.Format("duplicated barcode:{0}",duplicated));
-                //}
-            }
+           
+            
+        
             string reportPath = GlobalVars.Instance.ResultFile;//ConfigurationManager.AppSettings[stringRes.reportPath];
             int line = 1;
 
@@ -111,13 +151,8 @@ namespace Biobanking
                     string[] vals = sContent.Split(',');
                     detectedInfo.Z1 = double.Parse(vals[1]) * ratio;
                     detectedInfo.Z2 = double.Parse(vals[2]) * ratio;
-                    if(barcodes != null)
-                    {
-                        if (trimedBarcodes.Count < line)
-                            throw new Exception(string.Format("Source barcodes' count:{0} < detected tubes' count!{1}", trimedBarcodes.Count,line));
-                        detectedInfo.sBarcode = trimedBarcodes[line - 1];//vals[0];
-                    }
-                        
+                    //if(barcodes != null)
+                    //    detectedInfo.sBarcode = trimedBarcodes[line-1];//vals[0];
                     line++;
                     heights.Add(detectedInfo);
 
@@ -130,9 +165,9 @@ namespace Biobanking
         }
     }
 
-    class RelaxReader : IResultReader
+    class RelaxReader : BaseReader
     {
-        public List<DetectedInfo> Read()
+        public override List<DetectedInfo> Read()
         {
             string sReportXml = ConfigurationManager.AppSettings[stringRes.reportPath];
             DataSet ds = new DataSet();

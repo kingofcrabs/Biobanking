@@ -111,14 +111,16 @@ namespace Biobanking
         const string BB_Buffy_Mix = "BB_Buffy_Mix";
         const int maxSourceCountOneRack = 10;
         List<DetectedInfo> detectInfos = null;
+        List<PatientInfo> patientInfos = null;
         public bool DoJob()
         {
             SettingsHelper settingHelper = new SettingsHelper();
             log.Info("load settings");
             settingHelper.LoadSettings(ref pipettingSetting, ref labwareSettings);
             detectInfos = ResultReader.Instance.Read();
+            patientInfos = ResultReader.Instance.ReadPatientInfos();
             if(GlobalVars.Instance.TrackBarcode)
-                barcodeTracker = new BarcodeTracker(pipettingSetting, labwareSettings, detectInfos.Select(x=>x.sBarcode).ToList());
+                barcodeTracker = new BarcodeTracker(pipettingSetting, labwareSettings, patientInfos);
             log.Info("read heights");
             mappingCalculator = new MappingCalculator(Settings.Utility.GetExeFolder() + Settings.stringRes.calibFileName);
             //PreparePlasmaDestPositions();

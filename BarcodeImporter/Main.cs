@@ -57,15 +57,22 @@ namespace BarcodeImporter
         private void btnOk_Click(object sender, EventArgs e)
         {
             WriteResult(true);
-            WriteBarcodes();
+            WritePatientInfos();
             this.Close();
         }
-        private void WriteBarcodes()
+        private void WritePatientInfos()
         {
             string exePath = Utility.GetExeFolder() + "Biobanking.exe";
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
             string file = config.AppSettings.Settings["SrcBarcodeFile"].Value;
-            File.WriteAllLines(file, patientInfos.Select(x => x.id));
+            List<string> strs = new List<string>();
+            patientInfos.ForEach(x=>strs.Add(Format(x)));
+            File.WriteAllLines(file, strs);
+        }
+
+        private string Format(PatientInfo x)
+        {
+            return string.Format("{0},{1}", x.id, x.name);
         }
         private void WriteResult(bool bok)
         {
