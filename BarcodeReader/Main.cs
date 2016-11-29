@@ -319,7 +319,16 @@ namespace BarcodeReader
             string resultFile = folder + "barcodeResult.txt";
             File.WriteAllText(resultFile, bok.ToString());
         }
+        private void btnClear_Click(object sender, System.EventArgs e)
+        {
+            richTextInfo.Text = "";
+        }
 
+       
+        private void btnDelete_Click(object sender, System.EventArgs e)
+        {
+            UpdateGridCell(dataGridView.CurrentCell.ColumnIndex + 1, dataGridView.CurrentCell.RowIndex, "");
+        }
         
     }
 
