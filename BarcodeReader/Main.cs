@@ -15,6 +15,7 @@ using System.Windows.Forms;
 
 namespace BarcodeReader
 {
+//latest
     public partial class MainForm : Form
     {
         SerialPort serialPort;
