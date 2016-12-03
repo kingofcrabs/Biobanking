@@ -17,9 +17,11 @@ namespace Biobanking.ExcelExporter
             string path = sCSV.Replace(".csv", "");
             string hospital = path + "hospital.csv";
             string management = path + "management.csv";
-            Save2ExcelHospitalFormat(trackInfos, hospital, sExcel, formater);
+            string excelHospital = hospital.Replace(".csv", ".xlsx");
+            string excelManagement = management.Replace(".csv", ".xlsx");
+            Save2ExcelHospitalFormat(trackInfos, hospital, excelHospital, formater);
             formater = Format4Management;
-            Save2ExcelHospitalFormat(trackInfos, management, sExcel, formater);
+            Save2ExcelHospitalFormat(trackInfos, management, excelManagement, formater);
         }
 
         private static void Save2ExcelHospitalFormat(List<TrackInfo> trackInfos, string sCSV, string sExcel, Formater formater)

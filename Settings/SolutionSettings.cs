@@ -59,12 +59,12 @@ namespace Settings
             noIndex = 0;
             srcBarcodeIndex = 0;
             dstBarcodeIndex = 2;
-            dstSamplePosition = 1;
+            dstPosition = 1;
         }
 
 
 
-        public int dstSamplePosition { get; set; }
+        public int dstPosition { get; set; }
     }
   
     //[Serializable]
