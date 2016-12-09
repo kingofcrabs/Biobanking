@@ -14,7 +14,7 @@ namespace Biobanking
         static void Main(string[] args)
         {
             Console.WriteLine("Version is :" + stringRes.version);
-            worklistGenerator2 generator = new worklistGenerator2();
+            worklistGenerator generator = new worklistGenerator();
             bool bok = false;
 #if DEBUG
 #else

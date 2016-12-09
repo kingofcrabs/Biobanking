@@ -19,6 +19,19 @@ namespace Biobanking
              labwareSettings = lSettings;
              totalSample = nSample;
          }
+
+         public static  List<POINT> GetWells(int startWellIndex, int wellsCount, int x, int y)
+         {
+             List<POINT> pts = new List<POINT>();
+             int endWellIndex = startWellIndex + wellsCount - 1;
+             for (int i = startWellIndex; i <= endWellIndex; i++)
+             {
+                 int column = i / y;
+                 int rowIndex = i - column * y;
+                 pts.Add(new POINT((double)(1 + column), (double)(rowIndex + 1)));
+             }
+             return pts;
+         }
      
          internal int AllowedSamples()
          {

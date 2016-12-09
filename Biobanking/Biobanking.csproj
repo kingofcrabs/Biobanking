@@ -59,6 +59,7 @@
     <Compile Include="ExcelReader.cs" />
     <Compile Include="GlobalVars.cs" />
     <Compile Include="MappingCalculator.cs" />
+    <Compile Include="mixCommand.cs" />
     <Compile Include="positionGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -71,6 +72,7 @@
     </Compile>
     <Compile Include="trackInfo.cs" />
     <Compile Include="Utility.cs" />
+    <Compile Include="worklistCommand.cs" />
     <Compile Include="worklistGenerator2.cs" />
   </ItemGroup>
   <ItemGroup>
