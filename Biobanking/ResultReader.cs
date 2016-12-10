@@ -155,9 +155,14 @@ namespace Biobanking
                     //    detectedInfo.sBarcode = trimedBarcodes[line-1];//vals[0];
                     line++;
                     heights.Add(detectedInfo);
-
-                    if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)
-                        throw new Exception("Z1,Z2 cannot be smaller than 0 at line: " + heights.Count.ToString());
+                    if(GlobalVars.Instance.IsRedCell)
+                    {
+                        if (detectedInfo.Z1 < 5 )
+                            throw new Exception("Z1 cannot be smaller than 5mm at line: " + line);
+                        detectedInfo.Z2 = 5;
+                    }
+                    else if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)
+                        throw new Exception("Z1,Z2 cannot be smaller than 0 at line: " + line);
                     curRow++;
                 }
             }

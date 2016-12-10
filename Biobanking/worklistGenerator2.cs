@@ -117,10 +117,6 @@ namespace Biobanking
             mappingCalculator = new MappingCalculator(Settings.Utility.GetExeFolder() + Settings.stringRes.calibFileName);
             //PreparePlasmaDestPositions();
             positionGenerator = new PositionGenerator(pipettingSetting, labwareSettings,detectInfos.Count);
-            string errMsg = "";
-         
-            
-
             int maxSampleAllowed = positionGenerator.AllowedSamples();
             if (maxSampleAllowed < detectInfos.Count)
                 throw new Exception(string.Format("max allowed sample is: {0}",maxSampleAllowed));
@@ -198,7 +194,6 @@ namespace Biobanking
             double area = mappingCalculator.GetArea(); ;
             List<POINT> ptsAsp = positionGenerator.GetSrcWells(sampleIndexInRack, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
             int plasmaSlice = pipettingSetting.dstPlasmaSlice;
-            List<string> strsSetTipVolume = new List<string>();
             List<double> plasmaVols = new List<double>();
             for (int slice = 0; slice < plasmaSlice; slice++)
             {

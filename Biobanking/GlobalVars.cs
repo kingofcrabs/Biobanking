@@ -25,6 +25,7 @@ namespace Biobanking
         {
             DstBarcodeFolder = ConfigurationManager.AppSettings["DstBarcodeFolder"];
             SrcBarcodeFile = ConfigurationManager.AppSettings["SrcBarcodeFile"];
+            IsRedCell = bool.Parse(ConfigurationManager.AppSettings["IsRedCell"]);
             ResultFile = ConfigurationManager.AppSettings[stringRes.reportPath];
             string sFileStruct = Settings.Utility.GetExeFolder() + "fileStruct.xml";
             TrackBarcode = DstBarcodeFolder != "";
@@ -41,6 +42,7 @@ namespace Biobanking
                 
         }
 
+        public bool IsRedCell { get; set; }
         public bool TrackBarcode { get; set; }
         public string ResultFile { get; set; }
         public string DstBarcodeFolder { get; set; }
