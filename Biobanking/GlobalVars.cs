@@ -39,7 +39,6 @@ namespace Biobanking
                 FileStruct = new FileStruct();
                 Settings.Utility.SaveSettings(FileStruct, sFileStruct);
             }
-                
         }
 
         public bool IsRedCell { get; set; }

@@ -159,7 +159,12 @@ namespace Biobanking
 #if　DEBUG
             return;
 #endif
+            string connectionStr = ConfigurationManager.AppSettings["ConnectionString"];
+            if(connectionStr == "")
+                return;
             SqlConnection con = new SqlConnection();
+            con.ConnectionString = connectionStr;
+            con.Open();
             foreach(var info in trackInfos)
             {
                 string str = string.Format(@"insert into interface_tecan_info

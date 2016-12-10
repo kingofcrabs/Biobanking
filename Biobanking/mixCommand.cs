@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Settings;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace Biobanking
     {
         private int mixVolume = 850;
         private int mixTimes = 3;
-
-        private List<string> GenerateMixForBatch(int rackIndex, int sampleIndexInRack, List<int> thisBatchTipVolumes, StreamWriter sw)
+       
+        public List<string> GenerateMixForBatch(int rackIndex, int sampleIndexInRack, List<int> thisBatchTipVolumes, StreamWriter sw)
         {
             List<string> strs = new List<string>()
 			{

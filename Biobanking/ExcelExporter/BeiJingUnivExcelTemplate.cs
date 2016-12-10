@@ -17,8 +17,9 @@ namespace Biobanking.ExcelExporter
             string path = sCSV.Replace(".csv", "");
             string hospital = path + "hospital.csv";
             string management = path + "management.csv";
-            string excelHospital = hospital.Replace(".csv", ".xlsx");
-            string excelManagement = management.Replace(".csv", ".xlsx");
+            string excelPath = sExcel.Replace(".xls", "");
+            string excelHospital = excelPath + "hospital.xls";
+            string excelManagement = excelPath + "management.xls";
             Save2ExcelHospitalFormat(trackInfos, hospital, excelHospital, formater);
             formater = Format4Management;
             Save2ExcelHospitalFormat(trackInfos, management, excelManagement, formater);
@@ -32,8 +33,8 @@ namespace Biobanking.ExcelExporter
             string header = formater == Format4Hospital ? hospitalHeader : managementHeader;
             strs.Add(header);
             trackInfos.ForEach(x => strs.Add(formater(x)));
-            File.WriteAllLines(sCSV, strs);
-            ExcelReader.SaveAsExcel(sCSV, sExcel);
+            File.WriteAllLines(sCSV, strs,Encoding.UTF8);
+            //ExcelReader.SaveAsExcel(sCSV, sExcel);
         }
         private static string Format4Management(TrackInfo x)
         {
