@@ -171,6 +171,14 @@ namespace Settings
                 sw.WriteLine(s);
             }
         }
+        public static int CalculateDestLabwareNeededCnt(int totalSampleCnt,LabwareSettings labwareSettings, PipettingSettings pipettingSettings)
+        {
+            int samplesPerRow = Utility.GetSamplesPerRow(labwareSettings, pipettingSettings);
+            if (labwareSettings.gridsPerCarrier == 1)
+                samplesPerRow = 1;
+            int maxSampleCntPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
+            return (totalSampleCnt + maxSampleCntPerLabware - 1) / maxSampleCntPerLabware;
+        }
 
         public static int GetSamplesPerRow(LabwareSettings labwareSettings, PipettingSettings pipettingSettings)
         {

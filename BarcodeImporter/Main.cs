@@ -20,7 +20,6 @@ namespace BarcodeImporter
         {
             InitializeComponent();
             WriteResult(false);
-
         }
 
 
@@ -89,6 +88,7 @@ namespace BarcodeImporter
             }
             catch(Exception ex)
             {
+                btnOk.Enabled = false;
                 AddErrorInfo(ex.Message + ex.StackTrace);
             }
             
@@ -136,6 +136,15 @@ namespace BarcodeImporter
                 UpdateGridCell(gridID, rowIndex, patientInfos[i]);
             }
             lblTotalCnt.Text = patientInfos.Count.ToString();
+            string sampleCntFile = (Utility.GetOutputFolder() + "SampleCount.txt");
+            if(File.Exists(sampleCntFile))
+            {
+                int cnt = int.Parse(File.ReadAllText(sampleCntFile));
+                if(cnt != int.Parse(lblTotalCnt.Text))
+                {
+                    throw new Exception(string.Format("条码数不等于设定样本数：{0}",cnt));
+                }
+            }
             btnOk.Enabled = true;
             AddInfo("导入成功，请校验！");
         }

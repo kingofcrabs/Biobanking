@@ -162,8 +162,13 @@ namespace Biobanking
             return;
 #endif
             string connectionStr = ConfigurationManager.AppSettings["ConnectionString"];
-            if(connectionStr == "")
+            if (connectionStr == "")
+            {
+                Console.WriteLine("No sql connection string.");
                 return;
+            }
+
+            Console.WriteLine("Writing result into sql, it takes a long time, please wait...");
             SqlConnection con = new SqlConnection();
             con.ConnectionString = connectionStr;
             con.Open();

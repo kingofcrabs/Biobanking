@@ -28,9 +28,14 @@ namespace Monitor
             return GetExeFolder() + "\\Data\\";
         }
 
+        static public string GetOutputFolder()
+        {
+            return GetExeParentFolder() + "\\Output\\";
+        }
+
         static public int ReadSampleCount()
         {
-            string sCountFilePath = ConfigurationManager.AppSettings["ReportFolder"] + "SampleCount.txt";
+            string sCountFilePath = GetOutputFolder() + "SampleCount.txt";
             using (StreamReader sr = new StreamReader(sCountFilePath))
             {
                 string s = sr.ReadLine();

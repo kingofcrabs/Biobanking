@@ -20,6 +20,10 @@ namespace ConfigureTool
             item_Desc.Add("BuffyMaxCount", "最多允许客户设置几份Buffy");
             item_Desc.Add("maxSampleCount", "一次分液最多允许多少个样品。");
             item_Desc.Add("UnitIsMM", "单位是否是毫米，永远是true;只有老的TIU是1/10mm,为false。");
+            item_Desc.Add("2DBarcodeVendor", "二维条码扫描仪供应商。");
+            item_Desc.Add("ExcelTemplate", "输出Excel模板。");
+            item_Desc.Add("ConnectionString", "数据库连接字符串。");
+            item_Desc.Add("SrcBarcodeFile", "一维码文件。");
         
             //labwareSettings
             item_Desc.Add("tipCount", "使用多少根枪头加样。");

@@ -73,6 +73,8 @@ namespace SampleInfo
             {
                 s = File.ReadAllText(sPipettingFileName);
                 pipettingSettings = Utility.Deserialize<PipettingSettings>(s);
+                s = File.ReadAllText(sLabwareSettingFileName);
+                labwareSettings = Utility.Deserialize<LabwareSettings>(s);
                 //s = File.ReadAllText(sTubeSettingsFileName);
                 //tubeSettings.Settings.Clear();
                 //tubeSettings = Utility.Deserialize<TubeSettings>(s);
@@ -163,6 +165,10 @@ namespace SampleInfo
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
+                File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
+                int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings);
+                MessageBox.Show(string.Format("Need {0} plates!",destLabwareNeeded));
+                File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
                 //TubeSetting selectedSetting = new TubeSetting();
                 //if(lstSampleSettings.Items.Count != 0)
                 //{
