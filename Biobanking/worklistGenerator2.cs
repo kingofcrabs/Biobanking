@@ -194,7 +194,8 @@ namespace Biobanking
                 mixCommand mixCommand = new mixCommand();
                 List<int> vols = new List<int>();
                 heightsThisTime.ForEach(x=>vols.Add((int)(mappingCalculator.GetVolumeFromHeight(x.Z1)-mappingCalculator.GetVolumeFromHeight(x.Z2))));
-                mixCommand.GenerateMixForBatch(rackIndex,sampleIndexInRack,vols,sw);
+                var strs = mixCommand.GenerateMixForBatch(rackIndex,sampleIndexInRack,vols);
+                strs.ForEach(s => sw.WriteLine(s));
             }
             List<POINT> ptsAsp = positionGenerator.GetSrcWells(sampleIndexInRack, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
             int plasmaSlice = pipettingSetting.dstPlasmaSlice;

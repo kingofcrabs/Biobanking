@@ -16,6 +16,7 @@ using SampleInfo.Properties;
 using System.Configuration;
 using System.Data;
 using Settings;
+using System.Reflection;
 
 
 namespace SampleInfo
@@ -63,21 +64,12 @@ namespace SampleInfo
                 return;
             }
 
-            //if(!File.Exists(sTubeSettingsFileName))
-            //{
-            //    SetInfo("Tube Settings xml does not exist! at : " + sTubeSettingsFileName, Colors.Red);
-            //    return;
-            //}
-            
             try
             {
                 s = File.ReadAllText(sPipettingFileName);
                 pipettingSettings = Utility.Deserialize<PipettingSettings>(s);
                 s = File.ReadAllText(sLabwareSettingFileName);
                 labwareSettings = Utility.Deserialize<LabwareSettings>(s);
-                //s = File.ReadAllText(sTubeSettingsFileName);
-                //tubeSettings.Settings.Clear();
-                //tubeSettings = Utility.Deserialize<TubeSettings>(s);
             }
             catch (Exception ex)
             {
@@ -161,14 +153,24 @@ namespace SampleInfo
                     SetInfo("Buffy体积数必须介于200ul到1000ul之间", Colors.Red);
                     return;
                 }
+
+                if(tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
+                {
+                    SetInfo("红细胞没有Buffy", Colors.Red);
+                    txtbuffySliceCnt.Text = "0";
+                    return;
+                }
+
                 pipettingSettings.plasmaGreedyVolume = tmpVolume;
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
-                int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings);
-                MessageBox.Show(string.Format("Need {0} plates!",destLabwareNeeded));
-                File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
+             
+                string exePath = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+                Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
+                config.AppSettings.Settings["BloodType"].Value = GetBloodType();
+                config.Save();
                 //TubeSetting selectedSetting = new TubeSetting();
                 //if(lstSampleSettings.Items.Count != 0)
                 //{
@@ -182,6 +184,9 @@ namespace SampleInfo
                 //pipettingSettings.msdZDistance = selectedSetting.msdZDistance;
                 //pipettingSettings.msdStartPositionAboveBuffy = selectedSetting.msdStartPositionAboveBuffy;
                 SaveSettings();
+                int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings);
+                File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
+                MessageBox.Show(string.Format("Need {0} plates!", destLabwareNeeded));
            }
            catch (Exception ex)
            {
@@ -192,6 +197,16 @@ namespace SampleInfo
             Utility.Write2File(Utility.GetOutputFolder() + "totalSlice.txt",
                 (pipettingSettings.dstPlasmaSlice + pipettingSettings.dstbuffySlice).ToString());
             this.Close();
+        }
+
+        private string GetBloodType()
+        {
+            if ((bool)rdbPlasma.IsChecked)
+                return "Plasma";
+            else if ((bool)rdbSerum.IsChecked)
+                return "Serum";
+            else
+                return "RedCell";
         }
 
   
@@ -239,6 +254,25 @@ namespace SampleInfo
 
             //chkHasBuffy.IsChecked = Convert.ToBoolean(Utility.ReadFolder(stringRes.hasBuffyFile));
             //chkNucleinExtraction.IsChecked= Convert.ToBoolean(Utility.ReadFolder(stringRes.DoNucleinExtractionFile));
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+             if((bool)rdbPlasma.IsChecked)
+             {
+                 lblBloodSlice.Content = "血清份数：";
+                 lblBloodVolume.Content = "血清体积(ul)：";
+             }
+             else if((bool)rdbSerum.IsChecked)
+             {
+                 lblBloodSlice.Content = "血浆份数：";
+                 lblBloodVolume.Content = "血浆体积(ul)：";
+             }
+             else
+             {
+                 lblBloodSlice.Content = "红细胞份数：";
+                 lblBloodVolume.Content = "红细胞体积(ul)：";
+             }
         }
 
 

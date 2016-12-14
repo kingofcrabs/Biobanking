@@ -25,9 +25,13 @@ namespace Biobanking
         {
             DstBarcodeFolder = ConfigurationManager.AppSettings["DstBarcodeFolder"];
             SrcBarcodeFile = ConfigurationManager.AppSettings["SrcBarcodeFile"];
-            IsRedCell = bool.Parse(ConfigurationManager.AppSettings["IsRedCell"]);
             ResultFile = ConfigurationManager.AppSettings[stringRes.reportPath];
             string sFileStruct = Settings.Utility.GetExeFolder() + "fileStruct.xml";
+
+            string exePath = Utility.GetExeFolder() + "SampleInfo.exe";
+            Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
+            BloodDescription = config.AppSettings.Settings["BloodType"].Value;
+
             TrackBarcode = DstBarcodeFolder != "";
             if (File.Exists(sFileStruct))
             {
@@ -40,13 +44,24 @@ namespace Biobanking
                 Settings.Utility.SaveSettings(FileStruct, sFileStruct);
             }
         }
-
-        public bool IsRedCell { get; set; }
         public bool TrackBarcode { get; set; }
+
         public string ResultFile { get; set; }
+
         public string DstBarcodeFolder { get; set; }
+
         public string SrcBarcodeFile { get; set; }
+
         public FileStruct FileStruct { get; set; }
 
+        public string BloodDescription { get; set; }
+
+        public bool IsRedCell
+        {
+            get
+            {
+                return BloodDescription == "RedCell";
+            }
+        }
     }
 }

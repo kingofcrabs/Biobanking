@@ -13,7 +13,7 @@ namespace Biobanking
         private int mixVolume = 850;
         private int mixTimes = 3;
        
-        public List<string> GenerateMixForBatch(int rackIndex, int sampleIndexInRack, List<int> thisBatchTipVolumes, StreamWriter sw)
+        public List<string> GenerateMixForBatch(int rackIndex, int sampleIndexInRack, List<int> thisBatchTipVolumes)
         {
             List<string> strs = new List<string>()
 			{
