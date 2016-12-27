@@ -39,7 +39,7 @@ namespace Biobanking.ExcelExporter
         private static string Format4Management(TrackInfo x)
         {
             //病人ID,检验流水号,样本二维码,坐标,血液类型,分血时间
-            return string.Format("{0},{1},,{2},{3},{4},{5}",x.sourceBarcode,x.se,x.dstBarcode,x.position,x.description,DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+            return string.Format("{0},{1},{2},{3},{4},{5}",x.sourceBarcode,x.seqNo,x.dstBarcode,x.position,x.description,DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
         }
 
         private static string Format4Hospital(TrackInfo x)

@@ -17,11 +17,24 @@ namespace BarcodeImporter
     {
 
         List<PatientInfo> patientInfos = new List<PatientInfo>();
+        int setSampleCnt = 0;
         public Main()
         {
             InitializeComponent();
             WriteResult(false);
             version.Text = strings.version;
+            string sampleCntFile = (Utility.GetOutputFolder() + "SampleCount.txt");
+            if(File.Exists(sampleCntFile))
+            {
+                setSampleCnt = int.Parse(File.ReadAllText(sampleCntFile));
+                lblSetCnt.Text = setSampleCnt.ToString();
+            }
+            else
+            {
+                AddErrorInfo("未找到病人数量！");
+                btnImport.Enabled = false;
+            }
+            
         }
 
 
@@ -67,6 +80,7 @@ namespace BarcodeImporter
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
             string file = config.AppSettings.Settings["SrcBarcodeFile"].Value;
             List<string> strs = new List<string>();
+            patientInfos = patientInfos.Take(setSampleCnt).ToList();
             patientInfos.ForEach(x=>strs.Add(Format(x)));
             File.WriteAllLines(file, strs);
         }
@@ -78,7 +92,7 @@ namespace BarcodeImporter
         private void WriteResult(bool bok)
         {
             string folder = Utility.GetOutputFolder();
-            string resultFile = folder + "barcodeResult.txt";
+            string resultFile = folder + "result.txt";
             File.WriteAllText(resultFile, bok.ToString());
         }
 
@@ -123,6 +137,8 @@ namespace BarcodeImporter
                 string[] tempStrs = s.Split(chSplit);
                 if (tempStrs[0] == "")
                     break;
+                if (tempStrs[4] == "")
+                    throw new Exception(string.Format("No patient ID found for sequence NO: {0}!",tempStrs[0]));
                 patientInfos.Add(new PatientInfo(tempStrs[4], tempStrs[1], tempStrs[0]));
             }
 
@@ -142,10 +158,10 @@ namespace BarcodeImporter
             string sampleCntFile = (Utility.GetOutputFolder() + "SampleCount.txt");
             if(File.Exists(sampleCntFile))
             {
-                int cnt = int.Parse(File.ReadAllText(sampleCntFile));
-                if(cnt != int.Parse(lblTotalCnt.Text))
+                setSampleCnt = int.Parse(File.ReadAllText(sampleCntFile));
+                if (patientInfos.Count < setSampleCnt)
                 {
-                    throw new Exception(string.Format("条码数不等于设定样本数：{0}",cnt));
+                    throw new Exception(string.Format("条码数小于设定样本数：{0}", setSampleCnt));
                 }
             }
             btnOk.Enabled = true;
