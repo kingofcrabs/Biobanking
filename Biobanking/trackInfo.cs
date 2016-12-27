@@ -23,7 +23,7 @@ namespace Biobanking
         Dictionary<string, string> barcode_Position = new Dictionary<string, string>();
         List<PatientInfo> patientInfos;
         int sampleIndex = 0;
-        const string buffyName = "Buffy";
+        
         //const string plasmaName = "Plasma";
         //const string redCellName = "RedCell";
         public BarcodeTracker(PipettingSettings pipettingSettings,LabwareSettings labwareSettings,List<PatientInfo> patientInfos)
@@ -100,7 +100,7 @@ namespace Biobanking
                             var dstBarcode = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i];
                             TrackInfo info = new TrackInfo(patient.id,
                             dstBarcode,
-                            buffyName,
+                            GlobalVars.Instance.BuffyName,
                             Math.Round(vol, 2).ToString(), 
                             barcode_plateBarcodes[dstBarcode],
                             barcode_Position[dstBarcode],patient.name);

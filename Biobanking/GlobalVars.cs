@@ -27,11 +27,12 @@ namespace Biobanking
             SrcBarcodeFile = ConfigurationManager.AppSettings["SrcBarcodeFile"];
             ResultFile = ConfigurationManager.AppSettings[stringRes.reportPath];
             string sFileStruct = Settings.Utility.GetExeFolder() + "fileStruct.xml";
-
             string exePath = Utility.GetExeFolder() + "SampleInfo.exe";
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-            BloodDescription = config.AppSettings.Settings["BloodType"].Value;
-
+            BloodDescription = File.ReadAllText(Utility.GetBloodTypeFile());
+            IsRedCell = BloodDescription == "RedCell";
+            
+            BloodDescription = TranslateDescription(BloodDescription);
             TrackBarcode = DstBarcodeFolder != "";
             if (File.Exists(sFileStruct))
             {
@@ -44,6 +45,20 @@ namespace Biobanking
                 Settings.Utility.SaveSettings(FileStruct, sFileStruct);
             }
         }
+
+        public  static string TranslateDescription(string BloodDescription)
+        {
+            string barcodeVendor = ConfigurationManager.AppSettings["2DBarcodeVendor"];
+            if (barcodeVendor != "HR")
+                return BloodDescription;
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            dict.Add("Plasma", "血浆");
+            dict.Add("Serum", "血清");
+            dict.Add("Buffy", "白膜");
+            dict.Add("RedCell", "红细胞");
+            return dict[BloodDescription];
+        }
+
         public bool TrackBarcode { get; set; }
 
         public string ResultFile { get; set; }
@@ -56,11 +71,13 @@ namespace Biobanking
 
         public string BloodDescription { get; set; }
 
-        public bool IsRedCell
+        public bool IsRedCell { get; set; }
+
+        public string BuffyName
         {
             get
             {
-                return BloodDescription == "RedCell";
+                return TranslateDescription("Buffy");
             }
         }
     }

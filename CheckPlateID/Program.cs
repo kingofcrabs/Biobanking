@@ -17,31 +17,43 @@ namespace CheckPlateID
         {
             string exePath = Utility.GetExeFolder() + "Biobanking.exe";
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-            string conStr = config.AppSettings.Settings["sqlConnectionString"].Value;
+            string conStr = config.AppSettings.Settings["ConnectionString"].Value;
             string dstBarcodeFolder = config.AppSettings.Settings["DstBarcodeFolder"].Value;
+            Console.WriteLine("start to check!");
             SqlConnection con = new SqlConnection();
-            con.ConnectionString = conStr; //"server=192.168.10.128;database=BioBank_tecan;uid=sa;pwd=wonders,1";
-            con.Open();
-
-
-            List<string> plateIDs = ReadPlateIDs(dstBarcodeFolder);
-            Utility.WriteExecuteResult(false,"result.txt");
-            foreach(string plateID in plateIDs)
+            try
             {
-                Console.WriteLine(string.Format("Check plateID :{0}", plateID));
-                string checkPlateIDStr = string.Format("select count(*) from biobank_tecan.dbo.v_getbox_sample_usespace where kjxxid = {0}", plateID);
-                SqlCommand checkCommand = new SqlCommand(checkPlateIDStr, con);
-                int count = (int)checkCommand.ExecuteScalar();
-                if(count == 0)
+                Utility.WriteExecuteResult(false, "result.txt");
+                Console.WriteLine(string.Format("Connection string is:{0}.", conStr));
+                con.ConnectionString = conStr; //"server=192.168.10.128;database=BioBank_tecan;uid=sa;pwd=wonders,1";
+                con.Open();
+                List<string> plateIDs = ReadPlateIDs(dstBarcodeFolder);
+                if (plateIDs.Count == 0)
+                    throw new Exception(string.Format("No plate ID found in directory:{0}", dstBarcodeFolder));
+                foreach (string plateID in plateIDs)
                 {
-                    Console.WriteLine(string.Format("Cannot find plateID:{0} in database!", plateID));
-                    Console.WriteLine(string.Format("Press any key to exit!"));
-                    Console.ReadKey();
-                    return;
+                    Console.WriteLine(string.Format("Check plateID :{0}", plateID));
+                    string checkPlateIDStr = string.Format("select count(*) from biobank_tecan.dbo.v_getbox_sample_usespace where kjxxid = {0}", plateID);
+                    SqlCommand checkCommand = new SqlCommand(checkPlateIDStr, con);
+                    int count = (int)checkCommand.ExecuteScalar();
+                    if (count == 0)
+                    {
+                        Console.WriteLine(string.Format("Cannot find plateID:{0} in database!", plateID));
+                        Console.WriteLine(string.Format("Press any key to exit!"));
+                        Console.ReadKey();
+                        return;
+                    }
                 }
+                Utility.WriteExecuteResult(true, "result.txt");
             }
-            con.Close();
-            Utility.WriteExecuteResult(true, "result.txt");
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                con.Close();
+            }
         }
 
         private static List<string> ReadPlateIDs(string folder)

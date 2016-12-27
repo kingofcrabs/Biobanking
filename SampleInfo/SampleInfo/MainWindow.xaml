@@ -48,8 +48,8 @@
         <Grid Grid.Row="1" Grid.ColumnSpan="4"/>
         <Grid Grid.Row="2" Grid.ColumnSpan="4">
             <StackPanel Margin="10,0,0,0">
-                <RadioButton Margin="0,2,0,2" Name="rdbPlasma" Checked="RadioButton_Checked"  IsChecked="True" Content="血清"  />
-                <RadioButton Content="血浆" Name="rdbSerum" Checked="RadioButton_Checked" />
+                <RadioButton Margin="0,2,0,2" Name="rdbSerum" Checked="RadioButton_Checked"  IsChecked="True" Content="血清"  />
+                <RadioButton Content="血浆" Name="rdbPlasma" Checked="RadioButton_Checked" />
                 <RadioButton Content="红细胞" Name="rdbRedCell" Checked="RadioButton_Checked" />
             </StackPanel>
             

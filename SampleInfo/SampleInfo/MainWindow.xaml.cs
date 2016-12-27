@@ -41,31 +41,32 @@ namespace SampleInfo
         public MainWindow()
         {
             InitializeComponent();
-
-            sLabwareSettingFileName = xmlFolder + "\\labwareSettings.xml";
-            sPipettingFileName = xmlFolder + "\\pipettingSettings.xml";
-            //sTubeSettingsFileName = xmlFolder + stringRes.tubeSettingFileName;
-            string exePath = Utility.GetExeFolder() + "Biobanking.exe";
-            Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-
-            maxSampleCount = int.Parse(config.AppSettings.Settings[stringRes.maxSampleCount].Value);
-            string s = "";
-            plasmaMaxCount = int.Parse(config.AppSettings.Settings["PlasmaMaxCount"].Value);
-            buffyMaxCount = int.Parse(config.AppSettings.Settings["BuffyMaxCount"].Value);
-            if (!File.Exists(sLabwareSettingFileName))
-            {
-                SetInfo("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName, Colors.Red);
-                return;
-            }
-
-            if (!File.Exists(sPipettingFileName))
-            {
-                SetInfo("PipettingSettings xml does not exist! at : " + sPipettingFileName, Colors.Red);
-                return;
-            }
-
+            string exePath = "";
             try
             {
+                sLabwareSettingFileName = xmlFolder + "\\labwareSettings.xml";
+                sPipettingFileName = xmlFolder + "\\pipettingSettings.xml";
+                //sTubeSettingsFileName = xmlFolder + stringRes.tubeSettingFileName;
+                exePath = Utility.GetExeFolder() + "Biobanking.exe";
+                Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
+                Utility.WriteExecuteResult(false,"result.txt");
+                maxSampleCount = int.Parse(config.AppSettings.Settings[stringRes.maxSampleCount].Value);
+                string s = "";
+                plasmaMaxCount = int.Parse(config.AppSettings.Settings["PlasmaMaxCount"].Value);
+                buffyMaxCount = int.Parse(config.AppSettings.Settings["BuffyMaxCount"].Value);
+                if (!File.Exists(sLabwareSettingFileName))
+                {
+                    SetInfo("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName, Colors.Red);
+                    return;
+                }
+
+                if (!File.Exists(sPipettingFileName))
+                {
+                    SetInfo("PipettingSettings xml does not exist! at : " + sPipettingFileName, Colors.Red);
+                    return;
+                }
+
+            
                 s = File.ReadAllText(sPipettingFileName);
                 pipettingSettings = Utility.Deserialize<PipettingSettings>(s);
                 s = File.ReadAllText(sLabwareSettingFileName);
@@ -73,7 +74,7 @@ namespace SampleInfo
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message + exePath);
             }
         }
 
@@ -167,10 +168,11 @@ namespace SampleInfo
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
              
-                string exePath = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-                Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-                config.AppSettings.Settings["BloodType"].Value = GetBloodType();
-                config.Save();
+                //string exePath = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+                //Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
+                //config.AppSettings.Settings["BloodType"].Value = GetBloodType();
+                //config.Save();
+                File.WriteAllText(Utility.GetBloodTypeFile(),GetBloodType());
                 //TubeSetting selectedSetting = new TubeSetting();
                 //if(lstSampleSettings.Items.Count != 0)
                 //{
@@ -186,6 +188,7 @@ namespace SampleInfo
                 SaveSettings();
                 int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings);
                 File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
+                Utility.WriteExecuteResult(false, "result.txt");
                 MessageBox.Show(string.Format("Need {0} plates!", destLabwareNeeded));
            }
            catch (Exception ex)
@@ -235,7 +238,7 @@ namespace SampleInfo
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            lblVersion.Content = 0.13;
+            lblVersion.Content = 0.14;
             try
             {
                 txtSampleCount.Text = Utility.ReadFolder(stringRes.SampleCountFile);
@@ -258,12 +261,12 @@ namespace SampleInfo
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
-             if((bool)rdbPlasma.IsChecked)
+             if((bool)rdbSerum.IsChecked)
              {
                  lblBloodSlice.Content = "血清份数：";
                  lblBloodVolume.Content = "血清体积(ul)：";
              }
-             else if((bool)rdbSerum.IsChecked)
+             else if ((bool)rdbPlasma.IsChecked)
              {
                  lblBloodSlice.Content = "血浆份数：";
                  lblBloodVolume.Content = "血浆体积(ul)：";

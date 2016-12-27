@@ -24,7 +24,18 @@ namespace Biobanking
             get { return encoding; }
         }
     }
-  
+    public struct PatientInfo
+    {
+        public string id;
+        public string name;
+        public string seqNo;
+        public PatientInfo(string id, string name, string seqNo)
+        {
+            this.id = id;
+            this.name = name;
+            this.seqNo = seqNo;
+        }
+    }
     public enum PipettingApproach
     {
         Z_Tight = 0,

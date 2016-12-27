@@ -1,4 +1,5 @@
-﻿using Settings;
+﻿using BarcodeImporter.Properties;
+using Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,6 +21,7 @@ namespace BarcodeImporter
         {
             InitializeComponent();
             WriteResult(false);
+            version.Text = strings.version;
         }
 
 
@@ -71,7 +73,7 @@ namespace BarcodeImporter
 
         private string Format(PatientInfo x)
         {
-            return string.Format("{0},{1}", x.id, x.name);
+            return string.Format("{0},{1},{2}", x.id, x.name, x.seqNo);
         }
         private void WriteResult(bool bok)
         {
@@ -105,6 +107,7 @@ namespace BarcodeImporter
                 return;
             string selectfile = dialog.FileName;
             List<string> strs = File.ReadAllLines(selectfile,Encoding.Default).ToList();
+            patientInfos.Clear();
             strs = strs.Skip(1).ToList();
             foreach (string s in strs)
             {
@@ -120,7 +123,7 @@ namespace BarcodeImporter
                 string[] tempStrs = s.Split(chSplit);
                 if (tempStrs[0] == "")
                     break;
-                patientInfos.Add(new PatientInfo(tempStrs[0], tempStrs[1]));
+                patientInfos.Add(new PatientInfo(tempStrs[4], tempStrs[1], tempStrs[0]));
             }
 
             InitDataGridView(patientInfos.Count);
@@ -164,18 +167,9 @@ namespace BarcodeImporter
 
         private void UpdateGridCell(int gridID, int rowIndex,PatientInfo patientInfo)
         {
-            dataGridView.Rows[rowIndex].Cells[gridID - 1].Value = patientInfo.id + "_" + patientInfo.name;
+            dataGridView.Rows[rowIndex].Cells[gridID - 1].Value = patientInfo.seqNo + "_" + patientInfo.name;
         }
     }
 
-    public struct PatientInfo
-    {
-        public string id;
-        public string name;
-        public PatientInfo(string id, string name)
-        {
-            this.id = id;
-            this.name = name;
-        }
-    }
+ 
 }

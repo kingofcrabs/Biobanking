@@ -58,16 +58,7 @@ namespace Biobanking
 
         
     }
-    public class PatientInfo
-    {
-        public string id;
-        public string name;
-        public PatientInfo(string id, string name)
-        {
-            this.id = id;
-            this.name = name;
-        }
-    }
+  
     class PatientInfoReader
     {
         public  List<PatientInfo> Read()
@@ -88,10 +79,10 @@ namespace Biobanking
             if (content.Contains(','))
             {
                 string[] strs = content.Split(',');
-                return new PatientInfo(strs[0], strs[1]);
+                return new PatientInfo(strs[0], strs[1],strs[2]);
             }
             else
-                return new PatientInfo(content, "");
+                return new PatientInfo(content, "","");
         }
 
     }

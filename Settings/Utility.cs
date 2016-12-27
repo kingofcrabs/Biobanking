@@ -67,7 +67,7 @@ namespace Settings
         static public void WriteExecuteResult(bool bok, string sPath)
         {
 
-            sPath = GetSaveFolder() + sPath;
+            sPath = GetOutputFolder() + sPath;
             
             using (StreamWriter sw = new StreamWriter(sPath))
             {
@@ -78,7 +78,7 @@ namespace Settings
         static public void WriteExecuteResult(int SampleCount)
         {
             string sPath;
-            sPath = GetSaveFolder() + stringRes.SampleCountFile;
+            sPath = GetOutputFolder() + stringRes.SampleCountFile;
 
             if (File.Exists(sPath))
             {
@@ -101,7 +101,7 @@ namespace Settings
         static public string ReadFolder(string sPath)
         {
             string result="";
-            sPath = GetSaveFolder() + sPath;
+            sPath = GetOutputFolder() + sPath;
             using (StreamReader sr = new StreamReader(sPath))
             {
                 result=sr.ReadLine();
@@ -139,12 +139,6 @@ namespace Settings
             return sOutputFolder;
         }
 
-        static public string GetSaveFolder()
-        {
-            return GetOutputFolder();
-        }
-
-      
         #endregion
         public static void SaveSettings<T>(T settings, string sFile)
         {
@@ -163,7 +157,12 @@ namespace Settings
                     sw.WriteLine(s);
             }
         }
-        
+
+        static public string GetBloodTypeFile()
+        {
+            return GetOutputFolder() + "bloodType.txt";
+        }
+
         static public void Write2File(string fileName, string s)
         {
             using (StreamWriter sw = new StreamWriter(fileName))
@@ -237,6 +236,19 @@ namespace Settings
                     return true;
             }
             return false;
+        }
+    }
+
+    public struct PatientInfo
+    {
+        public string id;
+        public string name;
+        public string seqNo;
+        public PatientInfo(string id, string name, string seqNo)
+        {
+            this.id = id;
+            this.name = name;
+            this.seqNo = seqNo;
         }
     }
 
