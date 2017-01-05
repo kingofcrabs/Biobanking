@@ -19,7 +19,7 @@ namespace Biobanking
         int startIndex = 0;
         LabwareSettings labwareSettings;
         PipettingSettings pipettingSettings;
-        public List<List<string>> ReadBarcodes(LabwareSettings labwareSettings,
+        public List<List<Tuple<string,string>>> ReadBarcodes(LabwareSettings labwareSettings,
             PipettingSettings pipettingSettings,
             Dictionary<string, string> barcode_plateBarcode, 
             Dictionary<string,string> barcode_Position)
@@ -31,7 +31,7 @@ namespace Biobanking
             var di = new DirectoryInfo(sFolder);
             var files = di.EnumerateFiles("*.csv").ToList();
             files = files.OrderBy(x => x.CreationTime).ToList();
-            List<List<string>> correspondingbarcodes = new List<List<string>>();
+            List<List<Tuple<string,string>>> correspondingbarcodes = new List<List<Tuple<string,string>>>();
             files.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode,barcode_Position, x.FullName));
             return correspondingbarcodes;
         }
@@ -41,7 +41,7 @@ namespace Biobanking
             return int.Parse(d.Name.Substring(5));
         }
 
-        private void ReadBarcode(List<List<string>> barcodesAllSrcTube,
+        private void ReadBarcode(List<List<Tuple<string,string>>> barcodesAllSrcTube,
             Dictionary<string, string>barcode_plateBarcode,
             Dictionary<string,string> barcode_Position,
             string sFile)
@@ -70,20 +70,18 @@ namespace Biobanking
             int sampleID = 1;
             foreach (var s in strs)
             {
+                if (s == "")
+                    continue;
                 var subStrs = s.Split(',');
-                string position = Utility.GetDescription(sampleID);
+                string position = GetPosition(subStrs[GlobalVars.Instance.FileStruct.dstPosition]);  //Utility.GetDescription(sampleID);
                 var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
                 barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
-                //if (!IsValidBarcode(barcode))
-                //{
-                //    throw new Exception(string.Format("Invalid barcode:{0}", barcode));
-                //    sampleID++;
-                //    continue;
-                //}
                 if(barcode == "")
                 {
-                    throw new Exception(string.Format("Line :{0} has empty barcode!", barcode));
+
+                    continue; //ignore empty barcodes.
+                    //throw new Exception(string.Format("Line :{0} has empty barcode!", barcode));
                 }
                 if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
                 {
@@ -105,18 +103,32 @@ namespace Biobanking
                 int startColumn = subRegionIndex * totalSliceCnt;
                 for (int rowIndex = 0; rowIndex < labwareSettings.dstLabwareRows; rowIndex++)
                 {
-                    List<string> subRegionBarcodes = new List<string>();
+                    List<Tuple<string,string>> subRegionPosition_Barcodes = new List<Tuple<string,string>>();
                     for (int slice = 0; slice < totalSliceCnt; slice++)
                     {
                         string well = string.Format("{0}{1:D2}", (char)('A' + rowIndex), startColumn + slice + 1);
                         //if (!IsValidBarcode(barcodesThisPlate[well]))
                         //    throw new Exception(string.Format("{0}处的条码:{1}非法！", well, barcodesThisPlate[well]));
-                        subRegionBarcodes.Add(barcodesThisPlate[well]);
+                        string tmpBarcode = "";
+                        if (barcodesThisPlate.ContainsKey(well))
+                        {
+                            tmpBarcode = barcodesThisPlate[well];
+                        }
+                        var tuple = Tuple.Create(well, tmpBarcode);
+                        subRegionPosition_Barcodes.Add(tuple);
                     }
-                    barcodesAllSrcTube.Add(subRegionBarcodes);
+                    barcodesAllSrcTube.Add(subRegionPosition_Barcodes);
                 }
             }
         }
+
+        private string GetPosition(string position)
+        {
+            int wellID = PositionGenerator.ParseWellID(position);
+            return Utility.GetDescription(wellID);
+        }
+
+        
 
         private bool IsValidBarcode(string barcode)
         {

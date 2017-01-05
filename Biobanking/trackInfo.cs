@@ -18,7 +18,7 @@ namespace Biobanking
     {
         List<TrackInfo> trackInfos = new List<TrackInfo>();
         PipettingSettings pipettingSettings = null;
-        List<List<string>> correspondingbarcodes;
+        List<List<Tuple<string,string>>> correspondingbarcodes;
         Dictionary<string, string> barcode_plateBarcodes = new Dictionary<string, string>();
         Dictionary<string, string> barcode_Position = new Dictionary<string, string>();
         List<PatientInfo> patientInfos;
@@ -57,7 +57,11 @@ namespace Biobanking
             int indexInList = 0;
             foreach (var vol in plasmaVols)
             {
-                string dstBarcode = correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
+                var tuple= correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
+                string dstBarcode = tuple.Item2;
+                if (dstBarcode == "")
+                    throw new Exception(string.Format("在{0}位置找不到条码！",tuple.Item1));
+                
                 if(!IsValidBarcode(dstBarcode))
                 {
                     throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1,dstBarcode));
@@ -97,7 +101,7 @@ namespace Biobanking
                                     sampleIndex + indexInList, 
                                     pipettingSettings.dstPlasmaSlice + i));
                             }
-                            var dstBarcode = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i];
+                            var dstBarcode = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i].Item2;
                             TrackInfo info = new TrackInfo(patient.id,
                             dstBarcode,
                             GlobalVars.Instance.BuffyName,

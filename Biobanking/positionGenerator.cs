@@ -32,6 +32,34 @@ namespace Biobanking
              }
              return pts;
          }
+
+         private static int GetWellID(int colIndex, int rowIndex)
+         {
+             int _row = 8;
+             return colIndex * _row + rowIndex + 1;
+         }
+         public static int ParseWellID(string sWellID)
+         {
+             sWellID = sWellID.Trim();
+             if (sWellID.Length > 3)
+                 throw new Exception("WellID length must <=3!");
+
+             if (sWellID.All(x => Char.IsDigit(x)))
+             {
+                 return int.Parse(sWellID);
+             }
+             sWellID = sWellID.ToUpper();
+             char first = sWellID.First();
+             if (char.IsLetter(first))
+             {
+                 string remain = sWellID.Substring(1);
+                 int rowIndex = (int)(first - 'A');
+                 int colIndex = int.Parse(remain) - 1;
+                 return GetWellID(colIndex, rowIndex);
+             }
+             else
+                 throw new Exception("Invalid WellID, must be digital or string likes A01!");
+         }
      
          internal int AllowedSamples()
          {
