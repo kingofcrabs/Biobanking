@@ -33,7 +33,7 @@ namespace Biobanking.ExcelExporter
             string header = formater == Format4Hospital ? hospitalHeader : managementHeader;
             strs.Add(header);
             trackInfos.ForEach(x => strs.Add(formater(x)));
-            File.WriteAllLines(sCSV, strs,Encoding.UTF8);
+            File.WriteAllLines(sCSV, strs,Encoding.Default);
             //ExcelReader.SaveAsExcel(sCSV, sExcel);
         }
         private static string Format4Management(TrackInfo x)

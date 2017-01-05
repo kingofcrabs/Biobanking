@@ -75,11 +75,12 @@ namespace Biobanking
                 var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
                 barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
-                if (!IsValidBarcode(barcode))
-                {
-                    sampleID++;
-                    continue;
-                }
+                //if (!IsValidBarcode(barcode))
+                //{
+                //    throw new Exception(string.Format("Invalid barcode:{0}", barcode));
+                //    sampleID++;
+                //    continue;
+                //}
                 if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
                 {
                     var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
