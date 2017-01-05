@@ -7,3 +7,4 @@
 2014-5-7 0.86 runResult file存成xml文件
 2015-4-21 0.89 增加slice最大限制
 2016-12-6 1.35 EVO75在目标板是96孔板时，不能直接拉动Plunger，应为1，3孔同时match。且dispense之后，一根在上面。
+2017-1-5 hint empty code.

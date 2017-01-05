@@ -81,6 +81,10 @@ namespace Biobanking
                 //    sampleID++;
                 //    continue;
                 //}
+                if(barcode == "")
+                {
+                    throw new Exception(string.Format("Line :{0} has empty barcode!", barcode));
+                }
                 if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
                 {
                     var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
