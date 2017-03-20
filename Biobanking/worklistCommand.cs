@@ -18,16 +18,16 @@ namespace Biobanking
         protected const string BB_Buffy_Mix = "BB_Buffy_Mix";
         protected string breakPrefix = "B;";
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        protected PipettingSettings pipettingSetting = new PipettingSettings();
+        protected PipettingSettings pipettingSettings = new PipettingSettings();
         protected LabwareSettings labwareSettings = new LabwareSettings();
 
         public worklistCommand()
         {
             SettingsHelper settingHelper = new SettingsHelper();
             log.Info("load settings");
-            settingHelper.LoadSettings(ref pipettingSetting, ref labwareSettings);
+            settingHelper.LoadSettings(ref pipettingSettings, ref labwareSettings);
             string errMsg = "";
-            bool bok = settingHelper.IsValidSetting(labwareSettings, pipettingSetting, ref errMsg);
+            bool bok = settingHelper.IsValidSetting(labwareSettings, pipettingSettings, ref errMsg);
             if (!bok)
             {
                 throw new Exception("Invalid setting:" + errMsg);
@@ -216,7 +216,7 @@ namespace Biobanking
             }
             for (int i = 0; i < heights.Count; i++)
             {
-                double h = pipettingSetting.bottomOffset + (heights[i] + pipettingSetting.msdStartPositionAboveBuffy) * 10;
+                double h = pipettingSettings.bottomOffset + (heights[i] + pipettingSettings.msdStartPositionAboveBuffy) * 10;
                 s += ((int)h).ToString() + ",";
             }
             for (int i = heights.Count + tipOffset; i < 8; i++)
@@ -262,7 +262,7 @@ namespace Biobanking
         }
         protected string GetMSDCommand(int deltaXY, int numSegments, int tipSel, int dialutorSteps, int speedXY, int accXY)
         {
-            bool bTogether = pipettingSetting.msdXYTogether;//bool.Parse(ConfigurationManager.AppSettings["MSDXYTogether"]);
+            bool bTogether = pipettingSettings.msdXYTogether;//bool.Parse(ConfigurationManager.AppSettings["MSDXYTogether"]);
             string sDeltaXY = bTogether ? deltaXY.ToString() : string.Format("{0},{0}", deltaXY);
 
             string s = string.Format("C5MSD{0},{1},{2},{3},0,{4},{5}", sDeltaXY, numSegments, tipSel, dialutorSteps, speedXY, accXY);

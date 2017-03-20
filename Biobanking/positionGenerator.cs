@@ -110,16 +110,25 @@ namespace Biobanking
             return pts;
         }
 
-        internal List<POINT> GetDestWells(int srcRackIndex, int sliceIndex, int startSample, int sampleCount)
+        internal List<POINT> GetDestWellsBuffyStandalone(int srcRackIndex, int sliceIndex, int startSample, int sampleCount)
+        {
+            return GetDestWells(srcRackIndex, sliceIndex - pipettingSettings.dstPlasmaSlice, startSample, sampleCount, true);
+        }
+        internal List<POINT> GetDestWells(int srcRackIndex, int sliceIndex, int startSample, int sampleCount,bool onlyBuffy = false)
         {
             if (pipettingSettings.onlyOneSlicePerLabware)
                 return GetDestWellsOneSlicePerRegion(srcRackIndex, startSample, sampleCount);
             int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
             int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
             int totalRow = labwareSettings.dstLabwareRows;
-            int totalSlicePerSample = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;// + pipettingSettings.dstRedCellSlice;
-         
-            int samplesPerRow = Utility.GetSamplesPerRow(labwareSettings, pipettingSettings);// labwareSettings.dstLabwareColumns / totalSlicePerSample;
+            int plasmaSlice = onlyBuffy ? 0 : pipettingSettings.dstPlasmaSlice;
+            
+            //for pipetting plasma, when Buffy should be pipeted to standalone plate, the buffy slice should be 0
+            bool plasmaWhenBuffyStandalone = GlobalVars.Instance.BuffyStandalone && !onlyBuffy;
+            int buffySlice = plasmaWhenBuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+            int totalSlicePerSample = buffySlice + plasmaSlice;
+            int samplesPerRow = onlyBuffy ? Utility.GetSamplesPerRow4Buffy(labwareSettings,pipettingSettings) :
+                Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,GlobalVars.Instance.BuffyStandalone);
             int samplesPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
 
             int sampleIndexInLabware = nStartSampleIndex;
@@ -127,7 +136,7 @@ namespace Biobanking
                 sampleIndexInLabware -= samplesPerLabware;
 
             int subRegion = sampleIndexInLabware / labwareSettings.dstLabwareRows;
-            int sliceUsedSubRegion = totalSlicePerSample * subRegion;
+            int subRegionUsedSlices = totalSlicePerSample * subRegion;
 
             while (nStartSampleIndex >= totalRow)
                 nStartSampleIndex -= totalRow;
@@ -143,11 +152,7 @@ namespace Biobanking
                 sliceIndex = 0;
             }
 
-            int col = sliceIndex + sliceUsedSubRegion + 1;
-            //if (isBuffy && pipettingSettings.dstbuffySlice == 1)
-            //{
-            //    col = labwareSettings.dstLabwareColumns;
-            //}
+            int col = sliceIndex + subRegionUsedSlices + 1;
 
             for (int row = nStartSampleRow; row <= nEndSampleRow; row++)
             {

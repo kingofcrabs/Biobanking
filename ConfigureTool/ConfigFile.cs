@@ -35,7 +35,7 @@ namespace ConfigureTool
                 config.AppSettings.Settings.Add(pair.Key,pair.Value);
             }
             
-            config.Save(ConfigurationSaveMode.Modified);
+            config.Save(ConfigurationSaveMode.Modified,true);
         }
     }
 }

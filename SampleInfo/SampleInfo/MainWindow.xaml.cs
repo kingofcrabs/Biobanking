@@ -38,6 +38,8 @@ namespace SampleInfo
         PipettingSettings pipettingSettings = new PipettingSettings();
         //TubeSettings tubeSettings = new TubeSettings();
         int maxSampleCount = 0;
+        bool buffyStandalone = false;
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -54,6 +56,7 @@ namespace SampleInfo
                 string s = "";
                 plasmaMaxCount = int.Parse(config.AppSettings.Settings["PlasmaMaxCount"].Value);
                 buffyMaxCount = int.Parse(config.AppSettings.Settings["BuffyMaxCount"].Value);
+                buffyStandalone = bool.Parse(config.AppSettings.Settings["BuffyStandalone"].Value);
                 if (!File.Exists(sLabwareSettingFileName))
                 {
                     SetInfo("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName, Colors.Red);
@@ -167,29 +170,14 @@ namespace SampleInfo
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
-             
-                //string exePath = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-                //Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-                //config.AppSettings.Settings["BloodType"].Value = GetBloodType();
-                //config.Save();
                 File.WriteAllText(Utility.GetBloodTypeFile(),GetBloodType());
-                //TubeSetting selectedSetting = new TubeSetting();
-                //if(lstSampleSettings.Items.Count != 0)
-                //{
-                //    tubeSettings.selectIndex = lstSampleSettings.SelectedIndex;
-                //    selectedSetting = tubeSettings.Settings[tubeSettings.selectIndex];
-                //}
-                //else
-                //{
-                //    tubeSettings.Settings.Add(selectedSetting);
-                //}
-                //pipettingSettings.msdZDistance = selectedSetting.msdZDistance;
-                //pipettingSettings.msdStartPositionAboveBuffy = selectedSetting.msdStartPositionAboveBuffy;
                 SaveSettings();
-                int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings);
+               
+                int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings, buffyStandalone);
                 File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
-                Utility.WriteExecuteResult(false, "result.txt");
-                MessageBox.Show(string.Format("Need {0} plates!", destLabwareNeeded));
+                Utility.WriteExecuteResult(true, "result.txt");
+                if (ConfigurationManager.AppSettings["ShowMessage"]  != null && bool.Parse(ConfigurationManager.AppSettings["ShowMessage"]))
+                    MessageBox.Show(string.Format("Need {0} plates!", destLabwareNeeded));
            }
            catch (Exception ex)
            {

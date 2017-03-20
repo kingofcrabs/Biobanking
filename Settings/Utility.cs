@@ -148,7 +148,6 @@ namespace Settings
             Stream stream = new FileStream(sFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             xs.Serialize(stream, settings);
             stream.Close();
-
         }
 
         static public void Write2File(string fileName, List<string> strs)
@@ -172,18 +171,29 @@ namespace Settings
                 sw.WriteLine(s);
             }
         }
-        public static int CalculateDestLabwareNeededCnt(int totalSampleCnt,LabwareSettings labwareSettings, PipettingSettings pipettingSettings)
+        public static int CalculateDestLabwareNeededCnt(int totalSampleCnt,LabwareSettings labwareSettings, PipettingSettings pipettingSettings,bool buffyStandalone)
         {
-            int samplesPerRow = Utility.GetSamplesPerRow(labwareSettings, pipettingSettings);
+            int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,buffyStandalone);
             if (labwareSettings.gridsPerCarrier == 1)
                 samplesPerRow = 1;
             int maxSampleCntPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
+           
+            //int buffyNeedPlate = buffyStandalone ? 1 : 0;
             return (totalSampleCnt + maxSampleCntPerLabware - 1) / maxSampleCntPerLabware;
         }
 
-        public static int GetSamplesPerRow(LabwareSettings labwareSettings, PipettingSettings pipettingSettings)
+        public static int GetSamplesPerRow4Buffy(LabwareSettings labwareSettings, PipettingSettings pipettingSettings)
         {
-            int totalSlicePerSample = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;// + pipettingSettings.dstRedCellSlice;
+            int buffySlice = pipettingSettings.dstbuffySlice;
+            if (labwareSettings.dstLabwareColumns == 1)
+                return 1;
+            return labwareSettings.dstLabwareColumns / buffySlice;
+        }
+
+        public static int GetSamplesPerRow4Plasma(LabwareSettings labwareSettings, PipettingSettings pipettingSettings, bool buffyStandalone)
+        {
+            int buffySlice = buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+            int totalSlicePerSample = buffySlice + pipettingSettings.dstPlasmaSlice;
             if (labwareSettings.dstLabwareColumns == 1)
                 return 1;
             return labwareSettings.dstLabwareColumns / totalSlicePerSample;
