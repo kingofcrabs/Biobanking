@@ -829,7 +829,7 @@ namespace Biobanking
         {
             log.Info("Write DispenseBuffy");
             int slice = pipettingSettings.dstPlasmaSlice;
-            List<POINT> ptsDisp = positionGenerator.GetDestWellsBuffyStandalone(rackIndex, slice, sampleIndexThisRack, samplesCountThisBatch);
+            List<POINT> ptsDisp = positionGenerator.GetDestWellsBuffyOnly(rackIndex, slice, sampleIndexThisRack, samplesCountThisBatch);
             int grid = 0, site = 0;
             CalculateDestBuffyGridAndSite(GetGlobalSampleIndex(rackIndex, sampleIndexThisRack), ref grid, ref site);
             int tipShift = bNeedUseLastFour ? 4 : 0;

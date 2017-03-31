@@ -22,8 +22,10 @@ namespace Monitor
         public StepViewModel()
         {
             string sDataFolder = Helper.GetDataFolder();
-            stepDescs.Add(new StepDesc("测量液面", new BitmapImage(new Uri(sDataFolder + "measure.png")),Stage.Measure));
-            stepDescs.Add(new StepDesc("分装样品", new BitmapImage(new Uri(sDataFolder + "pipettings.jpg")),Stage.Pipetting));
+            Uri measureImg = new Uri("/images/measure.png", UriKind.Relative);
+            Uri pipettingImg = new Uri("/images/pipettings.jpg", UriKind.Relative);
+            stepDescs.Add(new StepDesc("测量液面", new BitmapImage(measureImg), Stage.Measure));
+            stepDescs.Add(new StepDesc("分装样品", new BitmapImage(pipettingImg), Stage.Pipetting));
             //stepDescs.Add(new StepDesc("核酸抽提", new BitmapImage(new Uri(sDataFolder + "DNA.jpg"))));
             curIndex = 0;
         }

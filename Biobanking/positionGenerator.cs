@@ -110,24 +110,24 @@ namespace Biobanking
             return pts;
         }
 
-        internal List<POINT> GetDestWellsBuffyStandalone(int srcRackIndex, int sliceIndex, int startSample, int sampleCount)
+        internal List<POINT> GetDestWellsBuffyOnly(int srcRackIndex, int sliceIndex, int startSample, int sampleCount)
         {
             return GetDestWells(srcRackIndex, sliceIndex - pipettingSettings.dstPlasmaSlice, startSample, sampleCount, true);
         }
-        internal List<POINT> GetDestWells(int srcRackIndex, int sliceIndex, int startSample, int sampleCount,bool onlyBuffy = false)
+        internal List<POINT> GetDestWells(int srcRackIndex, int sliceIndex, int startSample, int sampleCount,bool buffyOnly = false)
         {
             if (pipettingSettings.onlyOneSlicePerLabware)
                 return GetDestWellsOneSlicePerRegion(srcRackIndex, startSample, sampleCount);
             int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
             int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
             int totalRow = labwareSettings.dstLabwareRows;
-            int plasmaSlice = onlyBuffy ? 0 : pipettingSettings.dstPlasmaSlice;
+            int plasmaSlice = buffyOnly ? 0 : pipettingSettings.dstPlasmaSlice;
             
             //for pipetting plasma, when Buffy should be pipeted to standalone plate, the buffy slice should be 0
-            bool plasmaWhenBuffyStandalone = GlobalVars.Instance.BuffyStandalone && !onlyBuffy;
+            bool plasmaWhenBuffyStandalone = GlobalVars.Instance.BuffyStandalone && !buffyOnly;
             int buffySlice = plasmaWhenBuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
             int totalSlicePerSample = buffySlice + plasmaSlice;
-            int samplesPerRow = onlyBuffy ? Utility.GetSamplesPerRow4Buffy(labwareSettings,pipettingSettings) :
+            int samplesPerRow = buffyOnly ? Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings) :
                 Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,GlobalVars.Instance.BuffyStandalone);
             int samplesPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
 
@@ -161,38 +161,5 @@ namespace Biobanking
             return pts;
         }
 
-        //internal List<POINT> GetDestWells(int srcRackIndex, int startSample, int sampleCount)
-        //{
-        //    int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
-        //    int nEndSampleIndex = nStartSampleIndex + sampleCount -1;
-        //    int totalRow = labwareSettings.dstRowCount;
-        //    while (nStartSampleIndex >= totalRow)
-        //        nStartSampleIndex -= totalRow;
-
-        //    while (nEndSampleIndex >= totalRow)
-        //        nEndSampleIndex -= totalRow;
-
-        //    int nStartSampleRow = nStartSampleIndex + 1;
-        //    int nEndSampleRow = nEndSampleIndex + 1;
-        //    List<POINT> pts = new List<POINT>();
-        //    for (int row = nStartSampleRow; row <= nEndSampleRow; row++)
-        //    {
-        //        pts.Add(new POINT(1, row));
-        //    }
-        //    return pts;
-        //}
-
-
-        //internal List<POINT> GetDestPlasmaWells(int srcRackIndex, int startSample, int sampleCount)
-        //{
-        //    return GetDestWells(srcRackIndex, startSample, sampleCount);
-        //}
-
-        //internal List<POINT> GetDestBuffyWells(int srcRackIndex, int startSample, int sampleCount)
-        //{
-        //    return GetDestWells(srcRackIndex, startSample, sampleCount);
-        //}
-
-       
     }
 }
