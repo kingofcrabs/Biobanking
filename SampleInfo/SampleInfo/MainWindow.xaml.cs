@@ -158,26 +158,27 @@ namespace SampleInfo
                     return;
                 }
 
-                if(tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
-                {
-                    SetInfo("红细胞没有Buffy", Colors.Red);
-                    txtbuffySliceCnt.Text = "0";
-                    return;
-                }
+                //if(tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
+                //{
+                //    SetInfo("红细胞没有Buffy", Colors.Red);
+                //    txtbuffySliceCnt.Text = "0";
+                //    return;
+                //}
 
                 pipettingSettings.plasmaGreedyVolume = tmpVolume;
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
-                File.WriteAllText(Utility.GetBloodTypeFile(),GetBloodType());
+                string bloodType = GetBloodType();
+                File.WriteAllText(Utility.GetBloodTypeFile(),bloodType);
                 SaveSettings();
                
                 int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings, buffyStandalone);
                 File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
                 Utility.WriteExecuteResult(true, "result.txt");
                 if (ConfigurationManager.AppSettings["ShowMessage"]  != null && bool.Parse(ConfigurationManager.AppSettings["ShowMessage"]))
-                    MessageBox.Show(string.Format("Need {0} plates!", destLabwareNeeded));
+                    MessageBox.Show(string.Format("Need {0} plates for {1}!", destLabwareNeeded, bloodType));
            }
            catch (Exception ex)
            {
@@ -253,11 +254,15 @@ namespace SampleInfo
              {
                  lblBloodSlice.Content = "血清份数：";
                  lblBloodVolume.Content = "血清体积(ul)：";
+                 txtbuffySliceCnt.Text = "0";
+                 txtbuffySliceCnt.IsEnabled = false;
              }
              else if ((bool)rdbPlasma.IsChecked)
              {
                  lblBloodSlice.Content = "血浆份数：";
                  lblBloodVolume.Content = "血浆体积(ul)：";
+                 txtbuffySliceCnt.Text = "1";
+                 txtbuffySliceCnt.IsEnabled = true;
              }
              else
              {

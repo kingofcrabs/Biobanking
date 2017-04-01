@@ -32,22 +32,21 @@ namespace Biobanking
             var files = di.EnumerateFiles("*.csv").ToList();
             files = files.OrderBy(x => x.CreationTime).ToList();
             List<List<Tuple<string,string>>> correspondingbarcodes = new List<List<Tuple<string,string>>>();
-            if(GlobalVars.Instance.BuffyStandalone)
+            List<string> fileFullNames = files.Select(x => x.FullName).ToList();
+            string buffyPlateName = "";
+            if(GlobalVars.Instance.BuffyStandalone && pipettingSettings.dstbuffySlice != 0)
             {
                 int cnt = files.Count(x => x.FullName.ToLower().Contains("buffy"));
                 if( cnt == 0)
                     throw new Exception("No barcode file for buffy plate found!");
                 if( cnt != 1)
                     throw new Exception("Only one buffy plate supported!");
-            }
-            var buffyPlateName = files.Where(x => x.FullName.ToLower().Contains("buffy")).First().FullName;
-            List<string> fileFullNames = files.Select(x => x.FullName).ToList();
-            if (buffyPlateName != null)
-            {
+                buffyPlateName = files.Where(x => x.FullName.ToLower().Contains("buffy")).First().FullName;
                 fileFullNames = fileFullNames.Except(new List<string>() { buffyPlateName }).ToList();
             }
+          
             fileFullNames.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, x));
-            if (buffyPlateName != null)
+            if(pipettingSettings.dstbuffySlice > 0)
             {
                 ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, buffyPlateName);
             }
@@ -116,9 +115,9 @@ namespace Biobanking
             }
 
             int samplesPerRow;
-            if(GlobalVars.Instance.BuffyStandalone && sFile.ToLower().Contains("buffy"))
+            int buffySlice = pipettingSettings.dstbuffySlice;
+            if (buffySlice !=0 && GlobalVars.Instance.BuffyStandalone && sFile.ToLower().Contains("buffy"))
             {
-                int buffySlice = pipettingSettings.dstbuffySlice;
                 samplesPerRow = Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings);
                 int sampleIndex = 0;
                 for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
