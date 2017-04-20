@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biobanking", "Biobanking\Biobanking.csproj", "{004F4612-696B-4426-AD95-963076908E27}"
 EndProject
@@ -12,8 +12,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settings", "Settings\Settings.csproj", "{33901220-0610-4024-92E5-1A63FCB19C87}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calibration", "Calibration\Calibration.csproj", "{2FD43A49-6C80-44FE-90E7-947A86778A4A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BiobankingTests", "BiobankingTests\BiobankingTests.csproj", "{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolumeCalculator", "VolumeCalculator\VolumeCalculator.csproj", "{DF8400A1-3AEB-47F9-94F1-D9CB63F37223}"
 EndProject
@@ -93,18 +91,6 @@ Global
 		{2FD43A49-6C80-44FE-90E7-947A86778A4A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2FD43A49-6C80-44FE-90E7-947A86778A4A}.Release|x86.ActiveCfg = Release|Any CPU
 		{2FD43A49-6C80-44FE-90E7-947A86778A4A}.Release|x86.Build.0 = Release|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Debug|x86.Build.0 = Debug|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Release|x86.ActiveCfg = Release|Any CPU
-		{EFA389C9-9C54-48BE-ACA8-8C79C958E1BA}.Release|x86.Build.0 = Release|Any CPU
 		{DF8400A1-3AEB-47F9-94F1-D9CB63F37223}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DF8400A1-3AEB-47F9-94F1-D9CB63F37223}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF8400A1-3AEB-47F9-94F1-D9CB63F37223}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

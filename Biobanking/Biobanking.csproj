@@ -59,7 +59,6 @@
     <Compile Include="ExcelReader.cs" />
     <Compile Include="GlobalVars.cs" />
     <Compile Include="MappingCalculator.cs" />
-    <Compile Include="mixCommand.cs" />
     <Compile Include="positionGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

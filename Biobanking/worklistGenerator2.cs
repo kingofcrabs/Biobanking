@@ -188,16 +188,7 @@ namespace Biobanking
 
             //1 aspirate plasmas
             double area = mappingCalculator.GetArea();
-            if(GlobalVars.Instance.IsRedCell)
-            {
-                pipettingSettings.dstbuffySlice = 0;
-                mixCommand mixCommand = new mixCommand();
-                List<int> vols = new List<int>();
-                heightsThisTime.ForEach(x=>vols.Add((int)(mappingCalculator.GetVolumeFromHeight(x.Z1)-mappingCalculator.GetVolumeFromHeight(x.Z2))));
-                var strs = mixCommand.GenerateMixForBatch(rackIndex,sampleIndexInRack,vols);
-                strs.ForEach(s => sw.WriteLine(s));
-                return;
-            }
+           
             List<POINT> ptsAsp = positionGenerator.GetSrcWells(sampleIndexInRack, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
             int plasmaSliceCnt = pipettingSettings.dstPlasmaSlice;
             List<double> plasmaVols = new List<double>();
@@ -272,12 +263,20 @@ namespace Biobanking
 
 
             int redCellSliceCnt = pipettingSettings.dstRedCellSlice;
+            List<double> redCellVols = new List<double>();
+            heightsThisTime.ForEach(x => redCellVols.Add(Math.Max(0, (int)(mappingCalculator.GetVolumeFromHeight(x.Z2) - 50)))); //omit last 50ul
+
+
+            int buffyUsedSlices = GlobalVars.Instance.BuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+            int usedSlices = pipettingSettings.dstPlasmaSlice + buffyUsedSlices;
             for (int slice = 0; slice < redCellSliceCnt; slice++)
             {
                 WriteComment(string.Format("Processing slice: {0}, red cell part", slice + 1), sw);
-                
+                List<double> thisBatchRedCellVols = GetRedCellVol(redCellVols,slice);
+
+                ProcessSliceOnce(ptsAsp, thisBatchRedCellVols, BBPlasmaFast, rackIndex, slice + usedSlices, sampleIndexInRack, sw);
                 if (GlobalVars.Instance.TrackBarcode)
-                    barcodeTracker.Track(plasmaVols, slice);
+                    barcodeTracker.Track(plasmaVols, slice + usedSlices);
             }
 
 
@@ -293,9 +292,54 @@ namespace Biobanking
             
         }
 
+        private List<double> GetRedCellVol(List<double> redCellVols, int slice)
+        {
+            double thisSliceNeededVol = slice * pipettingSettings.redCellGreedyVolume;
+            double lastSliceNeededVol = (slice - 1)* pipettingSettings.redCellGreedyVolume;
+            List<double> vols = new List<double>();
+            foreach(var vol in redCellVols)
+            {
+                if (vol > thisSliceNeededVol)
+                    vols.Add(pipettingSettings.redCellGreedyVolume);
+                else if (vol > lastSliceNeededVol)
+                    vols.Add(vol - lastSliceNeededVol);
+                else
+                    vols.Add(0);
+                    
+            }
+            return vols;
+        }
+
         private void DiscardExtraPlasma(List<POINT> ptsAsp, List<DetectedInfo> heightsThisTime, int rackIndex, int sampleIndexInRack, StreamWriter sw)
         {
+            if (pipettingSettings.plasmaGreedyVolume == 0)
+                return;
+
+            pipettingSettings.dstbuffySlice = 0;
+            List<int> vols = new List<int>();
+            double pipettedVolume = pipettingSettings.plasmaGreedyVolume * pipettingSettings.dstPlasmaSlice;
+            heightsThisTime.ForEach(x => vols.Add(Math.Max(0,(int)(mappingCalculator.GetVolumeFromHeight(x.Z1) - mappingCalculator.GetVolumeFromHeight(x.Z2) - pipettedVolume))));
             
+            int slices = (int)Math.Ceiling(vols.Max() / 850.0);
+            List<double> volsEachBatch = new List<double>();
+            vols.ForEach(x => volsEachBatch.Add(x / slices));
+            int srcGrid = GetSrcGrid(rackIndex);
+            List<POINT> ptsDisp = new List<POINT>();
+            for (int i = 0; i < vols.Count;i++ )
+            {
+                if(vols[i] > 0)
+                    ptsDisp.Add(new POINT(1, i + 1));
+            }
+
+            for (int i = 0; i < slices; i++)
+            {
+                string command = "";
+                command = GenerateAspirateCommand(ptsAsp, volsEachBatch, BBPlasmaMedium, srcGrid, 0, labwareSettings.sourceWells);
+                sw.Write(command);
+                command = GenerateAspirateCommand(ptsDisp, volsEachBatch, BBPlasmaMedium, labwareSettings.wasteTroughGrid, 0, 8);
+                sw.Write(command);
+            }
+            return;
         }
 
        
@@ -604,43 +648,7 @@ namespace Biobanking
             site = sliceIndex % labwareSettings.sitesPerCarrier;
         }
 
-        private void CalculateDestPlasmaGridAndSite4RedCell(int sampleIndex, int slice,ref int grid, ref int site)
-        {
-            int samplesPerRow = labwareSettings.dstLabwareColumns / pipettingSettings.dstRedCellSlice;
-            int sampleCountPerLabware = samplesPerRow * labwareSettings.dstLabwareRows * labwareSettings.sitesPerCarrier;
-            int labwareCnt = labwareSettings.dstRedCellCarrierCnt * labwareSettings.sitesPerCarrier;
-            int sampleCountPerCarrier = sampleCountPerLabware * labwareSettings.sitesPerCarrier;
-          
-            int totalSampleAllowed = labwareCnt * sampleCountPerLabware;
-            if (labwareSettings.dstLabwareColumns == 1) //16 eppendorf
-            {
-                totalSampleAllowed = 16 * labwareSettings.dstRedCellCarrierCnt / pipettingSettings.dstRedCellSlice;
-            }
-
-            if (sampleIndex + 1 > totalSampleAllowed)
-                throw new Exception("Max samples allowed is for red cell is: " + string.Format("{0}!", totalSampleAllowed));
-
-            int startGrid = labwareSettings.dstRedCellLabwareStartGrid;
-            int maxGrid = GetMaxGrid();
-            if (startGrid > maxGrid)
-            {
-                throw new Exception(string.Format("the destination grid: {0} exceeds the maximum grid： {1}", startGrid, maxGrid));
-            }
-            int actualGridsPerRegion = labwareSettings.gridsPerCarrier;
-            if (actualGridsPerRegion == 1)//如果冻存管载架上只有一列位置，则region的大小决定于red cell的份数
-            {
-                actualGridsPerRegion = pipettingSettings.dstRedCellSlice;
-            }
-
-            int nRegionIndex = sampleIndex / sampleCountPerCarrier;
-            int regionGridsUsed = nRegionIndex * actualGridsPerRegion;
-            int sliceGridsUsed = labwareSettings.gridsPerCarrier == 1 ? slice : 0;//如果冻存管载架上有多列，则每份封装的Grid位置不变
-
-            int sampleIndexInTheRegion = sampleIndex % sampleCountPerLabware;
-            site = sampleIndexInTheRegion / (labwareSettings.dstLabwareRows * samplesPerRow);
-            grid = sliceGridsUsed + regionGridsUsed + startGrid;
-        }
-
+       
         private void CalculateDestPlasmaGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
             int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,GlobalVars.Instance.BuffyStandalone);
@@ -652,9 +660,13 @@ namespace Biobanking
                 labwareCnt -= 1;//last use for buffy
             }
             int totalSampleAllowed = labwareCnt * sampleCountPerLabware;
+            
+            int buffyNeedGrids = GlobalVars.Instance.BuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+            int totalSlicePerSample = pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice + buffyNeedGrids;
+
             if(labwareSettings.dstLabwareColumns == 1) //16 eppendorf
             {
-                totalSampleAllowed = 16* labwareSettings.dstCarrierCnt / (pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice);
+                totalSampleAllowed = 16 * labwareSettings.dstCarrierCnt / totalSlicePerSample;
             }
 
             if (sampleIndex + 1 > totalSampleAllowed)
@@ -666,15 +678,14 @@ namespace Biobanking
             {
                 throw new Exception(string.Format("the destination grid: {0} exceeds the maximum grid： {1}", startGrid, maxGrid));
             }
-            int actualGridsPerRegion = labwareSettings.gridsPerCarrier;
-            if (actualGridsPerRegion == 1)//如果冻存管载架上只有一列位置，则region的大小决定于plasma和buffy的份数
+            int gridsPerRegion = labwareSettings.gridsPerCarrier;
+            if (gridsPerRegion == 1)//如果冻存管载架上只有一列位置，则region的大小决定于plasma,buffy和redCell的份数
             {
-                int buffyNeedGrids = GlobalVars.Instance.BuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
-                actualGridsPerRegion = pipettingSettings.dstPlasmaSlice + buffyNeedGrids;
+                gridsPerRegion = totalSlicePerSample;
             }
 
             int nRegionIndex = sampleIndex / sampleCountPerCarrier;
-            int regionGridsUsed = nRegionIndex * actualGridsPerRegion;
+            int regionGridsUsed = nRegionIndex * gridsPerRegion;
             int sliceGridsUsed = labwareSettings.gridsPerCarrier == 1 ? slice : 0;//如果冻存管载架上有多列，则每份封装的Grid位置不变
 
             int sampleIndexInTheRegion = sampleIndex % sampleCountPerLabware;

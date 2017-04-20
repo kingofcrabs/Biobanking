@@ -150,32 +150,35 @@ namespace Settings
         public int dstLabwareRows;
         public int dstLabwareColumns;
         public int dstLabwareStartGrid;
-        public int dstRedCellLabwareStartGrid;
+        
         public int sourceWells;
         public int sourceLabwareGrids;
         public int sourceLabwareStartGrid;
         public int wasteGrid;
         public int dstCarrierCnt;
-        public int dstRedCellCarrierCnt;
+        
         public int gridsPerCarrier;
         public int sitesPerCarrier;
-
+        public int wasteTroughGrid;
         public LabwareSettings()
         {
             sourceLabwareStartGrid = 1;
             dstLabwareStartGrid = 15;
-            dstRedCellLabwareStartGrid = 20;
+            
             sourceLabwareGrids = 2;
             tipCount = 2;
             sourceWells = 10;
             wasteGrid = 21;
             dstCarrierCnt = 1;
-            dstRedCellCarrierCnt = 1;
+            
             dstLabwareRows = 8;
             dstLabwareColumns = 6;
             gridsPerCarrier = 1;
             sitesPerCarrier = 1;
+            wasteTroughGrid = 18;
         }
+
+   
     }
 
 

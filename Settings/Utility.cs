@@ -195,7 +195,7 @@ namespace Settings
         public static int GetSamplesPerRow4Plasma(LabwareSettings labwareSettings, PipettingSettings pipettingSettings, bool buffyStandalone)
         {
             int buffySlice = buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
-            int totalSlicePerSample = buffySlice + pipettingSettings.dstPlasmaSlice;
+            int totalSlicePerSample = buffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
             if (labwareSettings.dstLabwareColumns == 1)
                 return 1;
             return labwareSettings.dstLabwareColumns / totalSlicePerSample;

@@ -123,21 +123,17 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="monitor.ico" />
-    <Resource Include="images\DNA.jpg" />
-    <Content Include="images\pipettings.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="images\measure.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Settings\Settings.csproj">
       <Project>{33901220-0610-4024-92e5-1a63fcb19c87}</Project>
       <Name>Settings</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\DNA.jpg" />
+    <Resource Include="images\measure.png" />
+    <Resource Include="images\pipettings.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
