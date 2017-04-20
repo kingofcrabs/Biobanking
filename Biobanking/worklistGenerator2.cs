@@ -201,7 +201,7 @@ namespace Biobanking
                 WriteComment(string.Format("Processing slice: {0}, plasma part", slice + 1), sw);
                 plasmaVols = GenerateForSlice(slice, plasmaSliceCnt,ptsAsp,rackIndex,sampleIndexInRack, heightsThisTime,sw);
                 if(GlobalVars.Instance.TrackBarcode)
-                    barcodeTracker.Track(plasmaVols,slice);
+                    barcodeTracker.Track(plasmaVols, slice, GlobalVars.Instance.BloodDescription);
             }
 
             
@@ -276,7 +276,7 @@ namespace Biobanking
 
                 ProcessSliceOnce(ptsAsp, thisBatchRedCellVols, BBPlasmaFast, rackIndex, slice + usedSlices, sampleIndexInRack, sw);
                 if (GlobalVars.Instance.TrackBarcode)
-                    barcodeTracker.Track(plasmaVols, slice + usedSlices);
+                    barcodeTracker.Track(plasmaVols, slice + usedSlices,"RedCell");
             }
 
 

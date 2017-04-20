@@ -51,7 +51,7 @@ namespace Biobanking
             return false;
         }
 
-        internal void Track(List<double> plasmaVols, int sliceIndex)
+        internal void Track(List<double> plasmaVols, int sliceIndex,string description )
         {
             //trackInfos.Add( new TrackInfo(srcBarcodes[sam))
             int indexInList = 0;
@@ -68,7 +68,7 @@ namespace Biobanking
                 }
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                 var patient = patientInfos[sampleIndex+ indexInList];
-                string description = GlobalVars.Instance.BloodDescription;
+                
                 TrackInfo info = new TrackInfo(patient.id,
                     dstBarcode,
                     description,

@@ -38,7 +38,7 @@ namespace ConfigureTool
             item_Desc.Add("dstCarrierCnt", "有几个目标Carrier。");
             item_Desc.Add("gridsPerCarrier", "一个目标载架占几个Grid。");
             item_Desc.Add("sitesPerCarrier", "一个目标载架占几个Site");
-
+            item_Desc.Add("wasteTroughGrid", "用于丢弃多余的血浆Trough的Grid，总是放在第一个site");
             //pipettingSettings
 
             item_Desc.Add("buffyAspirateLayers", "白膜吸取层数。");
@@ -61,6 +61,8 @@ namespace ConfigureTool
             item_Desc.Add("retractHeightcm", "打掉白膜后retract高度，单位为cm。");
             item_Desc.Add("maxVolumePerSlice", "单份最大体积。");
             item_Desc.Add("bottomOffset", "PAZ的偏移量，不要修改。");
+            item_Desc.Add("dstRedCellSlice", "红细胞体积。");
+            item_Desc.Add("redCellGreedyVolume", "红细胞份数。");
         }
 
         public string this[string key]
