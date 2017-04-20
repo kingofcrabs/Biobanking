@@ -115,7 +115,7 @@ namespace Biobanking {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 1.46.
+        ///   Looks up a localized string similar to 1.49.
         /// </summary>
         internal static string version {
             get {

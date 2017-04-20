@@ -592,7 +592,7 @@ namespace Biobanking
             int totalSampleAllowed = labwareCnt * sampleCountPerLabware;
             if(labwareSettings.dstLabwareColumns == 1) //16 eppendorf
             {
-                totalSampleAllowed = labwareSettings.dstCarrierCnt / (pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice);
+                totalSampleAllowed = 16* labwareSettings.dstCarrierCnt / (pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice);
             }
 
             if (sampleIndex + 1 > totalSampleAllowed)

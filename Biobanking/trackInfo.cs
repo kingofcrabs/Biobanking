@@ -74,7 +74,7 @@ namespace Biobanking
                     description,
                     Math.Round(adjustVol, 2).ToString(),
                     barcode_plateBarcodes[dstBarcode],
-                    barcode_Position[dstBarcode],patient.name,patient.seqNo);
+                    barcode_Position[dstBarcode],patient.name,patient.age, patient.seqNo);
                 trackInfos.Add(info);
                 indexInList++;
             }
@@ -107,7 +107,7 @@ namespace Biobanking
                             GlobalVars.Instance.BuffyName,
                             Math.Round(vol, 2).ToString(), 
                             barcode_plateBarcodes[dstBarcode],
-                            barcode_Position[dstBarcode],patient.name,patient.seqNo);
+                            barcode_Position[dstBarcode],patient.name, patient.age, patient.seqNo);
                             trackInfos.Add(info);
                         }
                     }

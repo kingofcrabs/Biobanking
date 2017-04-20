@@ -79,10 +79,17 @@ namespace Biobanking
             if (content.Contains(','))
             {
                 string[] strs = content.Split(',');
-                return new PatientInfo(strs[0], strs[1],strs[2]);
+                if(strs.Length == 3)
+                    return new PatientInfo(strs[0], strs[1], strs[2]);
+                else if (strs.Length >= 5)
+                    return new PatientInfo(strs[0], strs[1],strs[2],strs[4]);
+                else
+                {
+                    throw new Exception("Invalid patient information format!");
+                }
             }
             else
-                return new PatientInfo(content, "","");
+                return new PatientInfo(content, "","","");
         }
 
     }
