@@ -158,12 +158,12 @@ namespace SampleInfo
                     return;
                 }
 
-                //if(tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
-                //{
-                //    SetInfo("红细胞没有Buffy", Colors.Red);
-                //    txtbuffySliceCnt.Text = "0";
-                //    return;
-                //}
+                if (tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
+                {
+                    SetInfo("红细胞没有Buffy", Colors.Red);
+                    txtbuffySliceCnt.Text = "0";
+                    return;
+                }
 
                 pipettingSettings.plasmaGreedyVolume = tmpVolume;
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
@@ -240,10 +240,10 @@ namespace SampleInfo
             txtPlasmaCount.Text = pipettingSettings.dstPlasmaSlice.ToString();
             txtVolume.Text = pipettingSettings.plasmaGreedyVolume.ToString();
             txtBuffyVolume.Text = pipettingSettings.buffyVolume.ToString();
-            txtbuffySliceCnt.Text = pipettingSettings.dstbuffySlice.ToString();
+            txtbuffySliceCnt.Text = "0";//pipettingSettings.dstbuffySlice.ToString();
+
             //InitListView();
             //lstRadius.IsEnabled = false;
-
             //chkHasBuffy.IsChecked = Convert.ToBoolean(Utility.ReadFolder(stringRes.hasBuffyFile));
             //chkNucleinExtraction.IsChecked= Convert.ToBoolean(Utility.ReadFolder(stringRes.DoNucleinExtractionFile));
         }

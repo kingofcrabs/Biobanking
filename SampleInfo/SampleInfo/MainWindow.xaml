@@ -1,7 +1,7 @@
 ﻿<Window x:Class="SampleInfo.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Settings" Height="340" Width="493" Closed="Window_Closed" Loaded="Window_Loaded">
+        Title="Settings" Height="380" Width="493" Closed="Window_Closed" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="120"/>
@@ -12,7 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="100"/>
             <RowDefinition Height="5"/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="120"/>
         </Grid.RowDefinitions>
         <Grid>
@@ -48,8 +48,10 @@
         <Grid Grid.Row="1" Grid.ColumnSpan="4"/>
         <Grid Grid.Row="2" Grid.ColumnSpan="4">
             <StackPanel Margin="10,0,0,0">
+                <Label>样本类型：</Label>
                 <RadioButton Margin="0,2,0,2" Name="rdbSerum" Checked="RadioButton_Checked"  IsChecked="True" Content="血清"  />
                 <RadioButton Content="血浆" Name="rdbPlasma" Checked="RadioButton_Checked" />
+                <RadioButton Content="红细胞" Name="rdbRedCell" Checked="RadioButton_Checked" />
             </StackPanel>
             
         </Grid>
