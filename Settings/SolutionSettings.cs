@@ -105,9 +105,8 @@ namespace Settings
         public int safeDelta;
         public double buffySpeedFactor;
         public double plasmaGreedyVolume;
-        //public int dstRedCellSlice;
-        //public double redCellGreedyVolume;
-        //public double redCellBottomHeight;
+        public int dstRedCellSlice;
+        public double redCellGreedyVolume;
         public bool giveUpNotEnough;
         public double msdZDistance;
         public double msdStartPositionAboveBuffy;
@@ -128,8 +127,8 @@ namespace Settings
             buffySpeedFactor = 2.5;
             buffyVolume = 300;
             plasmaGreedyVolume = 0;
-            //dstRedCellSlice = 0;
-            //redCellGreedyVolume = 300;
+            dstRedCellSlice = 0;
+            redCellGreedyVolume = 500;
             //redCellBottomHeight = 80; //8mm
             giveUpNotEnough = false;
             msdZDistance = 4;
@@ -151,23 +150,27 @@ namespace Settings
         public int dstLabwareRows;
         public int dstLabwareColumns;
         public int dstLabwareStartGrid;
+        public int dstRedCellLabwareStartGrid;
         public int sourceWells;
         public int sourceLabwareGrids;
         public int sourceLabwareStartGrid;
         public int wasteGrid;
         public int dstCarrierCnt;
+        public int dstRedCellCarrierCnt;
         public int gridsPerCarrier;
         public int sitesPerCarrier;
 
         public LabwareSettings()
         {
             sourceLabwareStartGrid = 1;
-            dstLabwareStartGrid = 3;
+            dstLabwareStartGrid = 15;
+            dstRedCellLabwareStartGrid = 20;
             sourceLabwareGrids = 2;
             tipCount = 2;
             sourceWells = 10;
             wasteGrid = 21;
             dstCarrierCnt = 1;
+            dstRedCellCarrierCnt = 1;
             dstLabwareRows = 8;
             dstLabwareColumns = 6;
             gridsPerCarrier = 1;

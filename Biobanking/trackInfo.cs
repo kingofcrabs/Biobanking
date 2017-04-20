@@ -81,40 +81,44 @@ namespace Biobanking
 
             if(sliceIndex+1 == pipettingSettings.dstPlasmaSlice )
             {
-                //add buffy info
-                if ( pipettingSettings.dstbuffySlice > 0)
-                {
-                    double vol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
-                    for (indexInList = 0; indexInList < plasmaVols.Count; indexInList++)
-                    {
-                        var patient = patientInfos[sampleIndex + indexInList];
-                        for (int i = 0; i < pipettingSettings.dstbuffySlice; i++)
-                        {
-                            if(sampleIndex + indexInList >= correspondingbarcodes.Count )
-                            {
-                                throw new Exception(string.Format("cannot find the corresponding barcode for sample:{0}", 
-                                    sampleIndex + indexInList));
-                            }
-                            if(pipettingSettings.dstPlasmaSlice + i >= correspondingbarcodes[sampleIndex + indexInList].Count)
-                            {
-                                throw new Exception(string.Format("cannot find the corresponding barcode for sample:{0}, slice:{1}",
-                                    sampleIndex + indexInList, 
-                                    pipettingSettings.dstPlasmaSlice + i));
-                            }
-                            var dstBarcode = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i].Item2;
-                            TrackInfo info = new TrackInfo(patient.id,
-                            dstBarcode,
-                            GlobalVars.Instance.BuffyName,
-                            Math.Round(vol, 2).ToString(), 
-                            barcode_plateBarcodes[dstBarcode],
-                            barcode_Position[dstBarcode],patient.name, patient.age, patient.seqNo);
-                            trackInfos.Add(info);
-                        }
-                    }
-                }
+                TrackBuffy(plasmaVols.Count);
                 sampleIndex += plasmaVols.Count;
             }
             
+        }
+
+        private void TrackBuffy(int thisBatchCnt)
+        {
+            //add buffy info
+            if (pipettingSettings.dstbuffySlice == 0)
+                return;
+            double vol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
+            for (int indexInList = 0; indexInList < thisBatchCnt; indexInList++)
+            {
+                var patient = patientInfos[sampleIndex + indexInList];
+                for (int i = 0; i < pipettingSettings.dstbuffySlice; i++)
+                {
+                    if (sampleIndex + indexInList >= correspondingbarcodes.Count)
+                    {
+                        throw new Exception(string.Format("cannot find the corresponding barcode for sample:{0}",
+                            sampleIndex + indexInList));
+                    }
+                    if (pipettingSettings.dstPlasmaSlice + i >= correspondingbarcodes[sampleIndex + indexInList].Count)
+                    {
+                        throw new Exception(string.Format("cannot find the corresponding barcode for sample:{0}, slice:{1}",
+                            sampleIndex + indexInList,
+                            pipettingSettings.dstPlasmaSlice + i));
+                    }
+                    var dstBarcode = correspondingbarcodes[sampleIndex + indexInList][pipettingSettings.dstPlasmaSlice + i].Item2;
+                    TrackInfo info = new TrackInfo(patient.id,
+                    dstBarcode,
+                    GlobalVars.Instance.BuffyName,
+                    Math.Round(vol, 2).ToString(),
+                    barcode_plateBarcodes[dstBarcode],
+                    barcode_Position[dstBarcode], patient.name, patient.age, patient.seqNo);
+                    trackInfos.Add(info);
+                }
+            }
         }
 
         internal void WriteResult()

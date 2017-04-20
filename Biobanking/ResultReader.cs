@@ -70,15 +70,20 @@ namespace Biobanking
             contents = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
             contents.RemoveAll(x => x.Trim() == "");
             List<PatientInfo> patientInfos = new List<PatientInfo>();
+            if(GlobalVars.Instance.Barcode2DVendor == "HR")
             contents.ForEach(x=>patientInfos.Add(Parse(x)));
             return patientInfos;
         }
 
         private PatientInfo Parse(string content)
         {
-            if (content.Contains(','))
+            char splitter = ',';
+            if (content.Contains('\t'))
+                splitter = '\t';
+
+            if (content.Contains(splitter))
             {
-                string[] strs = content.Split(',');
+                string[] strs = content.Split(splitter);
                 if(strs.Length == 3)
                     return new PatientInfo(strs[0], strs[1], strs[2]);
                 else if (strs.Length >= 5)
@@ -92,6 +97,8 @@ namespace Biobanking
                 return new PatientInfo(content, "","","");
         }
 
+
+        
     }
       
     class TIUReader : BaseReader

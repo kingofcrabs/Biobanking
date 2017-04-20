@@ -33,6 +33,7 @@ namespace Biobanking
             IsRedCell = BloodDescription == "RedCell";
             BuffyStandalone = bool.Parse(ConfigurationManager.AppSettings["BuffyStandalone"]);
             BloodDescription = TranslateDescription(BloodDescription);
+            Barcode2DVendor = ConfigurationManager.AppSettings["2DBarcodeVendor"];
             TrackBarcode = DstBarcodeFolder != "";
             if (File.Exists(sFileStruct))
             {
@@ -81,5 +82,7 @@ namespace Biobanking
                 return TranslateDescription("Buffy");
             }
         }
+
+        public string Barcode2DVendor { get; set; }
     }
 }
