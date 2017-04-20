@@ -42,5 +42,11 @@ namespace Monitor
                 return int.Parse(s);
             }
         }
+
+        internal static string GetResultFile()
+        {
+            string sFile = GetOutputFolder() + "runResult.xml";
+            return sFile;
+        }
     }
 }

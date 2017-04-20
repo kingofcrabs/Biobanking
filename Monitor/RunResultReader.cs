@@ -12,9 +12,7 @@ namespace Monitor
         static RunResult runResult = null;
         static public RunResult Read()
         {
-            //if (runResult != null)
-            //    return runResult;
-            string sResultFile = ConfigurationManager.AppSettings["runResultFile"];
+            string sResultFile = Helper.GetResultFile();
             string sContent = File.ReadAllText(sResultFile, Encoding.Default);
             runResult = Utility.Deserialize<RunResult>(sContent);
             return runResult;

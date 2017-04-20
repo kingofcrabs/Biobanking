@@ -58,6 +58,8 @@ namespace Monitor
             return s;
         }
 
+  
+
 
         public static void SaveSettings<T>(T settings, string sFile)
         {

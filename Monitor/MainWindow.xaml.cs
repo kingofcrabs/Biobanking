@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Configuration;
 using System.IO;
 using Monitor.Properties;
+using Settings;
 
 namespace Monitor
 {
@@ -34,6 +35,7 @@ namespace Monitor
         RunResult runResult;
 
         ProgressController prgController;
+        public static LabwareSettings labwareSettings;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public MonitorWindow()
         {
@@ -42,10 +44,17 @@ namespace Monitor
             InitializeComponent();
             try
             {
-                lblVersion.Content = stringRes.version;
+                lblVersion.Content = Monitor.Properties.stringRes.version;
                 lstSteps.DataContext = stepViewModel.StepsModel;
                 CreateNamedPipeServer();
-            
+                string sLabwareSettingFileName = Helper.GetExeFolder() + "\\labwareSettings.xml";
+                if (!File.Exists(sLabwareSettingFileName))
+                {
+                    MessageBox.Show("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName);
+                    return;
+                }
+                string s = File.ReadAllText(sLabwareSettingFileName);
+                labwareSettings = Utility.Deserialize<LabwareSettings>(s);
                 runResult = RunResultReader.Read();
             }
             catch (Exception ex)
@@ -58,6 +67,7 @@ namespace Monitor
 
         void MonitorWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            timer.Stop();
             Trace.Listeners.Clear();
             Pipeserver.Close();
         }
@@ -114,7 +124,7 @@ namespace Monitor
                 packageInfo);
 
             int wellsPerLabware = 16;
-            int srcSmpGrids = int.Parse(ConfigurationManager.AppSettings["SrcSampleGrids"]);
+            int srcSmpGrids = labwareSettings.sourceLabwareGrids;
             owenerDrawGrid.RowDefinitions[0].Height = new GridLength(this.ActualHeight * 0.8);
             workTableUI = new WorkTableUI(workTableGrid.ActualWidth, workTableGrid.ActualHeight, srcSmpGrids, wellsPerLabware, prgController);
             workTableGrid.Children.Add(workTableUI);

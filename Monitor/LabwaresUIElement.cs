@@ -45,7 +45,7 @@ namespace Monitor
             sliceIndex = 0;
             batchIndex = 0;
             bFinished = false;
-            tipsCount = int.Parse(ConfigurationManager.AppSettings["TipsCount"]);
+            tipsCount =  MonitorWindow.labwareSettings.tipCount;
         }
     }
 
