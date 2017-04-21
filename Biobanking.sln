@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarcodeImporter", "BarcodeI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckPlateID", "CheckPlateID\CheckPlateID.csproj", "{F7776DCA-2535-43C2-A409-08BFA719E8D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddReagent", "AddReagent\AddReagent.csproj", "{C91185F8-EBB8-46E0-9A89-59130DC1F503}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -195,6 +197,16 @@ Global
 		{F7776DCA-2535-43C2-A409-08BFA719E8D6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F7776DCA-2535-43C2-A409-08BFA719E8D6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F7776DCA-2535-43C2-A409-08BFA719E8D6}.Release|x86.ActiveCfg = Release|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C91185F8-EBB8-46E0-9A89-59130DC1F503}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

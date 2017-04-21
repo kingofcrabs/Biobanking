@@ -69,12 +69,15 @@ namespace Biobanking
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                 var patient = patientInfos[sampleIndex+ indexInList];
                 string description = GlobalVars.Instance.BloodDescription;
-                TrackInfo info = new TrackInfo(patient.id,
+                TrackInfo info = new TrackInfo(
+                    patient.id,
                     dstBarcode,
                     description,
                     Math.Round(adjustVol, 2).ToString(),
                     barcode_plateBarcodes[dstBarcode],
-                    barcode_Position[dstBarcode],patient.name,patient.age, patient.seqNo);
+                    barcode_Position[dstBarcode],
+                    patient.name,
+                    patient.seqNo);
                 trackInfos.Add(info);
                 indexInList++;
             }
@@ -102,12 +105,14 @@ namespace Biobanking
                                     pipettingSettings.dstPlasmaSlice + i));
                             }
                             var dstBarcode = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i].Item2;
-                            TrackInfo info = new TrackInfo(patient.id,
+                            TrackInfo info = new TrackInfo(
+                            patient.id, 
                             dstBarcode,
                             GlobalVars.Instance.BuffyName,
                             Math.Round(vol, 2).ToString(), 
                             barcode_plateBarcodes[dstBarcode],
-                            barcode_Position[dstBarcode],patient.name, patient.age, patient.seqNo);
+                            barcode_Position[dstBarcode], 
+                            patient.name, patient.seqNo);
                             trackInfos.Add(info);
                         }
                     }

@@ -76,20 +76,46 @@ namespace Biobanking
 
         private PatientInfo Parse(string content)
         {
-            if (content.Contains(','))
+            char[] splitters = { '\t', ',' };
+            char theSplitter = ' ';
+            foreach(var splitter in splitters)
             {
-                string[] strs = content.Split(',');
-                if(strs.Length == 3)
-                    return new PatientInfo(strs[0], strs[1], strs[2]);
-                else if (strs.Length >= 5)
-                    return new PatientInfo(strs[0], strs[1],strs[2],strs[4]);
-                else
+                if(content.Contains(splitter))
                 {
-                    throw new Exception("Invalid patient information format!");
+                    theSplitter = splitter;
+                    break;
                 }
             }
+
+            if( theSplitter == ' ')
+                throw new Exception("Patient info's splitter is invalid!");
+
+
+            string[] strs = content.Split(theSplitter);
+            if (GlobalVars.Instance.Barcode2DVendor == "HR")
+            {
+                Dictionary<string,int> keyColumnIndex = new Dictionary<string,int>();
+                keyColumnIndex.Add("seqNo",0);
+                keyColumnIndex.Add("name",1);
+                keyColumnIndex.Add("age",2);
+                keyColumnIndex.Add("id",3);
+
+                string id = strs[keyColumnIndex["id"]];
+                string seqNo = strs[keyColumnIndex["seqNo"]];
+                string name = strs[keyColumnIndex["name"]];
+                string age = strs[keyColumnIndex["age"]];
+                return new PatientInfo(id, name, seqNo, age);
+            }
+
+
+            if(strs.Length == 3)
+                return new PatientInfo(strs[0], strs[1], strs[2]);
+            else if (strs.Length == 5)
+                return new PatientInfo(strs[0], strs[1],strs[2],strs[4]);
             else
-                return new PatientInfo(content, "","","");
+            {
+                throw new Exception("Invalid patient information format!");
+            }
         }
 
     }
