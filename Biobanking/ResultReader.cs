@@ -69,6 +69,7 @@ namespace Biobanking
             List<string> trimedBarcodes = new List<string>();
             contents = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
             contents.RemoveAll(x => x.Trim() == "");
+            contents = contents.Skip(1).ToList();
             List<PatientInfo> patientInfos = new List<PatientInfo>();
             contents.ForEach(x=>patientInfos.Add(Parse(x)));
             return patientInfos;
@@ -98,7 +99,7 @@ namespace Biobanking
                 keyColumnIndex.Add("seqNo",0);
                 keyColumnIndex.Add("name",1);
                 keyColumnIndex.Add("age",2);
-                keyColumnIndex.Add("id",3);
+                keyColumnIndex.Add("id",4);
 
                 string id = strs[keyColumnIndex["id"]];
                 string seqNo = strs[keyColumnIndex["seqNo"]];

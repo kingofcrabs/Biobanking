@@ -122,7 +122,12 @@ namespace BarcodeImporter
             string selectfile = dialog.FileName;
             List<string> strs = File.ReadAllLines(selectfile,Encoding.Default).ToList();
             patientInfos.Clear();
+            string header = strs.First();
             strs = strs.Skip(1).ToList();
+            Dictionary<string, int> info_ColumnIndex = ParseInfoColumn(header);
+            int idIndex = info_ColumnIndex["ID"];
+            int seqNoIndex = info_ColumnIndex["seqNo"];
+            int nameIndex = info_ColumnIndex["name"];
             foreach (string s in strs)
             {
                 if (s == "")
@@ -135,11 +140,14 @@ namespace BarcodeImporter
                 }
 
                 string[] tempStrs = s.Split(chSplit);
-                if (tempStrs[0] == "")
-                    break;
-                if (tempStrs[4] == "")
+
+                if (tempStrs[seqNoIndex] == "")
+                {
+                    throw new Exception(string.Format("No seqNo found for in string {0}!", s));
+                }
+                if (tempStrs[idIndex] == "")
                     throw new Exception(string.Format("No patient ID found for sequence NO: {0}!",tempStrs[0]));
-                patientInfos.Add(new PatientInfo(tempStrs[4], tempStrs[1], tempStrs[0]));
+                patientInfos.Add(new PatientInfo(tempStrs[idIndex], tempStrs[nameIndex], tempStrs[seqNoIndex]));
             }
 
             InitDataGridView(patientInfos.Count);
@@ -166,6 +174,26 @@ namespace BarcodeImporter
             }
             btnOk.Enabled = true;
             AddInfo("导入成功，请校验！");
+        }
+
+        private Dictionary<string, int> ParseInfoColumn(string header)
+        {
+            Dictionary<string, int> column_Index = new Dictionary<string, int>();
+            string[] strs = header.Split('\t');
+            Dictionary<string, string> Chinese_English = new Dictionary<string, string>() { };
+            Chinese_English.Add("检验流水号","seqNo");
+            Chinese_English.Add("姓名","name");
+            Chinese_English.Add("病人ID","ID");
+            for(int i = 0 ; i< strs.Length; i++)
+            {
+                string key = strs[i].Trim();
+                if(Chinese_English.ContainsKey(key))
+                {
+                    string english = Chinese_English[key];
+                    column_Index.Add(english, i);
+                }
+            }
+            return column_Index;
         }
 
 

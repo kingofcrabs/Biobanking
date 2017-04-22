@@ -52,61 +52,61 @@
             this.dataGridView.AllowUserToResizeColumns = false;
             this.dataGridView.AllowUserToResizeRows = false;
             this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView.Location = new System.Drawing.Point(12, 24);
+            this.dataGridView.Location = new System.Drawing.Point(12, 26);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.RowTemplate.Height = 23;
-            this.dataGridView.Size = new System.Drawing.Size(492, 415);
+            this.dataGridView.Size = new System.Drawing.Size(492, 450);
             this.dataGridView.TabIndex = 2;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(12, 10);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(65, 12);
+            this.label1.Size = new System.Drawing.Size(61, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "病人信息：";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(396, 9);
+            this.label6.Location = new System.Drawing.Point(396, 10);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(53, 12);
+            this.label6.Size = new System.Drawing.Size(49, 13);
             this.label6.TabIndex = 16;
             this.label6.Text = "版本号：";
             // 
             // lblVersion
             // 
             this.lblVersion.AutoSize = true;
-            this.lblVersion.Location = new System.Drawing.Point(455, 9);
+            this.lblVersion.Location = new System.Drawing.Point(455, 10);
             this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(0, 12);
+            this.lblVersion.Size = new System.Drawing.Size(0, 13);
             this.lblVersion.TabIndex = 17;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(375, 442);
+            this.label2.Location = new System.Drawing.Point(375, 479);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(89, 12);
+            this.label2.Size = new System.Drawing.Size(85, 13);
             this.label2.TabIndex = 18;
             this.label2.Text = "实际病人数量：";
             // 
             // lblTotalCnt
             // 
             this.lblTotalCnt.AutoSize = true;
-            this.lblTotalCnt.Location = new System.Drawing.Point(461, 442);
+            this.lblTotalCnt.Location = new System.Drawing.Point(461, 479);
             this.lblTotalCnt.Name = "lblTotalCnt";
-            this.lblTotalCnt.Size = new System.Drawing.Size(0, 12);
+            this.lblTotalCnt.Size = new System.Drawing.Size(0, 13);
             this.lblTotalCnt.TabIndex = 19;
             // 
             // btnOk
             // 
             this.btnOk.Enabled = false;
-            this.btnOk.Location = new System.Drawing.Point(431, 547);
+            this.btnOk.Location = new System.Drawing.Point(431, 593);
             this.btnOk.Name = "btnOk";
-            this.btnOk.Size = new System.Drawing.Size(75, 23);
+            this.btnOk.Size = new System.Drawing.Size(75, 25);
             this.btnOk.TabIndex = 20;
             this.btnOk.Text = "确认";
             this.btnOk.UseVisualStyleBackColor = true;
@@ -114,9 +114,9 @@
             // 
             // btnAbort
             // 
-            this.btnAbort.Location = new System.Drawing.Point(350, 547);
+            this.btnAbort.Location = new System.Drawing.Point(350, 593);
             this.btnAbort.Name = "btnAbort";
-            this.btnAbort.Size = new System.Drawing.Size(75, 23);
+            this.btnAbort.Size = new System.Drawing.Size(75, 25);
             this.btnAbort.TabIndex = 21;
             this.btnAbort.Text = "放弃";
             this.btnAbort.UseVisualStyleBackColor = true;
@@ -124,9 +124,9 @@
             // 
             // btnImport
             // 
-            this.btnImport.Location = new System.Drawing.Point(269, 547);
+            this.btnImport.Location = new System.Drawing.Point(269, 593);
             this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(75, 23);
+            this.btnImport.Size = new System.Drawing.Size(75, 25);
             this.btnImport.TabIndex = 22;
             this.btnImport.Text = "导入";
             this.btnImport.UseVisualStyleBackColor = true;
@@ -134,19 +134,19 @@
             // 
             // richTextInfo
             // 
-            this.richTextInfo.Font = new System.Drawing.Font("宋体", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.richTextInfo.Location = new System.Drawing.Point(14, 457);
+            this.richTextInfo.Font = new System.Drawing.Font("SimSun", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.richTextInfo.Location = new System.Drawing.Point(14, 495);
             this.richTextInfo.Name = "richTextInfo";
             this.richTextInfo.ReadOnly = true;
-            this.richTextInfo.Size = new System.Drawing.Size(492, 86);
+            this.richTextInfo.Size = new System.Drawing.Size(492, 93);
             this.richTextInfo.TabIndex = 24;
             this.richTextInfo.Text = "";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("宋体", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label3.Location = new System.Drawing.Point(11, 441);
+            this.label3.Font = new System.Drawing.Font("SimSun", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label3.Location = new System.Drawing.Point(11, 478);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(72, 13);
             this.label3.TabIndex = 23;
@@ -155,34 +155,34 @@
             // version
             // 
             this.version.AutoSize = true;
-            this.version.Location = new System.Drawing.Point(451, 8);
+            this.version.Location = new System.Drawing.Point(451, 9);
             this.version.Name = "version";
-            this.version.Size = new System.Drawing.Size(29, 12);
+            this.version.Size = new System.Drawing.Size(28, 13);
             this.version.TabIndex = 25;
-            this.version.Text = "0.01";
+            this.version.Text = "0.02";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(180, 442);
+            this.label4.Location = new System.Drawing.Point(180, 479);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 12);
+            this.label4.Size = new System.Drawing.Size(85, 13);
             this.label4.TabIndex = 26;
             this.label4.Text = "设定病人数量：";
             // 
             // lblSetCnt
             // 
             this.lblSetCnt.AutoSize = true;
-            this.lblSetCnt.Location = new System.Drawing.Point(267, 441);
+            this.lblSetCnt.Location = new System.Drawing.Point(267, 478);
             this.lblSetCnt.Name = "lblSetCnt";
-            this.lblSetCnt.Size = new System.Drawing.Size(0, 12);
+            this.lblSetCnt.Size = new System.Drawing.Size(0, 13);
             this.lblSetCnt.TabIndex = 27;
             // 
             // Main
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(523, 582);
+            this.ClientSize = new System.Drawing.Size(523, 631);
             this.Controls.Add(this.lblSetCnt);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.version);

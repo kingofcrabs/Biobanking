@@ -61,6 +61,9 @@ namespace ConfigureTool
             item_Desc.Add("retractHeightcm", "打掉白膜后retract高度，单位为cm。");
             item_Desc.Add("maxVolumePerSlice", "单份最大体积。");
             item_Desc.Add("bottomOffset", "PAZ的偏移量，不要修改。");
+            item_Desc.Add("buffyStandalone", "白膜层单独放一个板子。");
+            item_Desc.Add("buffyOneByOne", "白膜分配一个一个来。");
+            
         }
 
         public string this[string key]

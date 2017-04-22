@@ -34,7 +34,8 @@ namespace Biobanking
             List<List<Tuple<string,string>>> correspondingbarcodes = new List<List<Tuple<string,string>>>();
             List<string> fileFullNames = files.Select(x => x.FullName).ToList();
             string buffyPlateName = "";
-            if(GlobalVars.Instance.BuffyStandalone && pipettingSettings.dstbuffySlice != 0)
+            
+            if(pipettingSettings.buffyStandalone && pipettingSettings.dstbuffySlice != 0)
             {
                 int cnt = files.Count(x => x.FullName.ToLower().Contains("buffy"));
                 if( cnt == 0)
@@ -116,7 +117,7 @@ namespace Biobanking
 
             int samplesPerRow;
             int buffySlice = pipettingSettings.dstbuffySlice;
-            if (buffySlice !=0 && GlobalVars.Instance.BuffyStandalone && sFile.ToLower().Contains("buffy"))
+            if (buffySlice !=0 && pipettingSettings.buffyStandalone && sFile.ToLower().Contains("buffy"))
             {
                 samplesPerRow = Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings);
                 int sampleIndex = 0;
@@ -150,9 +151,9 @@ namespace Biobanking
                 return;
             }
 
-            int dstBuffySlice = GlobalVars.Instance.BuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+            int dstBuffySlice = pipettingSettings.buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
             int totalSliceCnt = dstBuffySlice + pipettingSettings.dstPlasmaSlice;
-            samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,GlobalVars.Instance.BuffyStandalone);
+            samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
             for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
             {
                 int startColumn = subRegionIndex * totalSliceCnt;

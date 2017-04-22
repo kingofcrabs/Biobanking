@@ -117,6 +117,8 @@ namespace Settings
         public int bottomOffset;
         public int maxVolumePerSlice;
         public int retractHeightcm;
+        public bool buffyStandalone;
+        public bool buffyOneByOne;
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -139,6 +141,8 @@ namespace Settings
             bottomOffset = 388;
             retractHeightcm = 10;
             maxVolumePerSlice = 5000;
+            buffyStandalone = false;
+            buffyOneByOne = false;
 
         }
     }

@@ -32,7 +32,6 @@ namespace Biobanking
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
             BloodDescription = File.ReadAllText(Utility.GetBloodTypeFile());
             IsRedCell = BloodDescription == "RedCell";
-            BuffyStandalone = bool.Parse(ConfigurationManager.AppSettings["BuffyStandalone"]);
             BloodDescription = TranslateDescription(BloodDescription);
             TrackBarcode = DstBarcodeFolder != "";
             if (File.Exists(sFileStruct))
@@ -62,7 +61,6 @@ namespace Biobanking
 
         public bool TrackBarcode { get; set; }
 
-        public bool BuffyStandalone { get; set; }
         public string ResultFile { get; set; }
 
         public string DstBarcodeFolder { get; set; }

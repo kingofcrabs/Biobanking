@@ -581,11 +581,11 @@ namespace Biobanking
 
         private void CalculateDestPlasmaGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
-            int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,GlobalVars.Instance.BuffyStandalone);
+            int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
             int sampleCountPerLabware = samplesPerRow* labwareSettings.dstLabwareRows*labwareSettings.sitesPerCarrier;
             int labwareCnt = labwareSettings.dstCarrierCnt * labwareSettings.sitesPerCarrier;
             int sampleCountPerCarrier = sampleCountPerLabware * labwareSettings.sitesPerCarrier;
-            if (GlobalVars.Instance.BuffyStandalone)
+            if (pipettingSettings.buffyStandalone)
             {
                 labwareCnt -= 1;//last use for buffy
             }
@@ -607,7 +607,7 @@ namespace Biobanking
             int actualGridsPerRegion = labwareSettings.gridsPerCarrier;
             if (actualGridsPerRegion == 1)//如果冻存管载架上只有一列位置，则region的大小决定于plasma和buffy的份数
             {
-                int buffyNeedGrids = GlobalVars.Instance.BuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+                int buffyNeedGrids = pipettingSettings.buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
                 actualGridsPerRegion = pipettingSettings.dstPlasmaSlice + buffyNeedGrids;
             }
 
@@ -629,7 +629,7 @@ namespace Biobanking
         }
         private void CalculateDestBuffyGridAndSite(int sampleIndex, ref int grid, ref int site)
         {
-            if(GlobalVars.Instance.BuffyStandalone)
+            if(pipettingSettings.buffyStandalone)
             {
                 grid = labwareSettings.dstLabwareStartGrid + (labwareSettings.dstCarrierCnt - 1) * labwareSettings.gridsPerCarrier;
                 site = labwareSettings.sitesPerCarrier - 1;
@@ -728,7 +728,7 @@ namespace Biobanking
 
         private void WriteDispenseBuffyWithMovingPluger(List<POINT> pts, int ditiMask,List<double> vols, int grid, int site, int tipOffset, StreamWriter sw)
         {
-            if(ConfigurationManager.AppSettings["EVOModel"] == "75" && pts.Count == 2) //75,  dispense first then second.
+            if(pipettingSettings.buffyOneByOne) //75,  dispense first then second.
             {
                 WriteMovingPluger(new List<POINT>() { pts[0] }, new List<double>() {vols[0],0}, 1, 0, grid, site, sw);
                 WriteMovingPluger(new List<POINT>() { pts[1] }, new List<double>() {0,vols[1]}, 2, 1, grid, site, sw);
