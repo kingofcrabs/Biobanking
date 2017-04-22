@@ -47,7 +47,7 @@ namespace Biobanking
             }
           
             fileFullNames.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, x));
-            if(pipettingSettings.dstbuffySlice > 0)
+            if(pipettingSettings.dstbuffySlice > 0 && pipettingSettings.buffyStandalone)
             {
                 ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, buffyPlateName);
             }

@@ -111,6 +111,7 @@ namespace Biobanking
          
             detectInfos = ResultReader.Instance.Read();
             patientInfos = ResultReader.Instance.ReadPatientInfos();
+            patientInfos = patientInfos.Take(detectInfos.Count).ToList();
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker = new BarcodeTracker(pipettingSettings, labwareSettings, patientInfos);
             log.Info("read heights");

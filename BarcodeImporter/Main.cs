@@ -139,7 +139,7 @@ namespace BarcodeImporter
                     break;
                 if (tempStrs[4] == "")
                     throw new Exception(string.Format("No patient ID found for sequence NO: {0}!",tempStrs[0]));
-                patientInfos.Add(new PatientInfo(tempStrs[4], tempStrs[1], tempStrs[0]));
+                patientInfos.Add(new PatientInfo(tempStrs[3], tempStrs[1], tempStrs[0]));
             }
 
             InitDataGridView(patientInfos.Count);

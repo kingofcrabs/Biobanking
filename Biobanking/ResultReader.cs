@@ -90,8 +90,6 @@ namespace Biobanking
                 string[] strs = content.Split(splitter);
                 if(strs.Length == 3)
                     return new PatientInfo(strs[0], strs[1], strs[2]);
-                else if (strs.Length >= 5)
-                    return new PatientInfo(strs[4], strs[1],strs[0],strs[2]);
                 else
                 {
                     throw new Exception("Invalid patient information format!");
