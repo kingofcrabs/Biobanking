@@ -116,6 +116,8 @@ namespace Settings
         public int bottomOffset;
         public int maxVolumePerSlice;
         public int retractHeightcm;
+
+        public bool buffyStandalone;
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -129,6 +131,7 @@ namespace Settings
             plasmaGreedyVolume = 0;
             dstRedCellSlice = 0;
             redCellGreedyVolume = 500;
+            buffyStandalone = false;
             //redCellBottomHeight = 80; //8mm
             giveUpNotEnough = false;
             msdZDistance = 4;

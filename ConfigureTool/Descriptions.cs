@@ -63,6 +63,7 @@ namespace ConfigureTool
             item_Desc.Add("bottomOffset", "PAZ的偏移量，不要修改。");
             item_Desc.Add("dstRedCellSlice", "红细胞体积。");
             item_Desc.Add("redCellGreedyVolume", "红细胞份数。");
+            item_Desc.Add("buffyStandalone", "白膜层单独放一个板子。");
         }
 
         public string this[string key]

@@ -267,7 +267,7 @@ namespace Biobanking
             heightsThisTime.ForEach(x => redCellVols.Add(Math.Max(0, (int)(mappingCalculator.GetVolumeFromHeight(x.Z2) - 50)))); //omit last 50ul
 
 
-            int buffyUsedSlices = GlobalVars.Instance.BuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+            int buffyUsedSlices = pipettingSettings.buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
             int usedSlices = pipettingSettings.dstPlasmaSlice + buffyUsedSlices;
             for (int slice = 0; slice < redCellSliceCnt; slice++)
             {
@@ -651,17 +651,17 @@ namespace Biobanking
        
         private void CalculateDestPlasmaGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
-            int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,GlobalVars.Instance.BuffyStandalone);
+            int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
             int sampleCountPerLabware = samplesPerRow* labwareSettings.dstLabwareRows*labwareSettings.sitesPerCarrier;
             int labwareCnt = labwareSettings.dstCarrierCnt * labwareSettings.sitesPerCarrier;
             int sampleCountPerCarrier = sampleCountPerLabware * labwareSettings.sitesPerCarrier;
-            if (GlobalVars.Instance.BuffyStandalone)
+            if (pipettingSettings.buffyStandalone)
             {
                 labwareCnt -= 1;//last use for buffy
             }
             int totalSampleAllowed = labwareCnt * sampleCountPerLabware;
             
-            int buffyNeedGrids = GlobalVars.Instance.BuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+            int buffyNeedGrids = pipettingSettings.buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
             int totalSlicePerSample = pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice + buffyNeedGrids;
 
             if(labwareSettings.dstLabwareColumns == 1) //16 eppendorf
@@ -702,7 +702,7 @@ namespace Biobanking
         }
         private void CalculateDestBuffyGridAndSite(int sampleIndex, ref int grid, ref int site)
         {
-            if(GlobalVars.Instance.BuffyStandalone)
+            if(pipettingSettings.buffyStandalone)
             {
                 grid = labwareSettings.dstLabwareStartGrid + (labwareSettings.dstCarrierCnt - 1) * labwareSettings.gridsPerCarrier;
                 site = labwareSettings.sitesPerCarrier - 1;

@@ -67,6 +67,9 @@ namespace Biobanking
                     throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1,dstBarcode));
                 }
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
+                if (patientInfos.Count <= sampleIndex + indexInList)
+                    throw new Exception(string.Format("找不到第{0}个样品对应的原始条码", sampleIndex + indexInList + 1));
+                
                 var patient = patientInfos[sampleIndex+ indexInList];
                 
                 TrackInfo info = new TrackInfo(patient.id,

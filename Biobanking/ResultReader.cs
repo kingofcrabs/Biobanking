@@ -71,7 +71,11 @@ namespace Biobanking
             contents.RemoveAll(x => x.Trim() == "");
             List<PatientInfo> patientInfos = new List<PatientInfo>();
             if(GlobalVars.Instance.Barcode2DVendor == "HR")
-            contents.ForEach(x=>patientInfos.Add(Parse(x)));
+            {
+                contents = contents.Skip(1).ToList();
+                contents.ForEach(x => patientInfos.Add(Parse(x)));
+            }
+            
             return patientInfos;
         }
 
@@ -87,7 +91,7 @@ namespace Biobanking
                 if(strs.Length == 3)
                     return new PatientInfo(strs[0], strs[1], strs[2]);
                 else if (strs.Length >= 5)
-                    return new PatientInfo(strs[0], strs[1],strs[2],strs[4]);
+                    return new PatientInfo(strs[4], strs[1],strs[0],strs[2]);
                 else
                 {
                     throw new Exception("Invalid patient information format!");
