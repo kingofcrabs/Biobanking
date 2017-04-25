@@ -56,7 +56,7 @@ namespace SampleInfo
                 string s = "";
                 plasmaMaxCount = int.Parse(config.AppSettings.Settings["PlasmaMaxCount"].Value);
                 buffyMaxCount = int.Parse(config.AppSettings.Settings["BuffyMaxCount"].Value);
-                buffyStandalone = bool.Parse(config.AppSettings.Settings["BuffyStandalone"].Value);
+                buffyStandalone = pipettingSettings.buffyStandalone;
                 if (!File.Exists(sLabwareSettingFileName))
                 {
                     SetInfo("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName, Colors.Red);

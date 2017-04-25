@@ -143,6 +143,11 @@ namespace Settings
             maxVolumePerSlice = 5000;
 
         }
+
+        public int GetTotalSlice()
+        {
+            return dstbuffySlice + dstPlasmaSlice + dstRedCellSlice;
+        }
     }
 
 
