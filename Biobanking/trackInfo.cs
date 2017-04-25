@@ -82,13 +82,19 @@ namespace Biobanking
                 indexInList++;
             }
 
-            if(sliceIndex+1 == pipettingSettings.dstPlasmaSlice )
+            if(sliceIndex+1 == pipettingSettings.dstPlasmaSlice ) //if no red cell, then this slice would be the last tracking slice for the batch
             {
                 TrackBuffy(plasmaVols.Count);
+                if(pipettingSettings.dstRedCellSlice == 0)
+                    sampleIndex += plasmaVols.Count;
+            }
+
+            if( sliceIndex + 1 == pipettingSettings.GetTotalSlice())
+            {
                 sampleIndex += plasmaVols.Count;
             }
-            
         }
+
 
         private void TrackBuffy(int thisBatchCnt)
         {

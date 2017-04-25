@@ -152,7 +152,7 @@ namespace Biobanking
             }
 
             int dstBuffySlice = pipettingSettings.buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
-            int totalSliceCnt = dstBuffySlice + pipettingSettings.dstPlasmaSlice;
+            int totalSliceCnt = dstBuffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
             samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
             for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
             {

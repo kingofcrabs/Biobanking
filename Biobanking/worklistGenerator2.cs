@@ -256,6 +256,7 @@ namespace Biobanking
             //3 process extra plasma
             if(pipettingSettings.dstRedCellSlice > 0 )
             {
+                WriteComment("Discard extra plasma.",sw);
                 DiscardExtraPlasma(ptsAsp, heightsThisTime, rackIndex, sampleIndexInRack, sw);
             }
             
@@ -277,7 +278,7 @@ namespace Biobanking
 
                 ProcessSliceOnce(ptsAsp, thisBatchRedCellVols, BBPlasmaFast, rackIndex, slice + usedSlices, sampleIndexInRack, sw);
                 if (GlobalVars.Instance.TrackBarcode)
-                    barcodeTracker.Track(plasmaVols, slice + usedSlices,"RedCell");
+                    barcodeTracker.Track(plasmaVols, slice + usedSlices,"红细胞");
             }
 
 
