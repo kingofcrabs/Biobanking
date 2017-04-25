@@ -317,7 +317,6 @@ namespace Biobanking
             if (pipettingSettings.plasmaGreedyVolume == 0)
                 return;
 
-            pipettingSettings.dstbuffySlice = 0;
             List<int> vols = new List<int>();
             double pipettedVolume = pipettingSettings.plasmaGreedyVolume * pipettingSettings.dstPlasmaSlice;
             heightsThisTime.ForEach(x => vols.Add(Math.Max(0,(int)(mappingCalculator.GetVolumeFromHeight(x.Z1) - mappingCalculator.GetVolumeFromHeight(x.Z2) - pipettedVolume))));
