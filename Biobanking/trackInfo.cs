@@ -57,28 +57,31 @@ namespace Biobanking
             int indexInList = 0;
             foreach (var vol in plasmaVols)
             {
-                var tuple= correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
-                string dstBarcode = tuple.Item2;
-                if (dstBarcode == "")
-                    throw new Exception(string.Format("在{0}位置找不到条码！",tuple.Item1));
-                
-                if(!IsValidBarcode(dstBarcode))
+                if(vol > 0)
                 {
-                    throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1,dstBarcode));
+                    var tuple = correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
+                    string dstBarcode = tuple.Item2;
+                    if (dstBarcode == "")
+                        throw new Exception(string.Format("在{0}位置找不到条码！", tuple.Item1));
+
+                    if (!IsValidBarcode(dstBarcode))
+                    {
+                        throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1, dstBarcode));
+                    }
+                    var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
+                    if (patientInfos.Count <= sampleIndex + indexInList)
+                        throw new Exception(string.Format("找不到第{0}个样品对应的原始条码", sampleIndex + indexInList + 1));
+
+                    var patient = patientInfos[sampleIndex + indexInList];
+
+                    TrackInfo info = new TrackInfo(patient.id,
+                        dstBarcode,
+                        description,
+                        Math.Round(adjustVol, 2).ToString(),
+                        barcode_plateBarcodes[dstBarcode],
+                        barcode_Position[dstBarcode], patient.name, patient.age, patient.seqNo);
+                    trackInfos.Add(info);
                 }
-                var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
-                if (patientInfos.Count <= sampleIndex + indexInList)
-                    throw new Exception(string.Format("找不到第{0}个样品对应的原始条码", sampleIndex + indexInList + 1));
-                
-                var patient = patientInfos[sampleIndex+ indexInList];
-                
-                TrackInfo info = new TrackInfo(patient.id,
-                    dstBarcode,
-                    description,
-                    Math.Round(adjustVol, 2).ToString(),
-                    barcode_plateBarcodes[dstBarcode],
-                    barcode_Position[dstBarcode],patient.name,patient.age, patient.seqNo);
-                trackInfos.Add(info);
                 indexInList++;
             }
 

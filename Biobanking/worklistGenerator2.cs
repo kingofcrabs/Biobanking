@@ -257,7 +257,11 @@ namespace Biobanking
             if(pipettingSettings.dstRedCellSlice > 0 )
             {
                 WriteComment("Discard extra plasma.",sw);
+                //change diti
+                sw.WriteLine(string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask, labwareSettings.wasteGrid));
+                sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask));
                 DiscardExtraPlasma(ptsAsp, heightsThisTime, rackIndex, sampleIndexInRack, sw);
+                
             }
             
             //ProcessSliceOnce(ptsAsp, null, BBPlasmaMedium, rackIndex, 0, sampleIndexInRack, sw);
@@ -278,7 +282,7 @@ namespace Biobanking
 
                 ProcessSliceOnce(ptsAsp, thisBatchRedCellVols, BBPlasmaFast, rackIndex, slice + usedSlices, sampleIndexInRack, sw);
                 if (GlobalVars.Instance.TrackBarcode)
-                    barcodeTracker.Track(plasmaVols, slice + usedSlices,"红细胞");
+                    barcodeTracker.Track(thisBatchRedCellVols, slice + usedSlices, "红细胞");
             }
 
 
@@ -336,9 +340,9 @@ namespace Biobanking
             {
                 string command = "";
                 command = GenerateAspirateCommand(ptsAsp, volsEachBatch, BBPlasmaMedium, srcGrid, 0, labwareSettings.sourceWells);
-                sw.Write(command);
-                command = GenerateAspirateCommand(ptsDisp, volsEachBatch, BBPlasmaMedium, labwareSettings.wasteTroughGrid, 0, 8);
-                sw.Write(command);
+                sw.WriteLine(command);
+                command = GenerateDispenseCommand(ptsDisp, volsEachBatch, BBPlasmaMedium, labwareSettings.wasteTroughGrid, 0, 8);
+                sw.WriteLine(command);
             }
             return;
         }
@@ -903,7 +907,8 @@ namespace Biobanking
         {
             log.Info("Write DispenseBuffy");
             int slice = pipettingSettings.dstPlasmaSlice;
-            List<POINT> ptsDisp = positionGenerator.GetDestWellsBuffyOnly(rackIndex, slice, sampleIndexThisRack, samplesCountThisBatch);
+            List<POINT> ptsDisp = pipettingSettings.buffyStandalone ? positionGenerator.GetDestWellsBuffyOnly(rackIndex, slice, sampleIndexThisRack, samplesCountThisBatch)
+                : positionGenerator.GetDestWells(rackIndex, slice, sampleIndexThisRack, samplesCountThisBatch);
             int grid = 0, site = 0;
             CalculateDestBuffyGridAndSite(GetGlobalSampleIndex(rackIndex, sampleIndexThisRack), ref grid, ref site);
             int tipShift = bNeedUseLastFour ? 4 : 0;

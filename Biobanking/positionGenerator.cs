@@ -126,7 +126,7 @@ namespace Biobanking
             //for pipetting plasma, when Buffy should be pipeted to standalone plate, the buffy slice should be 0
             bool plasmaWhenBuffyStandalone = pipettingSettings.buffyStandalone && !buffyOnly;
             int buffySlice = plasmaWhenBuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
-            int totalSlicePerSample = buffySlice + plasmaSlice;
+            int totalSlicePerSample = buffySlice + plasmaSlice + pipettingSettings.dstRedCellSlice;
             int samplesPerRow = buffyOnly ? Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings) :
                 Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
             int samplesPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
