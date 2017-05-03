@@ -195,7 +195,6 @@ namespace Biobanking
 
             foreach (DataRow dr in dt.Rows)
             {
-
                 DetectedInfo detectResult = new DetectedInfo();
                 for (int i = 0; i < dr.ItemArray.Count(); i++)
                 {

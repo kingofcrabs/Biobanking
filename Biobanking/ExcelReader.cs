@@ -44,14 +44,11 @@ namespace Biobanking
                     throw new Exception("Only one buffy plate supported!");
                 buffyPlateName = files.Where(x => x.FullName.ToLower().Contains("buffy")).First().FullName;
                 fileFullNames = fileFullNames.Except(new List<string>() { buffyPlateName }).ToList();
+                ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, buffyPlateName);
             }
           
             fileFullNames.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, x));
-            if(pipettingSettings.dstbuffySlice > 0)
-            {
-                ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, buffyPlateName);
-            }
-
+            
             return correspondingbarcodes;
         }
 
