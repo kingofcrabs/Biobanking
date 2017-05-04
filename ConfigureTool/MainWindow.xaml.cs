@@ -57,7 +57,7 @@ namespace ConfigureTool
             txtCurrentVal.Text = (string)dt.Rows[listView.SelectedIndex][1];
             currentKey = (string)dt.Rows[listView.SelectedIndex][0];
             if (descriptionHelper[currentKey] == null)
-                throw new Exception("无法找到对应的说明！");
+                SetInfo("无法找到对应的说明！",true);
             SetInfo(descriptionHelper[currentKey]);
         }
 
