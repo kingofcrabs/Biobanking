@@ -1,16 +1,16 @@
 ﻿<Window x:Class="SampleInfo.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Settings" Height="380" Width="493" Closed="Window_Closed" Loaded="Window_Loaded">
+        Title="Settings" Height="430" Width="493" Closed="Window_Closed" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="130"/>
             <ColumnDefinition Width="100"/>
             <ColumnDefinition Width="120"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="150"/>
             <RowDefinition Height="5"/>
             <RowDefinition Height="100"/>
             <RowDefinition Height="120"/>
@@ -18,9 +18,10 @@
         <Grid>
             <StackPanel>
                 <Label Content="样品数：" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0" Name="lblSampleCount" VerticalAlignment="Top" Width="57" />
-                <Label Name="lblBloodSlice" Content="Plasma份数：" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0"  VerticalAlignment="Top" Width="85" />
+                <Label Name="lblBloodSlice" Content="Plasma份数:" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0"  VerticalAlignment="Top" Width="85" />
                 <Label Name="lblBloodVolume" Content="Plasma体积(ul):" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0"  VerticalAlignment="Top" />
-               
+                <Label Content="红细胞份数:" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" />
+                <Label Content="红细胞体积(ul):" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" />
             </StackPanel>
         </Grid>
         <Grid Grid.Column="1">
@@ -28,7 +29,8 @@
                 <TextBox Height="23" HorizontalAlignment="Left" Margin="10,5,0,0" Name="txtSampleCount" VerticalAlignment="Top" Width="76" TabIndex="1" />
                 <TextBox Height="23" HorizontalAlignment="Left" Margin="10,5,0,0" Name="txtPlasmaCount" VerticalAlignment="Top" Width="76" TabIndex="2" />
                 <TextBox Height="23" HorizontalAlignment="Left" Margin="10,5,0,0" Name="txtVolume" VerticalAlignment="Top" Width="76" TabIndex="3" />
-                
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="10,5,0,0" Name="txtRedCellSlice" VerticalAlignment="Top" Width="76" TabIndex="4" />
+                <TextBox Height="23" HorizontalAlignment="Left" Margin="10,5,0,0" Name="txtRedCellVolume" VerticalAlignment="Top" Width="76" TabIndex="5" />
             </StackPanel>
         </Grid>
 
@@ -36,13 +38,14 @@
             <StackPanel>
                 <Label Content="Buffy份数：" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0" Name="label3" VerticalAlignment="Top" Width="85" />
                 <Label Content="Buffy体积(ul):" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0" Name="label4" VerticalAlignment="Top" />
-
+                
             </StackPanel>
         </Grid>
         <Grid Grid.Column="3">
             <StackPanel>
-            <TextBox Height="23" HorizontalAlignment="Left"  Margin="10,5,0,0" Name="txtbuffySliceCnt" VerticalAlignment="Top" Width="76" />
+                <TextBox Height="23" HorizontalAlignment="Left"  Margin="10,5,0,0" Name="txtbuffySliceCnt" VerticalAlignment="Top" Width="76" />
                 <TextBox Height="23" HorizontalAlignment="Left" Margin="10,5,0,0" Name="txtBuffyVolume" VerticalAlignment="Top" Width="76" />
+                
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" Grid.ColumnSpan="4"/>
@@ -51,7 +54,6 @@
                 <Label>样本类型：</Label>
                 <RadioButton Margin="0,2,0,2" Name="rdbSerum" Checked="RadioButton_Checked"  IsChecked="True" Content="血清"  />
                 <RadioButton Content="血浆" Name="rdbPlasma" Checked="RadioButton_Checked" />
-                <RadioButton Content="红细胞" Name="rdbRedCell" Checked="RadioButton_Checked" />
             </StackPanel>
             
         </Grid>

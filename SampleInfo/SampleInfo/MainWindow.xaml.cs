@@ -157,11 +157,31 @@ namespace SampleInfo
                     SetInfo("Buffy体积数必须介于200ul到1000ul之间", Colors.Red);
                     return;
                 }
-
-                if (tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
+                
+                int redCellVolume;
+                bok = int.TryParse(txtRedCellVolume.Text, out redCellVolume);
+                if (!bok)
                 {
-                    SetInfo("红细胞没有Buffy", Colors.Red);
-                    txtbuffySliceCnt.Text = "0";
+                    SetInfo("红细胞体积必须为数字！", Colors.Red);
+                    return;
+                }
+                if (redCellVolume <0 )
+                {
+                    SetInfo("红细胞体积数必须大于0。", Colors.Red);
+                    return;
+                }
+                
+                
+                int redCellSliceCnt;
+                 bok = int.TryParse(txtRedCellSlice.Text, out redCellSliceCnt);
+                if (!bok)
+                {
+                    SetInfo("红细胞份数必须为数字！", Colors.Red);
+                    return;
+                }
+                if (redCellSliceCnt < 0)
+                {
+                    SetInfo("红细胞份数必须大于0。", Colors.Red);
                     return;
                 }
 
@@ -169,6 +189,9 @@ namespace SampleInfo
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
+                pipettingSettings.dstRedCellSlice = redCellSliceCnt;
+                pipettingSettings.redCellGreedyVolume = redCellVolume;
+
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
                 string bloodType = GetBloodType();
                 File.WriteAllText(Utility.GetBloodTypeFile(),bloodType);
@@ -195,10 +218,9 @@ namespace SampleInfo
         {
             if ((bool)rdbPlasma.IsChecked)
                 return "Plasma";
-            else if ((bool)rdbSerum.IsChecked)
-                return "Serum";
             else
-                return "RedCell";
+                return "Serum";
+            
         }
 
   
@@ -241,11 +263,8 @@ namespace SampleInfo
             txtVolume.Text = pipettingSettings.plasmaGreedyVolume.ToString();
             txtBuffyVolume.Text = pipettingSettings.buffyVolume.ToString();
             txtbuffySliceCnt.Text = "0";//pipettingSettings.dstbuffySlice.ToString();
-
-            //InitListView();
-            //lstRadius.IsEnabled = false;
-            //chkHasBuffy.IsChecked = Convert.ToBoolean(Utility.ReadFolder(stringRes.hasBuffyFile));
-            //chkNucleinExtraction.IsChecked= Convert.ToBoolean(Utility.ReadFolder(stringRes.DoNucleinExtractionFile));
+            txtRedCellSlice.Text = pipettingSettings.dstRedCellSlice.ToString();
+            txtRedCellVolume.Text = pipettingSettings.redCellGreedyVolume.ToString();
         }
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
@@ -257,18 +276,14 @@ namespace SampleInfo
                  txtbuffySliceCnt.Text = "0";
                  txtbuffySliceCnt.IsEnabled = false;
              }
-             else if ((bool)rdbPlasma.IsChecked)
+             else
              {
                  lblBloodSlice.Content = "血浆份数：";
                  lblBloodVolume.Content = "血浆体积(ul)：";
                  txtbuffySliceCnt.Text = "1";
                  txtbuffySliceCnt.IsEnabled = true;
              }
-             else
-             {
-                 lblBloodSlice.Content = "红细胞份数：";
-                 lblBloodVolume.Content = "红细胞体积(ul)：";
-             }
+           
         }
 
 
