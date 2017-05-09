@@ -36,13 +36,14 @@
             <StackPanel>
                 <Label Content="Buffy份数：" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0" Name="label3" VerticalAlignment="Top" Width="85" />
                 <Label Content="Buffy体积(ul):" Height="28" HorizontalAlignment="Left" Margin="10,0,0,0" Name="label4" VerticalAlignment="Top" />
-
+                
             </StackPanel>
         </Grid>
         <Grid Grid.Column="3">
             <StackPanel>
             <TextBox Height="23" HorizontalAlignment="Left"  Margin="10,5,0,0" Name="txtbuffySliceCnt" VerticalAlignment="Top" Width="76" />
                 <TextBox Height="23" HorizontalAlignment="Left" Margin="10,5,0,0" Name="txtBuffyVolume" VerticalAlignment="Top" Width="76" />
+               
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" Grid.ColumnSpan="4"/>
@@ -51,7 +52,6 @@
                 <Label>样本类型：</Label>
                 <RadioButton Margin="0,2,0,2" Name="rdbSerum" Checked="RadioButton_Checked"  IsChecked="True" Content="血清"  />
                 <RadioButton Content="血浆" Name="rdbPlasma" Checked="RadioButton_Checked" />
-                <RadioButton Content="红细胞" Name="rdbRedCell" Checked="RadioButton_Checked" />
             </StackPanel>
             
         </Grid>

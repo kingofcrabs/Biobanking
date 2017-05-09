@@ -13,23 +13,31 @@ namespace AddReagent
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("version 0.04");
             Console.WriteLine("Enter the sample count.");
             string sCnt = Console.ReadLine();
             int cnt = int.Parse(sCnt);
+            Console.WriteLine("Enter the volume.");
+            string sVolume = Console.ReadLine();
+            int volume = int.Parse(sVolume);
             string srcLabware = ConfigurationManager.AppSettings["sourceLabware"];
             int dstLabwareWellCnt = int.Parse(ConfigurationManager.AppSettings["dstLabwareWellCnt"]);
             List<int> wells = new List<int>();
             for (int i = 0; i < cnt; i++)
                 wells.Add(i + 1);
             int batchID = 1;
-            int vol = int.Parse(ConfigurationManager.AppSettings["volume"]);
+           
             List<string> strs = new List<string>();
+            int times = (volume + 899) / 900;
+            int eachTimeVol = volume / times;
             while(wells.Count > 0)
             {
                 var batchWells =  wells.Take(dstLabwareWellCnt).ToList();
                 string dstLabware = string.Format("dst{0}",batchID++);
                 wells = wells.Skip(batchWells.Count).ToList();
-                strs.Add(GenerateRCommand(dstLabwareWellCnt,srcLabware, dstLabware, batchWells, vol));
+                string oneTime = GenerateRCommand(dstLabwareWellCnt, srcLabware, dstLabware, batchWells, eachTimeVol);
+                for (int i = 0; i < times;i++ )
+                    strs.Add(oneTime);
             }
 
             string sFile = GetOutputFolder() + "r.gwl";
@@ -68,17 +76,20 @@ namespace AddReagent
             //and
             //DispenseParameters =
             //DestRackLabel; DestRackID; DestRackType; DestPosStart; DestPosEnd;
-            
+            List<int> dstWellsProcessed = new List<int>();
+            for(int i = 0; i< dstWells.Count; i++)
+            {
+                dstWellsProcessed.Add(GetWellIDInLabware(dstWells[i],dstLabwareWellCnt));
+            }
             string aspParameters = string.Format("{0};;;{1};{2};", srcLabel, 1, 8);
-            int maxWell = dstWells.Max();
-            int minWell = dstWells.Min();
-            maxWell = (maxWell - 1) % dstLabwareWellCnt + 1;
-            minWell = (minWell - 1) % dstLabwareWellCnt + 1;
+            int maxWell = dstWellsProcessed.Max();
+            int minWell = dstWellsProcessed.Min();
+          
 
             string exclude = "";
             for (int wellID = minWell; wellID < maxWell; wellID++)
             {
-                if (!dstWells.Contains(wellID))
+                if (!dstWellsProcessed.Contains(wellID))
                 {
                     exclude += ";";
                     exclude += wellID;
@@ -104,23 +115,40 @@ namespace AddReagent
             {
                 noOfMultiDisp = 3;
             }
-            else
+            else if(vol <= 500)
             {
                 noOfMultiDisp = 2;
             }
+            else
+            {
+                noOfMultiDisp = 1;
+            }
 
 
+            
+            int reuseTimes = 1;
+            if (dstLabwareWellCnt == 16)
+                reuseTimes = 20;
+            if (dstLabwareWellCnt == 96)
+                noOfMultiDisp = 1;
             string rCommand = string.Format("R;{0}{1}{2};{3};{4};{5};{6}{7}",
                 aspParameters,
                 dspParameters,
                 vol,
                 "",
-                1,
+                reuseTimes,
                 noOfMultiDisp,
                 0,
                 exclude);
 
             return rCommand;
+        }
+
+        private static int GetWellIDInLabware(int wellID,int dstLabwareWellCnt)
+        {
+            while (wellID > dstLabwareWellCnt)
+                wellID -= dstLabwareWellCnt;
+            return wellID;
         }
     }
 }

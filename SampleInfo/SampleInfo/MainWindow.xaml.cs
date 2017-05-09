@@ -158,17 +158,19 @@ namespace SampleInfo
                     return;
                 }
 
-                if (tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
-                {
-                    SetInfo("红细胞没有Buffy", Colors.Red);
-                    txtbuffySliceCnt.Text = "0";
-                    return;
-                }
+               
+                //if (tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
+                //{
+                //    SetInfo("红细胞没有Buffy", Colors.Red);
+                //    txtbuffySliceCnt.Text = "0";
+                //    return;
+                //}
 
                 pipettingSettings.plasmaGreedyVolume = tmpVolume;
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
+                
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
                 string bloodType = GetBloodType();
                 File.WriteAllText(Utility.GetBloodTypeFile(),bloodType);
@@ -264,11 +266,7 @@ namespace SampleInfo
                  txtbuffySliceCnt.Text = "1";
                  txtbuffySliceCnt.IsEnabled = true;
              }
-             else
-             {
-                 lblBloodSlice.Content = "红细胞份数：";
-                 lblBloodVolume.Content = "红细胞体积(ul)：";
-             }
+            
         }
 
 
