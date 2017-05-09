@@ -94,7 +94,8 @@ namespace Biobanking
                 if (s == "")
                     continue;
                 var subStrs = s.Split(',');
-                string position = GetPosition(subStrs[GlobalVars.Instance.FileStruct.dstPosition]);  //Utility.GetDescription(sampleID);
+                
+                string position = GetPosition(subStrs.ToList());  //Utility.GetDescription(sampleID);
                 var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
                 barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
@@ -178,10 +179,26 @@ namespace Biobanking
             }
         }
 
-        private string GetPosition(string position)
+
+
+        private string GetPosition(List<string> strs)
         {
-            int wellID = PositionGenerator.ParseWellID(position);
-            return Utility.GetDescription(wellID);
+            List<string> newStrs = new List<string>();
+            strs.ForEach(x=>newStrs.Add(x.Replace("\"","")));
+            if(GlobalVars.Instance.Barcode2DVendor.ToLower() == "baiquan")
+            {
+                int col = int.Parse(newStrs[1]);
+                int rowIndex = newStrs[2][0] - 'A';
+                int wellID = PositionGenerator.GetWellID(col - 1, rowIndex);
+                return Utility.GetDescription(wellID);
+            }
+            else
+            {
+                string position = newStrs[GlobalVars.Instance.FileStruct.dstPosition];
+                int wellID = PositionGenerator.ParseWellID(position);
+                return Utility.GetDescription(wellID);
+            }
+          
         }
 
         

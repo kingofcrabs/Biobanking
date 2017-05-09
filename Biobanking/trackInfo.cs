@@ -68,7 +68,7 @@ namespace Biobanking
                     {
                         throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1, dstBarcode));
                     }
-                    var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
+                    var adjustVol = (int)Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                     if (patientInfos.Count <= sampleIndex + indexInList)
                         throw new Exception(string.Format("找不到第{0}个样品对应的原始条码", sampleIndex + indexInList + 1));
 
@@ -77,7 +77,7 @@ namespace Biobanking
                     TrackInfo info = new TrackInfo(patient.id,
                         dstBarcode,
                         description,
-                        Math.Round(adjustVol, 2).ToString(),
+                        adjustVol.ToString(),
                         barcode_plateBarcodes[dstBarcode],
                         barcode_Position[dstBarcode], patient.name, patient.age, patient.seqNo);
                     trackInfos.Add(info);
@@ -104,7 +104,7 @@ namespace Biobanking
             //add buffy info
             if (pipettingSettings.dstbuffySlice == 0)
                 return;
-            double vol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
+            int vol = (int)(pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice);
             for (int indexInList = 0; indexInList < thisBatchCnt; indexInList++)
             {
                 var patient = patientInfos[sampleIndex + indexInList];
@@ -125,7 +125,7 @@ namespace Biobanking
                     TrackInfo info = new TrackInfo(patient.id,
                     dstBarcode,
                     GlobalVars.Instance.BuffyName,
-                    Math.Round(vol, 2).ToString(),
+                    vol.ToString(),
                     barcode_plateBarcodes[dstBarcode],
                     barcode_Position[dstBarcode], patient.name, patient.age, patient.seqNo);
                     trackInfos.Add(info);
@@ -178,9 +178,6 @@ namespace Biobanking
 
         private void WriteResult2SqlServer()
         {
-#if　DEBUG
-            return;
-#endif
             string connectionStr = ConfigurationManager.AppSettings["ConnectionString"];
             if (connectionStr == "")
             {

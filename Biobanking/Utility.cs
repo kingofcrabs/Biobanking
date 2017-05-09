@@ -37,6 +37,14 @@ namespace Biobanking
             this.seqNo = seqNo;
             this.age = age;
         }
+
+        public PatientInfo(string id)
+        {
+            this.id = id;
+            this.name = "";
+            this.seqNo = "";
+            this.age = "";
+        }
     }
     public enum PipettingApproach
     {

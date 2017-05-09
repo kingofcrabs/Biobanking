@@ -256,10 +256,14 @@ namespace Biobanking
             //3 process extra plasma
             if(pipettingSettings.dstRedCellSlice > 0 )
             {
-                WriteComment("Discard extra plasma.",sw);
+               
                 //change diti
-                sw.WriteLine(string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask, labwareSettings.wasteGrid));
-                sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask));
+                if(pipettingSettings.dstbuffySlice >0 )
+                {
+                    sw.WriteLine(string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask, labwareSettings.wasteGrid));
+                    sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask));
+                }
+                WriteComment("Discard extra plasma.", sw);
                 DiscardExtraPlasma(ptsAsp, heightsThisTime, rackIndex, sampleIndexInRack, sw);
                 
             }
@@ -282,7 +286,7 @@ namespace Biobanking
 
                 ProcessSliceOnce(ptsAsp, thisBatchRedCellVols, BBPlasmaFast, rackIndex, slice + usedSlices, sampleIndexInRack, sw);
                 if (GlobalVars.Instance.TrackBarcode)
-                    barcodeTracker.Track(thisBatchRedCellVols, slice + usedSlices, "红细胞");
+                    barcodeTracker.Track(thisBatchRedCellVols, slice + usedSlices, "redCell");
             }
 
 
@@ -326,8 +330,11 @@ namespace Biobanking
             heightsThisTime.ForEach(x => vols.Add(Math.Max(0,(int)(mappingCalculator.GetVolumeFromHeight(x.Z1) - mappingCalculator.GetVolumeFromHeight(x.Z2) - pipettedVolume))));
             
             int slices = (int)Math.Ceiling(vols.Max() / 850.0);
+            if (slices == 0)
+                return;
+
             List<double> volsEachBatch = new List<double>();
-            vols.ForEach(x => volsEachBatch.Add(x / slices));
+            vols.ForEach(x => volsEachBatch.Add((int)(x / slices)));
             int srcGrid = GetSrcGrid(rackIndex);
             List<POINT> ptsDisp = new List<POINT>();
             for (int i = 0; i < vols.Count;i++ )
@@ -341,7 +348,7 @@ namespace Biobanking
                 string command = "";
                 command = GenerateAspirateCommand(ptsAsp, volsEachBatch, BBPlasmaMedium, srcGrid, 0, labwareSettings.sourceWells);
                 sw.WriteLine(command);
-                command = GenerateDispenseCommand(ptsDisp, volsEachBatch, BBPlasmaMedium, labwareSettings.wasteTroughGrid, 0, 8);
+                command = GenerateDispenseCommand(ptsDisp, volsEachBatch, BBPlasmaMedium, labwareSettings.wasteTroughGrid, 0,1, 8);
                 sw.WriteLine(command);
             }
             return;
@@ -393,6 +400,7 @@ namespace Biobanking
                 double volumeTheTip = CalculateAspirateVolume(slice, totalSlice, z1, z2);
                 vols.Add(volumeTheTip);
                 volumeTheTip = Math.Min(maxVolmaxVolumePerSlice, volumeTheTip);
+                volumeTheTip = (int)volumeTheTip;
                 for (int times = 0; times < 10; times++)
                 {
 
@@ -561,7 +569,7 @@ namespace Biobanking
                     POINT ptZero = new POINT(0, 0);
                     ptsDisp.InsertRange(0, new List<POINT>() { ptZero, ptZero, ptZero, ptZero });
                 }
-                string strDispense = GenerateDispenseCommand(ptsDisp, volumes, liquidClass, grid,site, labwareSettings.dstLabwareRows);
+                string strDispense = GenerateDispenseCommand(ptsDisp, volumes, liquidClass, grid,site,labwareSettings.dstLabwareColumns, labwareSettings.dstLabwareRows);
                 sw.WriteLine(strDispense);
             }
             else
@@ -575,11 +583,11 @@ namespace Biobanking
                 List<double> volumes1;
                 List<double> volumes2;
                 SplitVolumes2Region(volumes, out volumes1, out volumes2, firstColumnSampleCount);
-                string strDispense = GenerateDispenseCommand(ptsDisp, volumes1, liquidClass, grid, site, labwareSettings.dstLabwareRows);
+                string strDispense = GenerateDispenseCommand(ptsDisp, volumes1, liquidClass, grid, site,labwareSettings.dstLabwareColumns, labwareSettings.dstLabwareRows);
                 sw.WriteLine(strDispense);
                 int secondColumnStartSampleIndex = endIndexFirstColumn + 1;
                 ptsDisp = positionGenerator.GetDestWells(srcRackIndex,sliceIndex, sampleIndexInRack + firstColumnSampleCount, ptsAsp.Count - firstColumnSampleCount);
-                strDispense = GenerateDispenseCommand(ptsDisp, volumes2, liquidClass, grid, site, labwareSettings.dstLabwareRows);
+                strDispense = GenerateDispenseCommand(ptsDisp, volumes2, liquidClass, grid, site, labwareSettings.dstLabwareColumns,labwareSettings.dstLabwareRows);
                 sw.WriteLine(strDispense);
             }
         }
@@ -797,7 +805,7 @@ namespace Biobanking
                     {
                         ptsDisp = ChangePositions(pts, slice);
                     }
-                    string strDispense = GenerateDispenseCommand(ptsDisp, volumes, BB_Buffy_Mix, grid + sliceUsedGrid, site, labwareSettings.dstLabwareRows);
+                    string strDispense = GenerateDispenseCommand(ptsDisp, volumes, BB_Buffy_Mix, grid + sliceUsedGrid, site,labwareSettings.dstLabwareColumns, labwareSettings.dstLabwareRows);
                     WriteComment(string.Format("Dispensing buffy slice: {0}", slice + 1), sw);
                     sw.WriteLine(strDispense);
                 }

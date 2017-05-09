@@ -85,15 +85,15 @@ namespace Biobanking
 
         protected string GenerateAspirateCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height)
         {
-            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, true);
+            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site,1, height, true);
         }
 
-        protected string GenerateDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height)
+        protected string GenerateDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int width, int height)
         {
-            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, false);
+            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site,width, height, false);
         }
 
-        protected string GenerateAspirateOrDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height, bool aspirate)
+        protected string GenerateAspirateOrDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site,int width, int height, bool aspirate)
         {
             //B; Aspirate(3, "Water free dispense", "20", "20", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, "0110300", 0, 0);
             int tipMask = GetTipSelection(volumes);
@@ -116,12 +116,7 @@ namespace Biobanking
             }
 
 
-            int width = labwareSettings.dstLabwareColumns;
-            if (aspirate)
-            {
-                if (liquidClass != BB_Buffy_Mix) //如果是吸样，除了吸buffy_mix,其他情况labware孔的宽度都是1,
-                    width = 1;
-            }
+
 
             string sWellSelection = GetWellSelection(width, height, not0Wells);
             string sAspOrDis = aspirate ? "Aspirate" : "Dispense";

@@ -73,9 +73,9 @@ namespace Biobanking
             if(GlobalVars.Instance.Barcode2DVendor == "HR")
             {
                 contents = contents.Skip(1).ToList();
-                contents.ForEach(x => patientInfos.Add(Parse(x)));
+                
             }
-            
+            contents.ForEach(x => patientInfos.Add(Parse(x)));
             return patientInfos;
         }
 
@@ -88,8 +88,10 @@ namespace Biobanking
             if (content.Contains(splitter))
             {
                 string[] strs = content.Split(splitter);
-                if(strs.Length == 3)
+                if (strs.Length == 3)
                     return new PatientInfo(strs[0], strs[1], strs[2]);
+                else if (strs.Length == 1)
+                    return new PatientInfo(strs[0]);
                 else
                 {
                     throw new Exception("Invalid patient information format!");
