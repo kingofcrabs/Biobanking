@@ -703,13 +703,13 @@ namespace Biobanking
                 gridsPerRegion = totalSlicePerSample;
             }
 
-            int nRegionIndex = sampleIndex / sampleCountPerCarrier;
-            int regionGridsUsed = nRegionIndex * gridsPerRegion;
+            int nCarrierIndex = sampleIndex / sampleCountPerCarrier;
+            int carrierGridsUsed = nCarrierIndex * gridsPerRegion;
             int sliceGridsUsed = labwareSettings.gridsPerCarrier == 1 ? slice : 0;//如果冻存管载架上有多列，则每份封装的Grid位置不变
 
-            int sampleIndexInTheRegion = sampleIndex % sampleCountPerLabware;
-            site = sampleIndexInTheRegion / (labwareSettings.dstLabwareRows*samplesPerRow);
-            grid = sliceGridsUsed + regionGridsUsed + startGrid;
+            int sampleIndexInTheCarrier = sampleIndex % sampleCountPerCarrier;
+            site = sampleIndexInTheCarrier / sampleCountPerLabware;
+            grid = sliceGridsUsed + carrierGridsUsed + startGrid;
         }
 
         private void CalculateDestRedCellGridAndSite(int sampleIndex, int slice, ref int grid, ref int site)
