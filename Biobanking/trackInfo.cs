@@ -37,7 +37,7 @@ namespace Biobanking
                 barcode_Position);
             if(patientInfos.Count > correspondingbarcodes.Count)
             {
-                throw new Exception("source barcodes' count > dest barcodes' count");
+                throw new Exception(string.Format("source barcodes' count:{0} > dest barcodes' count :{1}", patientInfos.Count, correspondingbarcodes.Count));
             }
         }
 
