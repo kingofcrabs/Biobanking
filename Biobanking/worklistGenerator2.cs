@@ -302,10 +302,11 @@ namespace Biobanking
             
         }
 
-        private List<double> GetRedCellVol(List<double> redCellVols, int slice)
+        private List<double> GetRedCellVol(List<double> redCellVols, int sliceIndex)
         {
-            double thisSliceNeededVol = slice * pipettingSettings.redCellGreedyVolume;
-            double lastSliceNeededVol = (slice - 1)* pipettingSettings.redCellGreedyVolume;
+            int sliceID = sliceIndex + 1;
+            double thisSliceNeededVol = sliceID * pipettingSettings.redCellGreedyVolume;
+            double lastSliceNeededVol = (sliceID - 1) * pipettingSettings.redCellGreedyVolume;
             List<double> vols = new List<double>();
             foreach(var vol in redCellVols)
             {
@@ -317,6 +318,7 @@ namespace Biobanking
                     vols.Add(0);
                     
             }
+            System.Diagnostics.Debug.WriteLine("RedCellVol:{0},{1}", vols[0],redCellVols[0]);
             return vols;
         }
 
@@ -339,8 +341,7 @@ namespace Biobanking
             List<POINT> ptsDisp = new List<POINT>();
             for (int i = 0; i < vols.Count;i++ )
             {
-                if(vols[i] > 0)
-                    ptsDisp.Add(new POINT(1, i + 1));
+                ptsDisp.Add(new POINT(1, i + 1));
             }
 
             for (int i = 0; i < slices; i++)
@@ -481,11 +482,14 @@ namespace Biobanking
           
             double totalPlasmaVolume = mappingCalculator.GetVolumeFromHeight(z1) - mappingCalculator.GetVolumeFromHeight(z2)
                     - pipettingSettings.safeDelta * area;
+            
+            
             if (plasmaGreed)
             {
                 double greedyVolume = pipettingSettings.plasmaGreedyVolume;
                 double endVolume = (curSlice + 1) * greedyVolume;
                 double startVolume = curSlice * greedyVolume;
+                System.Diagnostics.Debug.WriteLine("总血清量：{0},endVolume:{1},startVolume:{1}", totalPlasmaVolume, endVolume, startVolume);
                 if (startVolume >= totalPlasmaVolume)
                 {
                     aspirateVol = 0;
@@ -510,7 +514,9 @@ namespace Biobanking
 
             if (aspirateVol < 0)
                 aspirateVol = 0;
+           System.Diagnostics.Debug.WriteLine("吸取量：{0}", aspirateVol);
             return aspirateVol;
+            
         }
 
         private double CalcuAspiratePositionVolume(int curSlice, int totalSlice, double z1, double z2)
