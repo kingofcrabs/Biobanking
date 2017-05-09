@@ -262,26 +262,27 @@ namespace SampleInfo
             txtPlasmaCount.Text = pipettingSettings.dstPlasmaSlice.ToString();
             txtVolume.Text = pipettingSettings.plasmaGreedyVolume.ToString();
             txtBuffyVolume.Text = pipettingSettings.buffyVolume.ToString();
-            txtbuffySliceCnt.Text = "0";//pipettingSettings.dstbuffySlice.ToString();
+            txtbuffySliceCnt.Text = "1";//pipettingSettings.dstbuffySlice.ToString();
             txtRedCellSlice.Text = pipettingSettings.dstRedCellSlice.ToString();
             txtRedCellVolume.Text = pipettingSettings.redCellGreedyVolume.ToString();
         }
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
-             if((bool)rdbSerum.IsChecked)
-             {
-                 lblBloodSlice.Content = "血清份数：";
-                 lblBloodVolume.Content = "血清体积(ul)：";
-                 txtbuffySliceCnt.Text = "0";
-                 txtbuffySliceCnt.IsEnabled = false;
-             }
-             else
+             if((bool)rdbPlasma.IsChecked)
              {
                  lblBloodSlice.Content = "血浆份数：";
                  lblBloodVolume.Content = "血浆体积(ul)：";
                  txtbuffySliceCnt.Text = "1";
                  txtbuffySliceCnt.IsEnabled = true;
+             }
+             else
+             {
+                 lblBloodSlice.Content = "血清份数：";
+                 lblBloodVolume.Content = "血清体积(ul)：";
+                 txtbuffySliceCnt.Text = "0";
+                 txtbuffySliceCnt.IsEnabled = false;
+               
              }
            
         }

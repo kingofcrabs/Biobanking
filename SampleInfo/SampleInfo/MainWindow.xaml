@@ -52,8 +52,9 @@
         <Grid Grid.Row="2" Grid.ColumnSpan="4">
             <StackPanel Margin="10,0,0,0">
                 <Label>样本类型：</Label>
-                <RadioButton Margin="0,2,0,2" Name="rdbSerum" Checked="RadioButton_Checked"  IsChecked="True" Content="血清"  />
-                <RadioButton Content="血浆" Name="rdbPlasma" Checked="RadioButton_Checked" />
+                <RadioButton Content="血浆" Name="rdbPlasma" Checked="RadioButton_Checked"  IsChecked="True"/>
+                <RadioButton Margin="0,2,0,2" Name="rdbSerum" Checked="RadioButton_Checked"  Content="血清"  />
+                
             </StackPanel>
             
         </Grid>
