@@ -70,11 +70,6 @@ namespace Biobanking
             contents = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
             contents.RemoveAll(x => x.Trim() == "");
             List<PatientInfo> patientInfos = new List<PatientInfo>();
-            if(GlobalVars.Instance.Barcode2DVendor == "HR")
-            {
-                contents = contents.Skip(1).ToList();
-                
-            }
             contents.ForEach(x => patientInfos.Add(Parse(x)));
             return patientInfos;
         }

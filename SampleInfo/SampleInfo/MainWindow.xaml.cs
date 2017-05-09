@@ -152,11 +152,15 @@ namespace SampleInfo
                     SetInfo("Buffy体积必须为数字！", Colors.Red);
                     return;
                 }
-                if (tmpBuffyVolume <= 200 || tmpBuffyVolume > 1000)
+                if(tmpBuffySliceCount > 0)
                 {
-                    SetInfo("Buffy体积数必须介于200ul到1000ul之间", Colors.Red);
-                    return;
+                    if (tmpBuffyVolume <= 200 || tmpBuffyVolume > 1000)
+                    {
+                        SetInfo("Buffy体积数必须介于200ul到1000ul之间", Colors.Red);
+                        return;
+                    }
                 }
+                
                 
                 int redCellVolume;
                 bok = int.TryParse(txtRedCellVolume.Text, out redCellVolume);
@@ -275,6 +279,7 @@ namespace SampleInfo
                  lblBloodVolume.Content = "血浆体积(ul)：";
                  txtbuffySliceCnt.Text = "1";
                  txtbuffySliceCnt.IsEnabled = true;
+                 txtBuffyVolume.IsEnabled = true;
              }
              else
              {
@@ -282,6 +287,7 @@ namespace SampleInfo
                  lblBloodVolume.Content = "血清体积(ul)：";
                  txtbuffySliceCnt.Text = "0";
                  txtbuffySliceCnt.IsEnabled = false;
+                 txtBuffyVolume.IsEnabled = false;
                
              }
            
