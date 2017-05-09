@@ -671,7 +671,7 @@ namespace Biobanking
         private void CalculateDestPlasmaGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
             int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
-            int sampleCountPerLabware = samplesPerRow* labwareSettings.dstLabwareRows*labwareSettings.sitesPerCarrier;
+            int sampleCountPerLabware = samplesPerRow* labwareSettings.dstLabwareRows;
             int labwareCnt = labwareSettings.dstCarrierCnt * labwareSettings.sitesPerCarrier;
             int sampleCountPerCarrier = sampleCountPerLabware * labwareSettings.sitesPerCarrier;
             if (pipettingSettings.buffyStandalone)
