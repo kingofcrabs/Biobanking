@@ -51,7 +51,7 @@ namespace Biobanking
             return false;
         }
 
-        internal void Track(List<double> plasmaVols, int sliceIndex,string description )
+        internal void Track(List<double> plasmaVols, int sliceIndex, string description )
         {
             //trackInfos.Add( new TrackInfo(srcBarcodes[sam))
             int indexInList = 0;
@@ -84,18 +84,27 @@ namespace Biobanking
                 }
                 indexInList++;
             }
-
-            if(sliceIndex+1 == pipettingSettings.dstPlasmaSlice ) //if no red cell, then this slice would be the last tracking slice for the batch
+            bool doRedCell = pipettingSettings.dstRedCellSlice > 0;
+            if(doRedCell)
             {
-                TrackBuffy(plasmaVols.Count);
-                if(pipettingSettings.dstRedCellSlice == 0)
+                if (sliceIndex + 1 == pipettingSettings.dstPlasmaSlice) //if no red cell, then this slice would be the last tracking slice for the batch
+                {
+                    TrackBuffy(plasmaVols.Count);
+                    if (pipettingSettings.dstRedCellSlice == 0)
+                        sampleIndex += plasmaVols.Count;
+                }
+
+            }
+            else
+            {
+
+                if (sliceIndex + 1 == pipettingSettings.GetTotalSlice())
+                {
                     sampleIndex += plasmaVols.Count;
+                }
             }
-
-            if( sliceIndex + 1 == pipettingSettings.GetTotalSlice())
-            {
-                sampleIndex += plasmaVols.Count;
-            }
+            
+            
         }
 
 
