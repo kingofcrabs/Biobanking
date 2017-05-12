@@ -613,7 +613,7 @@ namespace Biobanking
             }
 
 			int nCarrierIndex = sampleIndex / sampleCountPerCarrier;
-            int carrierGridsUsed = nCarrierIndex * gridsPerRegion;
+            int carrierGridsUsed = nCarrierIndex * actualGridsPerRegion;
             int sliceGridsUsed = labwareSettings.gridsPerCarrier == 1 ? slice : 0;//如果冻存管载架上有多列，则每份封装的Grid位置不变
 
             int sampleIndexInTheCarrier = sampleIndex % sampleCountPerCarrier;

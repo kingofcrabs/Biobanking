@@ -34,8 +34,9 @@ namespace Biobanking
             List<List<Tuple<string,string>>> correspondingbarcodes = new List<List<Tuple<string,string>>>();
             List<string> fileFullNames = files.Select(x => x.FullName).ToList();
             string buffyPlateName = "";
-            
-            if(pipettingSettings.buffyStandalone && pipettingSettings.dstbuffySlice != 0)
+
+            bool buffy2Standalone = pipettingSettings.buffyStandalone && pipettingSettings.dstbuffySlice != 0;
+            if (buffy2Standalone)
             {
                 int cnt = files.Count(x => x.FullName.ToLower().Contains("buffy"));
                 if( cnt == 0)
@@ -44,11 +45,13 @@ namespace Biobanking
                     throw new Exception("Only one buffy plate supported!");
                 buffyPlateName = files.Where(x => x.FullName.ToLower().Contains("buffy")).First().FullName;
                 fileFullNames = fileFullNames.Except(new List<string>() { buffyPlateName }).ToList();
-                ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, buffyPlateName);
             }
           
             fileFullNames.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, x));
-            
+            if (buffy2Standalone)
+            {
+                ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, buffyPlateName);
+            }
             return correspondingbarcodes;
         }
 

@@ -56,7 +56,7 @@ namespace SampleInfo
                 string s = "";
                 plasmaMaxCount = int.Parse(config.AppSettings.Settings["PlasmaMaxCount"].Value);
                 buffyMaxCount = int.Parse(config.AppSettings.Settings["BuffyMaxCount"].Value);
-                buffyStandalone = pipettingSettings.buffyStandalone;
+                
                 if (!File.Exists(sLabwareSettingFileName))
                 {
                     SetInfo("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName, Colors.Red);
@@ -68,12 +68,11 @@ namespace SampleInfo
                     SetInfo("PipettingSettings xml does not exist! at : " + sPipettingFileName, Colors.Red);
                     return;
                 }
-
-            
                 s = File.ReadAllText(sPipettingFileName);
                 pipettingSettings = Utility.Deserialize<PipettingSettings>(s);
                 s = File.ReadAllText(sLabwareSettingFileName);
                 labwareSettings = Utility.Deserialize<LabwareSettings>(s);
+                buffyStandalone = pipettingSettings.buffyStandalone;
             }
             catch (Exception ex)
             {
@@ -233,7 +232,7 @@ namespace SampleInfo
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            lblVersion.Content = 0.14;
+            lblVersion.Content = 0.15;
             try
             {
                 txtSampleCount.Text = Utility.ReadFolder(stringRes.SampleCountFile);
