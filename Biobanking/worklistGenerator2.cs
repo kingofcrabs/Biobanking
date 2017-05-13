@@ -217,7 +217,7 @@ namespace Biobanking
             //2 aspirate & dispense buffy
             bool bhasBuffyCoat = pipettingSettings.dstbuffySlice > 0;//ResultReader.Instance.HasBuffyCoat();
             bool inSameColumn = IsDstWellsInSameColumn(rackIndex, sampleIndexInRack, ptsAsp.Count);
-            int globalSampleIndex = GetGlobalSampleIndex(rackIndex, sampleIndexInRack);
+            int  globalSampleIndex = GetGlobalSampleIndex(rackIndex, sampleIndexInRack);
             //int secondRegionStartSampleIndex = GetEndIndexForFirstRegion(rackIndex, startSample) + 1;
 
             if (bhasBuffyCoat)
@@ -299,7 +299,6 @@ namespace Biobanking
 
             for (int i = 0; i < 10; i++)
             {
-                //tipVolumesStrs.Add(new List<string>());
                 eachTimesCommands.Add(new List<List<string>>());
                 eachTimesHeights.Add(new List<double>());
             }
@@ -320,7 +319,6 @@ namespace Biobanking
                 volumeTheTip = Math.Min(maxVolmaxVolumePerSlice, volumeTheTip);
                 for (int times = 0; times < 10; times++)
                 {
-
                     if (volumeTheTip < maxVolPerTip)
                     {
                         double tmpVol = volumeTheTip;
