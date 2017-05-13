@@ -59,14 +59,17 @@ namespace Biobanking
             {
                 var tuple= correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
                 string dstBarcode = tuple.Item2;
+                int sampleID = sampleIndex + indexInList + 1;
                 if (dstBarcode == "")
-                    throw new Exception(string.Format("在{0}位置找不到条码！",tuple.Item1));
+                    throw new Exception(string.Format("Cannot find dest barcode at position: {0} for sample: {1}!", tuple.Item1, sampleID));
                 
                 if(!IsValidBarcode(dstBarcode))
                 {
-                    throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1,dstBarcode));
+                    throw new Exception(string.Format("Sample:{0} slice:{1}'s corresponding barcode:{2} is invalid!", sampleID, sliceIndex + 1, dstBarcode));
                 }
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
+                if(patientInfos.Count <= sampleIndex+ indexInList)
+                    throw new Exception(string.Format("Cannot find {0}th sample's source barcode!", sampleID));
                 var patient = patientInfos[sampleIndex+ indexInList];
                 string description = GlobalVars.Instance.BloodDescription;
                 TrackInfo info = new TrackInfo(
@@ -95,12 +98,12 @@ namespace Biobanking
                         {
                             if(sampleIndex + indexInList >= correspondingbarcodes.Count )
                             {
-                                throw new Exception(string.Format("cannot find the corresponding barcode for sample:{0}", 
+                                throw new Exception(string.Format("Cannot find the corresponding barcode for sample:{0}", 
                                     sampleIndex + indexInList));
                             }
                             if(pipettingSettings.dstPlasmaSlice + i >= correspondingbarcodes[sampleIndex + indexInList].Count)
                             {
-                                throw new Exception(string.Format("cannot find the corresponding barcode for sample:{0}, slice:{1}",
+                                throw new Exception(string.Format("Cannot find the corresponding barcode for sample:{0}, slice:{1}",
                                     sampleIndex + indexInList, 
                                     pipettingSettings.dstPlasmaSlice + i));
                             }

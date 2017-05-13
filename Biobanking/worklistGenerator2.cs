@@ -8,6 +8,7 @@ using System.Reflection;
 using setTipVolCommand = System.Collections.Generic.List<string>;
 using System.Configuration;
 using Settings;
+using System.Threading;
 
 namespace Biobanking
 {
@@ -108,10 +109,10 @@ namespace Biobanking
         List<PatientInfo> patientInfos = null;
         public bool DoJob()
         {
-         
             detectInfos = ResultReader.Instance.Read();
             patientInfos = ResultReader.Instance.ReadPatientInfos();
             patientInfos = patientInfos.Take(detectInfos.Count).ToList();
+            Console.WriteLine(string.Format("{0} samples", patientInfos.Count));
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker = new BarcodeTracker(pipettingSettings, labwareSettings, patientInfos);
             log.Info("read heights");
@@ -155,6 +156,7 @@ namespace Biobanking
 
             AddCommonInfo2RunResult(runResult);
             SaveRunResult(runResult);
+            Thread.Sleep(1000);
             return true;
         }
 
