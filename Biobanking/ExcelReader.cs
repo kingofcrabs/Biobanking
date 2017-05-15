@@ -131,8 +131,7 @@ namespace Biobanking
                         for (int slice = 0; slice < buffySlice; slice++)
                         {
                             string well = string.Format("{0}{1:D2}", (char)('A' + rowIndex), startColumn + slice + 1);
-                            //if (!IsValidBarcode(barcodesThisPlate[well]))
-                            //    throw new Exception(string.Format("{0}处的条码:{1}非法！", well, barcodesThisPlate[well]));
+                       
                             string tmpBarcode = "";
                             if (barcodesThisPlate.ContainsKey(well))
                             {
@@ -141,11 +140,8 @@ namespace Biobanking
                             var tuple = Tuple.Create(well, tmpBarcode);
                             if (sampleIndex >= srcTubeCorrespondingBarcodes.Count)
                                 break;
-                            //subRegionPosition_Barcodes.Add(tuple);
                             srcTubeCorrespondingBarcodes[sampleIndex++].Add(tuple);
                         }
-                        //barcodesAllSrcTube.Add(subRegionPosition_Barcodes);
-                        
                     }
                 }
 

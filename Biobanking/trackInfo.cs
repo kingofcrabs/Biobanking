@@ -62,15 +62,15 @@ namespace Biobanking
                     var tuple = correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
                     string dstBarcode = tuple.Item2;
                     if (dstBarcode == "")
-                        throw new Exception(string.Format("在{0}位置找不到条码！", tuple.Item1));
+                        throw new Exception(string.Format("cannot find barcode for position:{0}！", tuple.Item1));
 
                     if (!IsValidBarcode(dstBarcode))
                     {
-                        throw new Exception(string.Format("第{0}个样品对应的第{1}份目标条码:{2}非法！", sampleIndex + indexInList + 1, sliceIndex + 1, dstBarcode));
+                        throw new Exception(string.Format("Sample:{0}, slice:{1}'s barcode:{2} is invalid!", sampleIndex + indexInList + 1, sliceIndex + 1, dstBarcode));
                     }
                     var adjustVol = (int)Math.Min(pipettingSettings.maxVolumePerSlice, vol);
                     if (patientInfos.Count <= sampleIndex + indexInList)
-                        throw new Exception(string.Format("找不到第{0}个样品对应的原始条码", sampleIndex + indexInList + 1));
+                        throw new Exception(string.Format("Cannot find sample:{0}'s source barcode", sampleIndex + indexInList + 1));
 
                     var patient = patientInfos[sampleIndex + indexInList];
 
@@ -85,19 +85,17 @@ namespace Biobanking
                 indexInList++;
             }
             bool doRedCell = pipettingSettings.dstRedCellSlice > 0;
-            if(doRedCell)
+            if(!doRedCell)
             {
                 if (sliceIndex + 1 == pipettingSettings.dstPlasmaSlice) //if no red cell, then this slice would be the last tracking slice for the batch
                 {
                     TrackBuffy(plasmaVols.Count);
-                    if (pipettingSettings.dstRedCellSlice == 0)
-                        sampleIndex += plasmaVols.Count;
+                    sampleIndex += plasmaVols.Count;
                 }
 
             }
             else
             {
-
                 if (sliceIndex + 1 == pipettingSettings.GetTotalSlice())
                 {
                     sampleIndex += plasmaVols.Count;
@@ -221,29 +219,6 @@ DestBarcode,Volume,TypeDescription,DestPlateBarcode,PositionInPlate) values
             if (!Directory.Exists(csvFolder))
                 Directory.CreateDirectory(csvFolder);
         }
-
-        //private List<string> FormatInfos()
-        //{
-           
-        //    List<string> strs = new List<string>();
-        //    strs.Add("Barcode,Sample Source,Sample Type,Volume");
-        //    trackInfos.ForEach(x => Format(x, strs));
-        //    return strs;
-        //}
-
-        //private List<string> FormatInfosBeiJingUniv()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //private void Format(TrackInfo info, List<string> strs)
-        //{
-        //    string s = string.Format("{0},{1},{2},{3}", info.dstBarcode, info.sourceBarcode, info.description, info.volume);
-        //    strs.Add(s);
-        //}
-
-    
-            
     }
 
 }
