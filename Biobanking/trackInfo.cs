@@ -84,24 +84,15 @@ namespace Biobanking
                 }
                 indexInList++;
             }
-            bool doRedCell = pipettingSettings.dstRedCellSlice > 0;
-            if(!doRedCell)
+            if (sliceIndex + 1 == pipettingSettings.dstPlasmaSlice) //track buffy at last plasma slice
             {
-                if (sliceIndex + 1 == pipettingSettings.dstPlasmaSlice) //if no red cell, then this slice would be the last tracking slice for the batch
-                {
-                    TrackBuffy(plasmaVols.Count);
-                    sampleIndex += plasmaVols.Count;
-                }
+                TrackBuffy(plasmaVols.Count);
+            }
 
-            }
-            else
-            {
-                if (sliceIndex + 1 == pipettingSettings.GetTotalSlice())
-                {
-                    sampleIndex += plasmaVols.Count;
-                }
-            }
-            
+            bool doRedCell = pipettingSettings.dstRedCellSlice > 0;
+            int changeSampleIndexSliceID = doRedCell ? pipettingSettings.GetTotalSlice() : pipettingSettings.dstPlasmaSlice;
+            if (sliceIndex + 1 == changeSampleIndexSliceID)
+                sampleIndex += plasmaVols.Count;
             
         }
 
@@ -174,8 +165,14 @@ namespace Biobanking
                     Save2ExcelForBeiJingUniv(sCSVFile,sExcelFile);
                     break;
                 default:
+                    Save2ExcelDefault(sCSVFile);
                     break;
             }
+        }
+
+        private void Save2ExcelDefault(string sCSVFile)
+        {
+            DefaultExcelTemplate.Save2Excel(trackInfos, sCSVFile);
         }
 
         private void Save2ExcelForBeiJingUniv(string sCSV, string sExcel)
