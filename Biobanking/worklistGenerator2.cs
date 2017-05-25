@@ -583,7 +583,7 @@ namespace Biobanking
         private void CalculateDestPlasmaGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
             int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
-            int sampleCountPerLabware = samplesPerRow* labwareSettings.dstLabwareRows*labwareSettings.sitesPerCarrier;
+            int sampleCountPerLabware = samplesPerRow* labwareSettings.dstLabwareRows;
             int labwareCnt = labwareSettings.dstCarrierCnt * labwareSettings.sitesPerCarrier;
             int sampleCountPerCarrier = sampleCountPerLabware * labwareSettings.sitesPerCarrier;
             if (pipettingSettings.buffyStandalone)
@@ -732,7 +732,8 @@ namespace Biobanking
             if(pipettingSettings.buffyOneByOne) //75,  dispense first then second.
             {
                 WriteMovingPluger(new List<POINT>() { pts[0] }, new List<double>() {vols[0],0}, 1, 0, grid, site, sw);
-                WriteMovingPluger(new List<POINT>() { pts[1] }, new List<double>() {0,vols[1]}, 2, 1, grid, site, sw);
+                if(pts.Count > 1)
+                    WriteMovingPluger(new List<POINT>() { pts[1] }, new List<double>() {0,vols[1]}, 2, 1, grid, site, sw);
                 return;
             }
             WriteMovingPluger(pts, vols, ditiMask, tipOffset, grid, site, sw);

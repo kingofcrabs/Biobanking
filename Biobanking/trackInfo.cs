@@ -132,13 +132,9 @@ namespace Biobanking
             if (!Directory.Exists(sFolder))
                 Directory.CreateDirectory(sFolder);
         
-            //sFolder += DateTime.Now.ToString("HHmmss") + "\\";
-      
             WriteResult2SqlServer();
             Save2Excel(sFolder);
-            //List<string> strs = FormatInfos();
-            //File.WriteAllLines(sCSVFile, strs);
-            //ExcelReader.SaveAsExcel(sCSVFile, sExcelFile);
+
         }
 
         private void Save2Excel(string sFolder)
@@ -159,6 +155,7 @@ namespace Biobanking
                     Save2ExcelForBeiJingUniv(sCSVFile,sExcelFile);
                     break;
                 default:
+                    DefaultExcelTemplate.Save2Excel(trackInfos, sCSVFile);
                     break;
             }
         }
@@ -170,9 +167,7 @@ namespace Biobanking
 
         private void WriteResult2SqlServer()
         {
-#if　DEBUG
-            return;
-#endif
+
             string connectionStr = ConfigurationManager.AppSettings["ConnectionString"];
             if (connectionStr == "")
             {

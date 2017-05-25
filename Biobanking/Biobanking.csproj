@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExcelExporter\BeiJingUnivExcelTemplate.cs" />
+    <Compile Include="ExcelExporter\DefaultExcelTemplate.cs" />
     <Compile Include="ExcelReader.cs" />
     <Compile Include="GlobalVars.cs" />
     <Compile Include="MappingCalculator.cs" />
