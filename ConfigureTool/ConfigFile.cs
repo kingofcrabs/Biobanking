@@ -27,7 +27,7 @@ namespace ConfigureTool
         static public void  Save(Dictionary<string, string> collection)
         {
             string sFolder = Utility.GetExeFolder();
-            string exePath = sFolder + "Biobanking.exe.config";
+            string exePath = sFolder + "Biobanking.exe";
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
             config.AppSettings.Settings.Clear();
             foreach(var pair in collection)
