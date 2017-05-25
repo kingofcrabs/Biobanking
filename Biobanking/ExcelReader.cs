@@ -19,10 +19,10 @@ namespace Biobanking
         int startIndex = 0;
         LabwareSettings labwareSettings;
         PipettingSettings pipettingSettings;
-        public List<List<Tuple<string,string>>> ReadBarcodes(LabwareSettings labwareSettings,
+        public List<List<Tuple<string, string>>> ReadBarcodes(LabwareSettings labwareSettings,
             PipettingSettings pipettingSettings,
-            Dictionary<string, string> barcode_plateBarcode, 
-            Dictionary<string,string> barcode_Position)
+            Dictionary<string, string> barcode_plateBarcode,
+            Dictionary<string, string> barcode_Position)
         {
             startIndex = 0;
             this.labwareSettings = labwareSettings;
@@ -31,7 +31,7 @@ namespace Biobanking
             var di = new DirectoryInfo(sFolder);
             var files = di.EnumerateFiles("*.csv").ToList();
             files = files.OrderBy(x => x.CreationTime).ToList();
-            List<List<Tuple<string,string>>> correspondingbarcodes = new List<List<Tuple<string,string>>>();
+            List<List<Tuple<string, string>>> correspondingbarcodes = new List<List<Tuple<string, string>>>();
             List<string> fileFullNames = files.Select(x => x.FullName).ToList();
             string buffyPlateName = "";
 
@@ -39,14 +39,14 @@ namespace Biobanking
             if (buffy2Standalone)
             {
                 int cnt = files.Count(x => x.FullName.ToLower().Contains("buffy"));
-                if( cnt == 0)
+                if (cnt == 0)
                     throw new Exception("No barcode file for buffy plate found!");
-                if( cnt != 1)
+                if (cnt != 1)
                     throw new Exception("Only one buffy plate supported!");
                 buffyPlateName = files.Where(x => x.FullName.ToLower().Contains("buffy")).First().FullName;
                 fileFullNames = fileFullNames.Except(new List<string>() { buffyPlateName }).ToList();
             }
-          
+
             fileFullNames.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, x));
             if (buffy2Standalone)
             {
@@ -60,16 +60,16 @@ namespace Biobanking
             return int.Parse(d.Name.Substring(5));
         }
 
-        private void ReadBarcode(List<List<Tuple<string,string>>> srcTubeCorrespondingBarcodes,
-            Dictionary<string, string>barcode_plateBarcode,
-            Dictionary<string,string> barcode_Position,
+        private void ReadBarcode(List<List<Tuple<string, string>>> srcTubeCorrespondingBarcodes,
+            Dictionary<string, string> barcode_plateBarcode,
+            Dictionary<string, string> barcode_Position,
             string sFile)
         {
             var strs = File.ReadAllLines(sFile).ToList();
             string plateBarcode = "dummy";
-            if(ConfigurationManager.AppSettings["2DBarcodeVendor"] == "HR") //no plateID
+            if (ConfigurationManager.AppSettings["2DBarcodeVendor"] == "HR") //no plateID
             {
-                plateBarcode = sFile.Substring(sFile.LastIndexOf("\\")+1);
+                plateBarcode = sFile.Substring(sFile.LastIndexOf("\\") + 1);
                 plateBarcode = plateBarcode.Replace(".csv", "");
             }
             else
@@ -84,7 +84,7 @@ namespace Biobanking
                     throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
                 strs = strs.Skip(1).ToList();
             }
-            
+
             //plateBarcodes.Add(plateBarcode);
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
             Dictionary<string, string> barcodesThisPlate = new Dictionary<string, string>();
@@ -94,11 +94,11 @@ namespace Biobanking
                 if (s == "")
                     continue;
                 var subStrs = s.Split(',');
-                string position = GetPosition(subStrs[GlobalVars.Instance.FileStruct.dstPosition]);  //Utility.GetDescription(sampleID);
+                string position = GetPosition(subStrs.ToList());  //Utility.GetDescription(sampleID);
                 var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
                 barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
-                if(barcode == "")
+                if (barcode == "")
                 {
 
                     continue; //ignore empty barcodes.
@@ -117,7 +117,7 @@ namespace Biobanking
 
             int samplesPerRow;
             int buffySlice = pipettingSettings.dstbuffySlice;
-            if (buffySlice !=0 && pipettingSettings.buffyStandalone && sFile.ToLower().Contains("buffy"))
+            if (buffySlice != 0 && pipettingSettings.buffyStandalone && sFile.ToLower().Contains("buffy"))
             {
                 samplesPerRow = Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings);
                 int sampleIndex = 0;
@@ -144,7 +144,7 @@ namespace Biobanking
                             srcTubeCorrespondingBarcodes[sampleIndex++].Add(tuple);
                         }
                         //barcodesAllSrcTube.Add(subRegionPosition_Barcodes);
-                        
+
                     }
                 }
 
@@ -153,13 +153,13 @@ namespace Biobanking
 
             int dstBuffySlice = pipettingSettings.buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
             int totalSliceCnt = dstBuffySlice + pipettingSettings.dstPlasmaSlice;
-            samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
+            samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings, pipettingSettings.buffyStandalone);
             for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
             {
                 int startColumn = subRegionIndex * totalSliceCnt;
                 for (int rowIndex = 0; rowIndex < labwareSettings.dstLabwareRows; rowIndex++)
                 {
-                    List<Tuple<string,string>> subRegionPosition_Barcodes = new List<Tuple<string,string>>();
+                    List<Tuple<string, string>> subRegionPosition_Barcodes = new List<Tuple<string, string>>();
                     for (int slice = 0; slice < totalSliceCnt; slice++)
                     {
                         string well = string.Format("{0}{1:D2}", (char)('A' + rowIndex), startColumn + slice + 1);
@@ -178,19 +178,32 @@ namespace Biobanking
             }
         }
 
-        private string GetPosition(string position)
+        private string GetPosition(List<string> strs)
         {
-            int wellID = PositionGenerator.ParseWellID(position);
-            return Utility.GetDescription(wellID);
+            List<string> newStrs = new List<string>();
+            strs.ForEach(x => newStrs.Add(x.Replace("\"", "")));
+            if (GlobalVars.Instance.Barcode2DVendor.ToLower() == "baiquan")
+            {
+                int col = int.Parse(newStrs[1]);
+                int rowIndex = newStrs[2][0] - 'A';
+                int wellID = PositionGenerator.GetWellID(col - 1, rowIndex);
+                return Utility.GetDescription(wellID);
+            }
+            else
+            {
+                string position = newStrs[GlobalVars.Instance.FileStruct.dstPosition];
+                int wellID = PositionGenerator.ParseWellID(position);
+                return Utility.GetDescription(wellID);
+            }
         }
 
-        
+
 
         private bool IsValidBarcode(string barcode)
         {
-            foreach(char ch in barcode)
+            foreach (char ch in barcode)
             {
-                if(!char.IsDigit(ch))
+                if (!char.IsDigit(ch))
                 {
                     return false;
                 }
@@ -198,7 +211,7 @@ namespace Biobanking
             return true;
         }
 
-      
+
 
         //private string GetDescription(int sampleID)
         //{
@@ -252,5 +265,5 @@ namespace Biobanking
             app.Quit();
         }
     }
-  
+
 }
