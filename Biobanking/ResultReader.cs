@@ -88,13 +88,18 @@ namespace Biobanking
             }
 
             if( theSplitter == ' ')
-                throw new Exception("Patient info's splitter is invalid!");
+            {
+                return new PatientInfo(content, "", "", "");
+            }
+                //throw new Exception("Patient info's splitter is invalid!");
 
 
             string[] strs = content.Split(theSplitter);
             if(strs.Length == 3)
                 return new PatientInfo(strs[0], strs[1], strs[2]);
-          
+
+            else if (strs.Length == 1)
+                return new PatientInfo(strs[0],"","","");
             else
             {
                 throw new Exception("Invalid patient information format!");
