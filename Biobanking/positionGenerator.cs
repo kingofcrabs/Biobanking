@@ -33,7 +33,7 @@ namespace Biobanking
              return pts;
          }
 
-         private static int GetWellID(int colIndex, int rowIndex)
+         internal static int GetWellID(int colIndex, int rowIndex)
          {
              int _row = 8;
              return colIndex * _row + rowIndex + 1;
