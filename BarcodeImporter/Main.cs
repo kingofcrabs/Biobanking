@@ -17,23 +17,23 @@ namespace BarcodeImporter
     {
 
         List<PatientInfo> patientInfos = new List<PatientInfo>();
-        int setSampleCnt = 0;
+        //int setSampleCnt = 0;
         public Main()
         {
             InitializeComponent();
             WriteResult(false);
             version.Text = strings.version;
-            string sampleCntFile = (Utility.GetOutputFolder() + "SampleCount.txt");
-            if(File.Exists(sampleCntFile))
-            {
-                setSampleCnt = int.Parse(File.ReadAllText(sampleCntFile));
-                lblSetCnt.Text = setSampleCnt.ToString();
-            }
-            else
-            {
-                AddErrorInfo("未找到病人数量！");
-                btnImport.Enabled = false;
-            }
+            //string sampleCntFile = (Utility.GetOutputFolder() + "SampleCount.txt");
+            //if(File.Exists(sampleCntFile))
+            //{
+            //    setSampleCnt = int.Parse(File.ReadAllText(sampleCntFile));
+            //    lblSetCnt.Text = setSampleCnt.ToString();
+            //}
+            //else
+            //{
+            //    AddErrorInfo("未找到病人数量！");
+            //    btnImport.Enabled = false;
+            //}
             
         }
 
@@ -80,7 +80,7 @@ namespace BarcodeImporter
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
             string file = config.AppSettings.Settings["SrcBarcodeFile"].Value;
             List<string> strs = new List<string>();
-            patientInfos = patientInfos.Take(setSampleCnt).ToList();
+            //patientInfos = patientInfos.Take(setSampleCnt).ToList();
             patientInfos.ForEach(x=>strs.Add(Format(x)));
             File.WriteAllLines(file, strs);
         }
@@ -163,15 +163,15 @@ namespace BarcodeImporter
                 UpdateGridCell(gridID, rowIndex, patientInfos[i]);
             }
             lblTotalCnt.Text = patientInfos.Count.ToString();
-            string sampleCntFile = (Utility.GetOutputFolder() + "SampleCount.txt");
-            if(File.Exists(sampleCntFile))
-            {
-                setSampleCnt = int.Parse(File.ReadAllText(sampleCntFile));
-                if (patientInfos.Count < setSampleCnt)
-                {
-                    throw new Exception(string.Format("条码数小于设定样本数：{0}", setSampleCnt));
-                }
-            }
+            //string sampleCntFile = (Utility.GetOutputFolder() + "SampleCount.txt");
+            //if(File.Exists(sampleCntFile))
+            //{
+            //    setSampleCnt = int.Parse(File.ReadAllText(sampleCntFile));
+            //    if (patientInfos.Count < setSampleCnt)
+            //    {
+            //        throw new Exception(string.Format("条码数小于设定样本数：{0}", setSampleCnt));
+            //    }
+            //}
             btnOk.Enabled = true;
             AddInfo("导入成功，请校验！");
         }
