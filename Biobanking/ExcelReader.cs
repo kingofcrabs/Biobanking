@@ -67,24 +67,35 @@ namespace Biobanking
         {
             var strs = File.ReadAllLines(sFile).ToList();
             string plateBarcode = "dummy";
-            if(ConfigurationManager.AppSettings["2DBarcodeVendor"] == "HR") //no plateID
+            string vendorName =ConfigurationManager.AppSettings["2DBarcodeVendor"] ;
+            if(vendorName == "HR") //no plateID
             {
                 plateBarcode = sFile.Substring(sFile.LastIndexOf("\\")+1);
                 plateBarcode = plateBarcode.Replace(".csv", "");
             }
-            else
+            else if(vendorName == "WG")
             {
-                string firstLine = strs[0];
-                firstLine = firstLine.ToLower();
-                var indexOfID = firstLine.IndexOf("id:");
-                if (indexOfID == -1)
-                    throw new Exception("cannot find Plate ID！");
-                plateBarcode = strs[0].Substring(indexOfID + 3);
-                if (plateBarcode == "")
-                    throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
+                plateBarcode = GetPlateBarcode4WG(strs);
                 strs = strs.Skip(1).ToList();
             }
-            
+            else
+            {
+                throw new Exception("unsupported 2D vendor!");
+            }
+            //else
+            //{
+            //    string firstLine = strs[0];
+            //    firstLine = firstLine.ToLower();
+            //    var indexOfID = firstLine.IndexOf("id:");
+            //    if (indexOfID == -1)
+            //        throw new Exception("cannot find Plate ID！");
+            //    plateBarcode = strs[0].Substring(indexOfID + 3);
+            //    if (plateBarcode == "")
+            //        throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
+            //    strs = strs.Skip(1).ToList();
+            //}
+
+            int dstBarcodeColumnIndex = GetBarcodeColumnIndex();
             //plateBarcodes.Add(plateBarcode);
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
             Dictionary<string, string> barcodesThisPlate = new Dictionary<string, string>();
@@ -95,13 +106,12 @@ namespace Biobanking
                     continue;
                 var subStrs = s.Split(',');
                 
-                string position = GetPosition(subStrs.ToList());  //Utility.GetDescription(sampleID);
-                var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
+                string position = Utility.GetDescription(sampleID);
+                var barcode = subStrs[dstBarcodeColumnIndex];
                 barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
                 if(barcode == "")
                 {
-
                     continue; //ignore empty barcodes.
                     //throw new Exception(string.Format("Line :{0} has empty barcode!", barcode));
                 }
@@ -175,51 +185,28 @@ namespace Biobanking
             }
         }
 
-
-
-        private string GetPosition(List<string> strs)
+        private int GetBarcodeColumnIndex()
         {
-            List<string> newStrs = new List<string>();
-            strs.ForEach(x=>newStrs.Add(x.Replace("\"","")));
-            if(GlobalVars.Instance.Barcode2DVendor.ToLower() == "baiquan")
-            {
-                int col = int.Parse(newStrs[1]);
-                int rowIndex = newStrs[2][0] - 'A';
-                int wellID = PositionGenerator.GetWellID(col - 1, rowIndex);
-                return Utility.GetDescription(wellID);
-            }
-            else
-            {
-                string position = newStrs[GlobalVars.Instance.FileStruct.dstPosition];
-                int wellID = PositionGenerator.ParseWellID(position);
-                return Utility.GetDescription(wellID);
-            }
-          
+            string vendorName = ConfigurationManager.AppSettings["2DBarcodeVendor"];
+            Dictionary<string, int> vendor_Index = new Dictionary<string, int>();
+            vendor_Index.Add("HR", 1);
+            vendor_Index.Add("WG", 2);
+            return vendor_Index[vendorName];
         }
 
-        
-
-        private bool IsValidBarcode(string barcode)
+        private string GetPlateBarcode4WG(List<string> strs)
         {
-            foreach(char ch in barcode)
-            {
-                if(!char.IsDigit(ch))
-                {
-                    return false;
-                }
-            }
-            return true;
+            if (strs.Count < 2)
+                throw new Exception("Cannot find plate barcode, lines too few!");
+            string s = strs[1];
+            string[] subStrs = s.Split(',');
+            if (subStrs.Length < 4)
+                throw new Exception("Cannot find plate barcode, columns too few!");
+            return subStrs[3];
+
         }
 
-      
 
-        //private string GetDescription(int sampleID)
-        //{
-        //    int sampleIndex = sampleID - 1;
-        //    int colIndex = sampleIndex / 8;
-        //    int rowIndex = sampleIndex - colIndex * 8;
-        //    return string.Format("{0}{1:D2}", (char)('A' + rowIndex), colIndex + 1);
-        //}
 
         private void SaveAsCSV(List<string> sheetPaths)
         {
@@ -245,7 +232,6 @@ namespace Biobanking
             }
             app.Quit();
         }
-
 
         public static void SaveAsExcel(string sCSVFile, string sExcelFile)
         {

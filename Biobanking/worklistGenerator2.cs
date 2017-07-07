@@ -689,7 +689,7 @@ namespace Biobanking
             }
 
             if (sampleIndex + 1 > totalSampleAllowed)
-                throw new Exception("Max  samples allowed is: " + string.Format("{0}!", totalSampleAllowed));
+                throw new Exception("Max samples allowed is: " + string.Format("{0}!", totalSampleAllowed));
 
             int startGrid =labwareSettings.dstLabwareStartGrid;
             int maxGrid = GetMaxGrid();
