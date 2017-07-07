@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ConfigureTool
 {
-    class Setting
+    public class Setting
     {
        
         string sLabwareSettingFileName = Utility.GetExeFolder() + "\\labwareSettings.xml";
@@ -59,7 +59,7 @@ namespace ConfigureTool
             else
                 throw new Exception("不支持的配置文件！");
         }
-        private void SetSetting(Object obj, Dictionary<string, string> settings )
+        internal void SetSetting(Object obj, Dictionary<string, string> settings)
         {
             var fieldsType = obj.GetType();
             Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -97,7 +97,7 @@ namespace ConfigureTool
         }
            
 
-        private Dictionary<string, string> GetSetting(Object settings)
+        internal Dictionary<string, string> GetSetting(Object settings)
         {
             var fieldsType = settings.GetType();
             Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -111,14 +111,14 @@ namespace ConfigureTool
             return dict;
         }
 
-        private Dictionary<string, string> LoadConfigSettings()
+        internal Dictionary<string, string> LoadConfigSettings()
         {
             return ConfigFile.Read();
         }
 
 
 
-        private void SaveConfigSettings(Dictionary<string,string> settings)
+        internal void SaveConfigSettings(Dictionary<string, string> settings)
         {
             ConfigFile.Save(settings);
         }

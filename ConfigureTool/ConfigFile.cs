@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using Settings;
+using System.IO;
 
 namespace ConfigureTool
 {
@@ -28,14 +29,16 @@ namespace ConfigureTool
         {
             string sFolder = Utility.GetExeFolder();
             string exePath = sFolder + "Biobanking.exe";
+            
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
             config.AppSettings.Settings.Clear();
+            
             foreach(var pair in collection)
             {
                 config.AppSettings.Settings.Add(pair.Key,pair.Value);
             }
             
-            config.Save(ConfigurationSaveMode.Modified,true);
+            config.Save(ConfigurationSaveMode.Full,true);
         }
     }
 }
