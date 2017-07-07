@@ -67,53 +67,25 @@ namespace Biobanking
         {
             var strs = File.ReadAllLines(sFile).ToList();
             string plateBarcode = "dummy";
-            if (ConfigurationManager.AppSettings["2DBarcodeVendor"] == "HR") //no plateID
+            string vendorName = ConfigurationManager.AppSettings["2DBarcodeVendor"] ;
+            if ( vendorName == "HR") //no plateID
             {
                 plateBarcode = sFile.Substring(sFile.LastIndexOf("\\") + 1);
                 plateBarcode = plateBarcode.Replace(".csv", "");
             }
-            else
+            else if( vendorName == "WG")
             {
-                string firstLine = strs[0];
-                firstLine = firstLine.ToLower();
-                var indexOfID = firstLine.IndexOf("id:");
-                if (indexOfID == -1)
-                    throw new Exception("cannot find Plate ID！");
-                plateBarcode = strs[0].Substring(indexOfID + 3);
-                if (plateBarcode == "")
-                    throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
-                strs = strs.Skip(1).ToList();
+                plateBarcode = GetPlateBarcode4WG();
             }
 
             //plateBarcodes.Add(plateBarcode);
+            int barcodeColumnIndex = GetBarcodeColumnIndex();
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
             Dictionary<string, string> barcodesThisPlate = new Dictionary<string, string>();
             int sampleID = 1;
-            foreach (var s in strs)
-            {
-                if (s == "")
-                    continue;
-                var subStrs = s.Split(',');
-                string position = GetPosition(subStrs.ToList());  //Utility.GetDescription(sampleID);
-                var barcode = subStrs[GlobalVars.Instance.FileStruct.dstBarcodeIndex];
-                barcode = barcode.Replace("\"", "");
-                barcodesThisPlate.Add(position, barcode);
-                if (barcode == "")
-                {
 
-                    continue; //ignore empty barcodes.
-                    //throw new Exception(string.Format("Line :{0} has empty barcode!", barcode));
-                }
-                if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
-                {
-                    var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
-                    throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
-                         wells[0], wells[1], barcode));
-                }
-                barcode_Position.Add(barcode, position);
-                barcode_plateBarcode.Add(barcode, plateBarcode);
-                sampleID++;
-            }
+            ReadBarcodes(strs, barcode_Position, barcode_plateBarcode, barcodeColumnIndex, barcodesThisPlate,plateBarcode, vendorName);
+           
 
             int samplesPerRow;
             int buffySlice = pipettingSettings.dstbuffySlice;
@@ -176,6 +148,111 @@ namespace Biobanking
                     srcTubeCorrespondingBarcodes.Add(subRegionPosition_Barcodes);
                 }
             }
+        }
+
+        private void ReadBarcodes(List<string> strs, 
+            Dictionary<string, string> barcode_Position, 
+            Dictionary<string, string> barcode_plateBarcode,
+            Dictionary<string, string> barcodesThisPlate,
+            int barcodeColumnIndex,
+            string plateBarcode,
+            string vendorName)
+        {
+            switch(vendorName)
+            {
+                case "HR":
+                    ReadBarcode4HR(strs, barcode_Position, barcode_plateBarcode, barcodesThisPlate, plateBarcode, barcodeColumnIndex);
+                    break;
+                case "WG":
+                    ReadBarcode4WG(strs, barcode_Position, barcode_plateBarcode, barcodesThisPlate, plateBarcode, barcodeColumnIndex);
+                    break;
+            }
+            
+        }
+
+        private void ReadBarcode4WG(List<string> strs,
+            Dictionary<string, string> barcode_Position, 
+            Dictionary<string, string> barcode_plateBarcode, 
+            Dictionary<string, string> barcodesThisPlate, 
+            string plateBarcode, 
+            int barcodeColumnIndex)
+        {
+            int sampleID = 1;
+            foreach (var s in strs)
+            {
+                if (s == "")
+                    continue;
+                var subStrs = s.Split(',');
+                int val = 0;
+                if (!int.TryParse(subStrs[0], out val))
+                    continue;
+
+                string position = Utility.GetDescription(sampleID);
+                var barcode = subStrs[barcodeColumnIndex];
+                barcode = barcode.Replace("\"", "");
+                barcodesThisPlate.Add(position, barcode);
+                if (barcode == "")
+                {
+                    continue; //ignore empty barcodes.
+                }
+                if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
+                {
+                    var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
+                    throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
+                         wells[0], wells[1], barcode));
+                }
+                barcode_Position.Add(barcode, position);
+                barcode_plateBarcode.Add(barcode, plateBarcode);
+                sampleID++;
+            }
+        }
+
+
+        private void ReadBarcode4HR(List<string> strs,
+            Dictionary<string, string> barcode_Position, 
+            Dictionary<string, string> barcode_plateBarcode,
+            Dictionary<string, string> barcodesThisPlate,
+            string plateBarcode,
+            int barcodeColumnIndex)
+        {
+            int sampleID = 1;
+            foreach (var s in strs)
+            {
+                if (s == "")
+                    continue;
+                var subStrs = s.Split(',');
+                string position = Utility.GetDescription(sampleID);
+                var barcode = subStrs[barcodeColumnIndex];
+                barcode = barcode.Replace("\"", "");
+                barcodesThisPlate.Add(position, barcode);
+                if (barcode == "")
+                {
+                    continue; //ignore empty barcodes.
+                }
+                if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
+                {
+                    var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
+                    throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
+                         wells[0], wells[1], barcode));
+                }
+                barcode_Position.Add(barcode, position);
+                barcode_plateBarcode.Add(barcode, plateBarcode);
+                sampleID++;
+            }
+        }
+
+        private int GetBarcodeColumnIndex()
+        {
+            string vendorName = ConfigurationManager.AppSettings["2DBarcodeVendor"];
+            Dictionary<string, int> vendor_Index = new Dictionary<string, int>();
+            vendor_Index.Add("HR", 1);
+            vendor_Index.Add("WG", 2);
+            return vendor_Index[vendorName];
+        }
+
+        private string GetPlateBarcode4WG()
+        {
+            throw new NotImplementedException();
         }
 
         private string GetPosition(List<string> strs)
