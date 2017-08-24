@@ -82,11 +82,7 @@ namespace Biobanking
             int barcodeColumnIndex = GetBarcodeColumnIndex();
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
             Dictionary<string, string> barcodesThisPlate = new Dictionary<string, string>();
-            int sampleID = 1;
-
-            ReadBarcodes(strs, barcode_Position, barcode_plateBarcode, barcodeColumnIndex, barcodesThisPlate,plateBarcode, vendorName);
-           
-
+            ReadBarcodes(strs, barcode_Position, barcode_plateBarcode,barcodesThisPlate, barcodeColumnIndex, plateBarcode, vendorName);
             int samplesPerRow;
             int buffySlice = pipettingSettings.dstbuffySlice;
             if (buffySlice != 0 && pipettingSettings.buffyStandalone && sFile.ToLower().Contains("buffy"))
