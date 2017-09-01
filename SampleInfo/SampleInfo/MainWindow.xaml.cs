@@ -72,7 +72,6 @@ namespace SampleInfo
                 pipettingSettings = Utility.Deserialize<PipettingSettings>(s);
                 s = File.ReadAllText(sLabwareSettingFileName);
                 labwareSettings = Utility.Deserialize<LabwareSettings>(s);
-                buffyStandalone = pipettingSettings.buffyStandalone;
             }
             catch (Exception ex)
             {

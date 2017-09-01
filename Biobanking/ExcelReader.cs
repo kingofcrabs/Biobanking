@@ -35,23 +35,9 @@ namespace Biobanking
             List<string> fileFullNames = files.Select(x => x.FullName).ToList();
             string buffyPlateName = "";
 
-            bool buffy2Standalone = pipettingSettings.buffyStandalone && pipettingSettings.dstbuffySlice != 0;
-            if (buffy2Standalone)
-            {
-                int cnt = files.Count(x => x.FullName.ToLower().Contains("buffy"));
-                if (cnt == 0)
-                    throw new Exception("No barcode file for buffy plate found!");
-                if (cnt != 1)
-                    throw new Exception("Only one buffy plate supported!");
-                buffyPlateName = files.Where(x => x.FullName.ToLower().Contains("buffy")).First().FullName;
-                fileFullNames = fileFullNames.Except(new List<string>() { buffyPlateName }).ToList();
-            }
 
             fileFullNames.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, x));
-            if (buffy2Standalone)
-            {
-                ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, buffyPlateName);
-            }
+          
             return correspondingbarcodes;
         }
 
@@ -85,43 +71,11 @@ namespace Biobanking
             ReadBarcodes(strs, barcode_Position, barcode_plateBarcode,barcodesThisPlate, barcodeColumnIndex, plateBarcode, vendorName);
             int samplesPerRow;
             int buffySlice = pipettingSettings.dstbuffySlice;
-            if (buffySlice != 0 && pipettingSettings.buffyStandalone && sFile.ToLower().Contains("buffy"))
-            {
-                samplesPerRow = Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings);
-                int sampleIndex = 0;
-                for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
-                {
-                    int startColumn = subRegionIndex * buffySlice;
-                    for (int rowIndex = 0; rowIndex < labwareSettings.dstLabwareRows; rowIndex++)
-                    {
-                        List<Tuple<string, string>> subRegionPosition_Barcodes = new List<Tuple<string, string>>();
-                        for (int slice = 0; slice < buffySlice; slice++)
-                        {
-                            string well = string.Format("{0}{1:D2}", (char)('A' + rowIndex), startColumn + slice + 1);
-                            //if (!IsValidBarcode(barcodesThisPlate[well]))
-                            //    throw new Exception(string.Format("{0}处的条码:{1}非法！", well, barcodesThisPlate[well]));
-                            string tmpBarcode = "";
-                            if (barcodesThisPlate.ContainsKey(well))
-                            {
-                                tmpBarcode = barcodesThisPlate[well];
-                            }
-                            var tuple = Tuple.Create(well, tmpBarcode);
-                            if (sampleIndex >= srcTubeCorrespondingBarcodes.Count)
-                                break;
-                            //subRegionPosition_Barcodes.Add(tuple);
-                            srcTubeCorrespondingBarcodes[sampleIndex++].Add(tuple);
-                        }
-                        //barcodesAllSrcTube.Add(subRegionPosition_Barcodes);
+            
 
-                    }
-                }
-
-                return;
-            }
-
-            int dstBuffySlice = pipettingSettings.buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
+            int dstBuffySlice =  pipettingSettings.dstbuffySlice;
             int totalSliceCnt = dstBuffySlice + pipettingSettings.dstPlasmaSlice;
-            samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings, pipettingSettings.buffyStandalone);
+            samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,false);
             for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
             {
                 int startColumn = subRegionIndex * totalSliceCnt;

@@ -117,8 +117,7 @@ namespace Settings
         public int bottomOffset;
         public int maxVolumePerSlice;
         public int retractHeightcm;
-        public bool buffyStandalone;
-        public bool buffyOneByOne;
+        public bool needTransfer;
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -141,9 +140,7 @@ namespace Settings
             bottomOffset = 388;
             retractHeightcm = 10;
             maxVolumePerSlice = 5000;
-            buffyStandalone = false;
-            buffyOneByOne = false;
-
+            needTransfer = false;
         }
     }
 
@@ -162,7 +159,7 @@ namespace Settings
         public int dstCarrierCnt;
         public int gridsPerCarrier;
         public int sitesPerCarrier;
-
+        public int transferGrid;
         public LabwareSettings()
         {
             sourceLabwareStartGrid = 1;
@@ -176,6 +173,7 @@ namespace Settings
             dstLabwareColumns = 6;
             gridsPerCarrier = 1;
             sitesPerCarrier = 1;
+            transferGrid = 10;
         }
     }
 
