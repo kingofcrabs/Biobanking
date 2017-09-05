@@ -49,9 +49,6 @@ namespace ConfigureTool
             item_Desc.Add("safeDelta", "安全距离，吸取Plasma时，枪头离白膜层的距离。");
             item_Desc.Add("buffySpeedFactor", "吸取白膜时速度因子。");
             item_Desc.Add("plasmaGreedyVolume", "每份Plasma时的体积，如果是0，则平均吸取。");
-            //item_Desc.Add("dstRedCellSlice", "红细胞份数，已经废弃。");
-            //item_Desc.Add("redCellGreedyVolume", "每份红细胞体积，已经废弃。");
-            //item_Desc.Add("redCellBottomHeight", "红细胞底部废弃高度，已经废弃");
             item_Desc.Add("giveUpNotEnough", "当剩余体积不够时是否放弃。");
             item_Desc.Add("msdZDistance", "msd跨越距离。");
             item_Desc.Add("msdStartPositionAboveBuffy", "msd从白膜层上方开始吸取的位置。");
@@ -61,8 +58,9 @@ namespace ConfigureTool
             item_Desc.Add("retractHeightcm", "打掉白膜后retract高度，单位为cm。");
             item_Desc.Add("maxVolumePerSlice", "单份最大体积。");
             item_Desc.Add("bottomOffset", "PAZ的偏移量，不要修改。");
-            item_Desc.Add("buffyStandalone", "白膜层单独放一个板子。");
-            item_Desc.Add("buffyOneByOne", "白膜分配一个一个来。");
+            item_Desc.Add("needTransfer", "是否需要中转管。");
+            item_Desc.Add("buffyTransferGrid", "buffy中转管Grid。");
+
             
         }
 

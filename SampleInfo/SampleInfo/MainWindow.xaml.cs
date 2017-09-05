@@ -180,6 +180,7 @@ namespace SampleInfo
                
                 int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings, buffyStandalone);
                 File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
+                File.WriteAllText(Utility.GetOutputFolder() + "buffySliceCnt.txt", pipettingSettings.dstbuffySlice.ToString());
                 Utility.WriteExecuteResult(true, "result.txt");
                 if (ConfigurationManager.AppSettings["ShowMessage"]  != null && bool.Parse(ConfigurationManager.AppSettings["ShowMessage"]))
                     MessageBox.Show(string.Format("Need {0} plates for {1}!", destLabwareNeeded, bloodType));

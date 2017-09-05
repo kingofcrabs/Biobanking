@@ -110,7 +110,7 @@ namespace Biobanking
             return this.GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, width, height, false, startTip);
         }
 
-        protected string GenerateMixCommand(List<POINT> wells, List<int> volumes, string liquidClass, int gridPos, int site, int width, int height, int mixTimes, int startTip = 0)
+        internal  string GenerateMixCommand(List<POINT> wells, List<int> volumes, string liquidClass, int gridPos, int site, int width, int height, int mixTimes, int startTip = 0)
         {
             int tipSelection = 0;
             tipSelection = GetTipSelection(Convert2DoubleList(volumes));

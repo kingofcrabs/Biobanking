@@ -119,8 +119,8 @@ namespace Biobanking
             int width = labwareSettings.dstLabwareColumns;
             if (aspirate)
             {
-                if (liquidClass != BB_Buffy_Mix) //如果是吸样，除了吸buffy_mix,其他情况labware孔的宽度都是1,
-                    width = 1;
+                //如果是吸样，labware孔的宽度都是1,
+                width = 1;
             }
 
             string sWellSelection = GetWellSelection(width, height, not0Wells);

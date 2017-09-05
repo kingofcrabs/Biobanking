@@ -55,10 +55,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EVOScriptReader.cs" />
     <Compile Include="ExcelExporter\BeiJingUnivExcelTemplate.cs" />
     <Compile Include="ExcelExporter\DefaultExcelTemplate.cs" />
     <Compile Include="ExcelReader.cs" />
     <Compile Include="GlobalVars.cs" />
+    <Compile Include="LayoutChecker.cs" />
     <Compile Include="MappingCalculator.cs" />
     <Compile Include="mixCommand.cs" />
     <Compile Include="positionGenerator.cs" />

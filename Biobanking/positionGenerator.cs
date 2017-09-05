@@ -119,8 +119,8 @@ namespace Biobanking
         {
 
             List<POINT> pts = new List<POINT>();
-            
-            for(int i = 0; i< startSampleInRack; i++)
+
+            for (int i = 0; i < sampleCount; i++)
             {
                 pts.Add(new POINT(1, i+startSampleInRack+1));
             }

@@ -160,6 +160,7 @@ namespace Settings
         public int gridsPerCarrier;
         public int sitesPerCarrier;
         public int transferGrid;
+        public int buffyTransferGrid;
         public LabwareSettings()
         {
             sourceLabwareStartGrid = 1;
@@ -173,7 +174,8 @@ namespace Settings
             dstLabwareColumns = 6;
             gridsPerCarrier = 1;
             sitesPerCarrier = 1;
-            transferGrid = 10;
+            transferGrid = 17;
+            buffyTransferGrid = 19;
         }
     }
 
