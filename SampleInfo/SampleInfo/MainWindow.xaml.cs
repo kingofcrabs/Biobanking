@@ -56,7 +56,8 @@ namespace SampleInfo
                 string s = "";
                 plasmaMaxCount = int.Parse(config.AppSettings.Settings["PlasmaMaxCount"].Value);
                 buffyMaxCount = int.Parse(config.AppSettings.Settings["BuffyMaxCount"].Value);
-                
+
+
                 if (!File.Exists(sLabwareSettingFileName))
                 {
                     SetInfo("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName, Colors.Red);
@@ -175,15 +176,15 @@ namespace SampleInfo
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
                 
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
-                string bloodType = GetBloodType();
-                File.WriteAllText(Utility.GetBloodTypeFile(),bloodType);
+                //string bloodType = GetBloodType();
+                //File.WriteAllText(Utility.GetBloodTypeFile(),bloodType);
                 SaveSettings();
                
                 int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings, buffyStandalone);
                 File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
                 Utility.WriteExecuteResult(true, "result.txt");
-                if (ConfigurationManager.AppSettings["ShowMessage"]  != null && bool.Parse(ConfigurationManager.AppSettings["ShowMessage"]))
-                    MessageBox.Show(string.Format("Need {0} plates for {1}!", destLabwareNeeded, bloodType));
+                //if (ConfigurationManager.AppSettings["ShowMessage"]  != null && bool.Parse(ConfigurationManager.AppSettings["ShowMessage"]))
+                //    MessageBox.Show(string.Format("Need {0} plates for {1}!", destLabwareNeeded, bloodType));
            }
            catch (Exception ex)
            {
@@ -196,15 +197,15 @@ namespace SampleInfo
             this.Close();
         }
 
-        private string GetBloodType()
-        {
-            if ((bool)rdbPlasma.IsChecked)
-                return "Plasma";
-            else if ((bool)rdbSerum.IsChecked)
-                return "Serum";
-            else
-                return "RedCell";
-        }
+        //private string GetBloodType()
+        //{
+        //    if ((bool)rdbPlasma.IsChecked)
+        //        return "Plasma";
+        //    else if ((bool)rdbSerum.IsChecked)
+        //        return "Serum";
+        //    else
+        //        return "RedCell";
+        //}
 
   
         private void SetInfo(string p, Color color)
@@ -245,7 +246,7 @@ namespace SampleInfo
             txtPlasmaCount.Text = pipettingSettings.dstPlasmaSlice.ToString();
             txtVolume.Text = pipettingSettings.plasmaGreedyVolume.ToString();
             txtBuffyVolume.Text = pipettingSettings.buffyVolume.ToString();
-            txtbuffySliceCnt.Text = "0";//pipettingSettings.dstbuffySlice.ToString();
+            txtbuffySliceCnt.Text = pipettingSettings.dstbuffySlice.ToString();
 
             //InitListView();
             //lstRadius.IsEnabled = false;
@@ -253,26 +254,26 @@ namespace SampleInfo
             //chkNucleinExtraction.IsChecked= Convert.ToBoolean(Utility.ReadFolder(stringRes.DoNucleinExtractionFile));
         }
 
-        private void RadioButton_Checked(object sender, RoutedEventArgs e)
-        {
-             if((bool)rdbSerum.IsChecked)
-             {
-                 lblBloodSlice.Content = "血清份数：";
-                 lblBloodVolume.Content = "血清体积(ul)：";
-                 txtbuffySliceCnt.Text = "0";
-                 txtbuffySliceCnt.IsEnabled = false;
-                 txtBuffyVolume.IsEnabled = false;
-             }
-             else if ((bool)rdbPlasma.IsChecked)
-             {
-                 lblBloodSlice.Content = "血浆份数：";
-                 lblBloodVolume.Content = "血浆体积(ul)：";
-                 txtbuffySliceCnt.Text = "1";
-                 txtbuffySliceCnt.IsEnabled = true;
-                 txtBuffyVolume.IsEnabled = true;
-             }
+        //private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        //{
+        //     if((bool)rdbSerum.IsChecked)
+        //     {
+        //         lblBloodSlice.Content = "血清份数：";
+        //         lblBloodVolume.Content = "血清体积(ul)：";
+        //         txtbuffySliceCnt.Text = "0";
+        //         txtbuffySliceCnt.IsEnabled = false;
+        //         txtBuffyVolume.IsEnabled = false;
+        //     }
+        //     else if ((bool)rdbPlasma.IsChecked)
+        //     {
+        //         lblBloodSlice.Content = "血浆份数：";
+        //         lblBloodVolume.Content = "血浆体积(ul)：";
+        //         txtbuffySliceCnt.Text = "1";
+        //         txtbuffySliceCnt.IsEnabled = true;
+        //         txtBuffyVolume.IsEnabled = true;
+        //     }
             
-        }
+        //}
 
 
         //private void InitListView()

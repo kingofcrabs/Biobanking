@@ -41,7 +41,7 @@ namespace ProjectTest
         static private bool TestMethod(string config, string path)
         {
             ConfigureToolSettings(config,path);
-            RunBiobancking(config,path);
+            RunBiobanking(config,path);
             bool testCaseResult = CompareWorklist(config,path);
             Console.WriteLine(testCaseResult);
             //Console.ReadKey();
@@ -96,7 +96,7 @@ namespace ProjectTest
             }
         }
 
-        static private void RunBiobancking(string config, string basePath)
+        static private void RunBiobanking(string config, string basePath)
         {
             Process p = new Process();
             p.StartInfo.FileName = basePath + "\\Biobanking\\bin\\Debug\\Biobanking.exe";

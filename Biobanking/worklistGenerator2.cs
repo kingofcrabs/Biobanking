@@ -111,8 +111,12 @@ namespace Biobanking
         {
             detectInfos = ResultReader.Instance.Read();
             patientInfos = ResultReader.Instance.ReadPatientInfos();
-            patientInfos = patientInfos.Take(detectInfos.Count).ToList();
-            Console.WriteLine(string.Format("{0} samples", patientInfos.Count));
+            if(patientInfos != null)
+            {
+                patientInfos = patientInfos.Take(detectInfos.Count).ToList();
+                Console.WriteLine(string.Format("{0} samples", patientInfos.Count));
+            }
+
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker = new BarcodeTracker(pipettingSettings, labwareSettings, patientInfos);
             log.Info("read heights");
@@ -738,20 +742,7 @@ namespace Biobanking
             }
             WriteMovingPluger(pts, vols, ditiMask, tipOffset, grid, site, sw);
 
-            int sampleCnt = pts.Count;
-            WriteComment(string.Format("Move LiHa up to {0}cm", pipettingSettings.retractHeightcm), sw);
-            var sMoveAbsoluteZ = GetMoveLihaAbsoluteZSlow(sampleCnt, pipettingSettings.retractHeightcm, tipOffset);
-            WriteComand(sMoveAbsoluteZ, sw);
-
-            WriteComment("Set end speed for plungers", sw);
-            string sSEP = GetSEPString(sampleCnt, 2400, tipOffset);
-            WriteComand(sSEP, sw);
-            WriteComment("Set stop speed for plungers", sw);
-            string sSPP = GetSPPString(sampleCnt, 1500, tipOffset);
-            WriteComand(sSPP, sw);
-            WriteComment(string.Format("Aspirate air gap: {0}", pipettingSettings.airGap), sw);
-            string sPPA = GetPPAString(sampleCnt, pipettingSettings.airGap, tipOffset);
-            WriteComand(sPPA, sw);
+           
         }
 
         private void WriteMovingPluger(List<POINT> pts, List<double> vols,int ditiMask,int tipOffset, 
@@ -775,6 +766,14 @@ namespace Biobanking
             WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
             string sPPA = GetPPAString(sampleCnt, 0, tipOffset);
             WriteComand(sPPA, sw);
+
+            WriteComment(string.Format("Aspirate air gap: {0}", pipettingSettings.airGap), sw);
+            sPPA = GetPPAString(sampleCnt, pipettingSettings.airGap, tipOffset);
+            WriteComand(sPPA, sw);
+
+            //WriteComment(string.Format("Move LiHa up to {0}cm", pipettingSettings.retractHeightcm), sw);
+            //var sMoveAbsoluteZ = GetMoveLihaAbsoluteZSlow(sampleCnt, pipettingSettings.retractHeightcm, tipOffset);
+            //WriteComand(sMoveAbsoluteZ, sw);
         }
 
         private string GetVolumeString(List<double> vols)
@@ -895,6 +894,23 @@ namespace Biobanking
                 WriteComment(string.Format("Move LiHa deltaZ down -times: {0}",i+1), sw);
                 WriteComand(sMoveLihaDown, sw);
             }
+
+            WriteComment(string.Format("Move LiHa up to {0}cm", pipettingSettings.retractHeightcm), sw);
+            var sMoveAbsoluteZ = GetMoveLihaAbsoluteZSlow(samplesInTheBatch, pipettingSettings.retractHeightcm, tipOffset);
+            WriteComand(sMoveAbsoluteZ, sw);
+
+            WriteComment("Set end speed for plungers", sw);
+            sSEP = GetSEPString(samplesInTheBatch, 2400, tipOffset);
+            WriteComand(sSEP, sw);
+
+            WriteComment("Set stop speed for plungers", sw);
+            string sSPP = GetSPPString(samplesInTheBatch, 1500, tipOffset);
+            WriteComand(sSPP, sw);
+
+            WriteComment("Air gap 70", sw);
+            string sPPA = GetPPAString(samplesInTheBatch, pipettingSettings.airGap, tipOffset);
+            WriteComand(sPPA, sw);
+
         }
 
         #region 

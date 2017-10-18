@@ -37,7 +37,7 @@ namespace ConfigureTool
             item_Desc.Add("wasteGrid", "waste载架所在的Grid。");
             item_Desc.Add("dstCarrierCnt", "有几个目标Carrier。");
             item_Desc.Add("gridsPerCarrier", "一个目标载架占几个Grid。");
-            item_Desc.Add("sitesPerCarrier", "一个目标载架占几个Site");
+            item_Desc.Add("sitesPerCarrier", "一个目标载架有几个Site");
 
             //pipettingSettings
 
