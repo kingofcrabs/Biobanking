@@ -21,23 +21,23 @@ namespace Biobanking
         List<List<Tuple<string,string>>> correspondingbarcodes;
         Dictionary<string, string> barcode_plateBarcodes = new Dictionary<string, string>();
         Dictionary<string, string> barcode_Position = new Dictionary<string, string>();
-        List<PatientInfo> patientInfos;
+        List<string> srcBarcodes;
         int sampleIndex = 0;
         
         //const string plasmaName = "Plasma";
         //const string redCellName = "RedCell";
-        public BarcodeTracker(PipettingSettings pipettingSettings,LabwareSettings labwareSettings,List<PatientInfo> patientInfos)
+        public BarcodeTracker(PipettingSettings pipettingSettings, LabwareSettings labwareSettings, List<string> srcBarcodes)
         {
-            this.patientInfos = patientInfos;
+            this.srcBarcodes = srcBarcodes;
             this.pipettingSettings = pipettingSettings;
             ExcelReader excelReader = new ExcelReader();
             correspondingbarcodes = excelReader.ReadBarcodes(labwareSettings,
                 pipettingSettings,
                 barcode_plateBarcodes,
                 barcode_Position);
-            if(patientInfos.Count > correspondingbarcodes.Count)
+            if (srcBarcodes.Count > correspondingbarcodes.Count)
             {
-                throw new Exception(string.Format("source barcodes' count:{0} > dest barcodes' count :{1}", patientInfos.Count, correspondingbarcodes.Count));
+                throw new Exception(string.Format("source barcodes' count:{0} > dest barcodes' count :{1}", srcBarcodes.Count, correspondingbarcodes.Count));
             }
         }
 
@@ -51,7 +51,7 @@ namespace Biobanking
             return false;
         }
 
-        internal void Track(List<double> plasmaVols, int sliceIndex)
+        internal void Track(List<double> plasmaVols, int sliceIndex,List<DetectedInfo> detectInfos)
         {
             //trackInfos.Add( new TrackInfo(srcBarcodes[sam))
             int indexInList = 0;
@@ -60,27 +60,26 @@ namespace Biobanking
                 var tuple= correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
                 string dstBarcode = tuple.Item2;
                 int sampleID = sampleIndex + indexInList + 1;
-                if (dstBarcode == "")
+                if (dstBarcode == "" || dstBarcode == "NOTUBE" ||dstBarcode == "NOREAD")
                     throw new Exception(string.Format("Cannot find dest barcode at position: {0} for sample: {1}!", tuple.Item1, sampleID));
                 
-                if(!IsValidBarcode(dstBarcode))
-                {
-                    throw new Exception(string.Format("Sample:{0} slice:{1}'s corresponding barcode:{2} is invalid!", sampleID, sliceIndex + 1, dstBarcode));
-                }
+                //if(!IsValidBarcode(dstBarcode))
+                //{
+                //    throw new Exception(string.Format("Sample:{0} slice:{1}'s corresponding barcode:{2} at {3} is invalid!",
+                //        sampleID, sliceIndex + 1, dstBarcode, tuple.Item1));
+                //}
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
-                if(patientInfos.Count <= sampleIndex+ indexInList)
+                if (srcBarcodes.Count <= sampleIndex + indexInList)
                     throw new Exception(string.Format("Cannot find {0}th sample's source barcode!", sampleID));
-                var patient = patientInfos[sampleIndex+ indexInList];
+                var srcBarcode = srcBarcodes[sampleIndex + indexInList];
                 string description = GlobalVars.Instance.BloodDescription;
                 TrackInfo info = new TrackInfo(
-                    patient.id,
+                    srcBarcode,
                     dstBarcode,
                     description,
                     Math.Round(adjustVol, 2).ToString(),
                     barcode_plateBarcodes[dstBarcode],
-                    barcode_Position[dstBarcode],
-                    patient.name,
-                    patient.seqNo);
+                    barcode_Position[dstBarcode]);
                 trackInfos.Add(info);
                 indexInList++;
             }
@@ -93,7 +92,8 @@ namespace Biobanking
                     double vol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
                     for (indexInList = 0; indexInList < plasmaVols.Count; indexInList++)
                     {
-                        var patient = patientInfos[sampleIndex + indexInList];
+                        var srcBarcode = srcBarcodes[sampleIndex + indexInList];
+                        
                         for (int i = 0; i < pipettingSettings.dstbuffySlice; i++)
                         {
                             if(sampleIndex + indexInList >= correspondingbarcodes.Count )
@@ -107,15 +107,27 @@ namespace Biobanking
                                     sampleIndex + indexInList, 
                                     pipettingSettings.dstPlasmaSlice + i));
                             }
-                            var dstBarcode = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i].Item2;
+                            var tuple = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i];
+                            var dstBarcode = tuple.Item2;
+                            var position = tuple.Item1;
+                            if(dstBarcode == "" || dstBarcode== "NOREAD" || dstBarcode == "NOTUBE")
+                            {
+                                throw new Exception(string.Format("Cannot find dest barcode at position: {0} for sample: {1}!", position, sampleIndex + indexInList+1));
+                            }
+
+                            double tempVol = vol;
+                            if (detectInfos[indexInList].Z2 == 100)
+                            {
+                                tempVol = 0;
+                            }
+
                             TrackInfo info = new TrackInfo(
-                            patient.id, 
+                            srcBarcode, 
                             dstBarcode,
                             GlobalVars.Instance.BuffyName,
-                            Math.Round(vol, 2).ToString(), 
+                            Math.Round(tempVol, 2).ToString(), 
                             barcode_plateBarcodes[dstBarcode],
-                            barcode_Position[dstBarcode], 
-                            patient.name, patient.seqNo);
+                            barcode_Position[dstBarcode]);
                             trackInfos.Add(info);
                         }
                     }
@@ -143,27 +155,14 @@ namespace Biobanking
             string excelFolder = sFolder + "excel\\";
             CreateIfNotExist(csvFolder);
             CreateIfNotExist(excelFolder);
-            string sTime = DateTime.Now.ToString("HHmmss");
+          
             if (!Directory.Exists(sFolder))
                 Directory.CreateDirectory(sFolder);
-            var sCSVFile = csvFolder + sTime + ".csv";
-            var sExcelFile = excelFolder + sTime + ".xls";
-            string excelTemplate = ConfigurationManager.AppSettings["ExcelTemplate"];
-            switch (excelTemplate.ToLower())
-            {
-                case "beijinguniv": //for BeiJing university
-                    Save2ExcelForBeiJingUniv(sCSVFile,sExcelFile);
-                    break;
-                default:
-                    DefaultExcelTemplate.Save2Excel(trackInfos, sCSVFile);
-                    break;
-            }
+         
+            DefaultExcelTemplate.Save2Excel(trackInfos, csvFolder);
         }
 
-        private void Save2ExcelForBeiJingUniv(string sCSV, string sExcel)
-        {
-            BeiJingUnivExcelTemplate.Save2Excel(trackInfos,sCSV,sExcel);
-        }
+       
 
         private void WriteResult2SqlServer()
         {

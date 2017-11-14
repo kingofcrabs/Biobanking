@@ -12,9 +12,11 @@ namespace Biobanking
     {
 
         protected const string BBPlasmaFast = "BB_Plasma_Fast";
+        protected const string BBPlasmaTransfer = "BB_Plasma_Transfer";
         protected const string BBPlasmaMedium = "BB_Plasma_Medium";
         protected const string BBPlasmaSlow = "BB_Plasma_Slow";
         protected const string BB_Buffy = "BB_Buffy";
+        protected const string BB_Buffy_Transfer = "BB_Buffy_Transfer";
         protected const string BB_Buffy_Mix = "BB_Buffy_Mix";
         protected string breakPrefix = "B;";
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -39,6 +41,18 @@ namespace Biobanking
             int tip = 0;
             for (int i = 0; i < samplesInTheBatch; i++)
                 tip += (int)Math.Pow(2, i + startTip);
+            return tip;
+        }
+
+        protected int GetTipSelectionByHeight(List<double> heights)
+        {
+            int tip = 0;
+            for (int i = 0; i < heights.Count; i++)
+            {
+                if (heights[i] == 100)
+                    continue;
+                tip += (int)Math.Pow(2, i);
+            }
             return tip;
         }
 
@@ -88,12 +102,37 @@ namespace Biobanking
             return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, true);
         }
 
-        protected string GenerateDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height)
+        protected string GenerateDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height, bool transfer = false)
         {
-            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, false);
+            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, false,transfer);
+        }
+    
+
+        internal string GenerateMixCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int width, int height, int mixTimes, int startTip = 0)
+        {
+            int tipSelection = 0;
+            tipSelection = GetTipSelection(volumes);
+            List<POINT> pOINTs = new List<POINT>();
+            for (int i = 0; i < wells.Count; i++)
+            {
+                if (volumes[i + startTip] != 0)
+                {
+                    pOINTs.Add(wells[i]);
+                }
+            }
+            string str = "";
+            for (int j = 0; j < 12; j++)
+            {
+                string str1 = "";
+                str1 = (j >= volumes.Count ? "0," : string.Format("\"{0}\",", volumes[j]));
+                str = string.Concat(str, str1);
+            }
+            string wellSelection = GetWellSelection(width, height, pOINTs);
+            object[] objArray = new object[] { "Mix", tipSelection, liquidClass, str, gridPos, site, wellSelection, mixTimes };
+            return string.Format("B;{0}({1},\"{2}\",{3}{4},{5},1,\"{6}\",{7}, 0, 0);", objArray);
         }
 
-        protected string GenerateAspirateOrDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height, bool aspirate)
+        protected string GenerateAspirateOrDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height, bool aspirate, bool transfer = false)
         {
             //B; Aspirate(3, "Water free dispense", "20", "20", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, "0110300", 0, 0);
             int tipMask = GetTipSelection(volumes);
@@ -117,9 +156,9 @@ namespace Biobanking
 
 
             int width = labwareSettings.dstLabwareColumns;
-            if (aspirate)
+            if (aspirate || transfer)
             {
-                //如果是吸样，labware孔的宽度都是1,
+                //如果是吸样或者transfer，labware孔的宽度都是1,
                 width = 1;
             }
 
@@ -190,75 +229,69 @@ namespace Biobanking
         }
 
 
-        protected string GetCommandForAllTips(string sCommandPrefix, int samplesInTheBatch, int val, int tipOffset = 0)
+        protected string GetCommandForAllTips(string sCommandPrefix, int samplesInTheBatch, int val)
         {
             string s = sCommandPrefix;
-            for (int i = 0; i < tipOffset; i++)
-            {
-                s += ",";
-            }
+           
             for (int i = 0; i < samplesInTheBatch; i++)
             {
                 s += val.ToString() + ",";
             }
-            for (int i = samplesInTheBatch + tipOffset; i < 8; i++)
+            for (int i = samplesInTheBatch; i < 8; i++)
             {
                 s += ",";
             }
             return s;
         }
-        protected void MoveTipsToAbsolutePosition(StreamWriter sw, List<double> heights, int tipOffset)
+        protected void MoveTipsToAbsolutePosition(StreamWriter sw, List<double> heights)
         {
             string s = "C5PAZ";
-            for (int i = 0; i < tipOffset; i++)
-            {
-                s += ",";
-            }
+          
             for (int i = 0; i < heights.Count; i++)
             {
                 double h = pipettingSettings.bottomOffset + (heights[i] + pipettingSettings.msdStartPositionAboveBuffy) * 10;
                 s += ((int)h).ToString() + ",";
             }
-            for (int i = heights.Count + tipOffset; i < 8; i++)
+            for (int i = heights.Count ; i < 8; i++)
             {
                 s += ",";
             }
             WriteComand(s, sw);
         }
 
-        protected string GetPPAString(int samplesThisBatch, int pos, int tipOffset)
+        protected string GetPPAString(int samplesThisBatch, int pos)
         {
             string s = "C5PPA";
-            return GetCommandForAllTips(s, samplesThisBatch, pos, tipOffset);
+            return GetCommandForAllTips(s, samplesThisBatch, pos);
         }
 
         //zposition, 0 is somewhere near table, so we assume 1500 => 15cm a good position
-        protected string GetMoveLihaAbsoluteZ(int samplesInTheBatch, int zPosition, int tipOffset)
+        protected string GetMoveLihaAbsoluteZ(int samplesInTheBatch, int zPosition)
         {
             string s = "C5PAZ";
-            return GetCommandForAllTips(s, samplesInTheBatch, zPosition, tipOffset);
+            return GetCommandForAllTips(s, samplesInTheBatch, zPosition);
         }
 
-        protected string GetMoveLihaAbsoluteZSlow(int samplesInTheBatch, int zPosition, int tipOffset)
+        protected string GetMoveLihaAbsoluteZSlow(int samplesInTheBatch, int zPosition)
         {
             string s = "C5MAZ";
-            return GetCommandForAllTips(s, samplesInTheBatch, zPosition * 100, tipOffset) + "300";
+            return GetCommandForAllTips(s, samplesInTheBatch, zPosition * 100) + "300";
         }
 
-        protected string GetMoveLihaDown(int samplesInTheBatch, int deltaZ, int tipOffset)
+        protected string GetMoveLihaDown(int samplesInTheBatch, int deltaZ)
         {
             string s = "C5PRZ";
-            return GetCommandForAllTips(s, samplesInTheBatch, deltaZ, tipOffset);
+            return GetCommandForAllTips(s, samplesInTheBatch, deltaZ);
         }
-        protected string GetSEPString(int samplesInTheBatch, int aspSpeedSteps, int tipOffset)
+        protected string GetSEPString(int samplesInTheBatch, int aspSpeedSteps)
         {
             string sSEP = "C5SEP";
-            return GetCommandForAllTips(sSEP, samplesInTheBatch, aspSpeedSteps, tipOffset);
+            return GetCommandForAllTips(sSEP, samplesInTheBatch, aspSpeedSteps);
         }
-        protected string GetSPPString(int samplesThisBatch, int speed, int tipOffset)
+        protected string GetSPPString(int samplesThisBatch, int speed)
         {
             string sSPP = "C5SPP";
-            return GetCommandForAllTips(sSPP, samplesThisBatch, speed, tipOffset);
+            return GetCommandForAllTips(sSPP, samplesThisBatch, speed);
         }
         protected string GetMSDCommand(int deltaXY, int numSegments, int tipSel, int dialutorSteps, int speedXY, int accXY)
         {

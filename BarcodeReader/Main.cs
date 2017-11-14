@@ -18,10 +18,12 @@ namespace BarcodeReader
 //latest
     public partial class MainForm : Form
     {
-        SerialPort serialPort;
+        //SerialPort serialPort;
         bool programModify = false;
         int totalSampleCnt = 0;
         int tubeID = 0;
+        int repeatTimes = 0;
+        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         
         List<string> simulateBarcodes = new List<string>();
         public MainForm()
@@ -47,16 +49,21 @@ namespace BarcodeReader
             }
             else
             {
-                string sPortNum = ConfigurationManager.AppSettings["PortNum"];
-                serialPort = new SerialPort("COM" + sPortNum);
-                serialPort.Open();
-                serialPort.DataReceived += serialPort_DataReceived;
+                CreateNamedPipeServer();
+                txtSampleCnt.Text = Utility.ReadFolder(stringRes.SampleCountFile);
+                txtSampleCnt.Enabled = false;
+                //string sPortNum = ConfigurationManager.AppSettings["PortNum"];
+                //serialPort = new SerialPort("COM" + sPortNum);
+                //serialPort.Open();
+                //serialPort.DataReceived += serialPort_DataReceived;
             }
             dataGridView.CellValueChanged += DataGridView_CellValueChanged;
             InitDataGridView();
             
         }
 
+
+        
         private void DataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (programModify)
@@ -169,11 +176,7 @@ namespace BarcodeReader
             UpdateGridCell(gridID, rowIndex, newBarcode);
             programModify = false;
         }
-        private void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            string newBarcode = serialPort.ReadLine();
-            OnNewBarcode(newBarcode);
-        }
+      
 
         private void UpdateGridCell(int gridID, int rowIndex, string barcode)
         {
@@ -217,27 +220,32 @@ namespace BarcodeReader
                 errMsg = string.Format("Grid{0}中第{1}个条码为空！", gridID, rowIndex + 1);
                 return false;
             }
-            foreach (var pair in eachGridBarcodes)
+            if(currentBarcode == "***")
             {
-                int tmpGrid = pair.Key;
-                var tmpBarcodes = pair.Value;
+                errMsg = string.Format("Grid{0}中第{1}个条码未能读到！", gridID, rowIndex + 1);
+                return false;
+            }
+            //foreach (var pair in eachGridBarcodes)
+            //{
+            //    int tmpGrid = pair.Key;
+            //    var tmpBarcodes = pair.Value;
 
                 
-                for( int r = 0; r< tmpBarcodes.Count; r++)
-                {
-                    if (tmpGrid == gridID && rowIndex == r) //dont compare to itself
-                        continue;
-                    if (tmpBarcodes[r] == currentBarcode)
-                    {
-                        errMsg = string.Format("Grid{0}中第{1}个条码:{2}在Grid{3}中已经存在！",
-                                       gridID,
-                                       rowIndex + 1,
-                                       currentBarcode,
-                                       tmpGrid);
-                        return false;
-                    }
-                }
-            }
+            //    for( int r = 0; r< tmpBarcodes.Count; r++)
+            //    {
+            //        if (tmpGrid == gridID && rowIndex == r) //dont compare to itself
+            //            continue;
+            //        if (tmpBarcodes[r] == currentBarcode)
+            //        {
+            //            errMsg = string.Format("Grid{0}中第{1}个条码:{2}在Grid{3}中已经存在！",
+            //                           gridID,
+            //                           rowIndex + 1,
+            //                           currentBarcode,
+            //                           tmpGrid);
+            //            return false;
+            //        }
+            //    }
+            //}
             return true;
         }
 
@@ -295,12 +303,49 @@ namespace BarcodeReader
                 this.Close();
                 return;
             }
-
-            if (sCommand == "read")
+            else 
             {
                 tubeID++;
-                txtLog.AppendText("read");
+                OnNewBarcode(sCommand);
             }
+            //this.Invalidate();
+            if(tubeID == totalSampleCnt)
+            {
+                
+                bool bok = true;
+                try
+                {
+                    CheckBarcodes();
+                }
+                catch(Exception  ex)
+                {
+                    AddErrorInfo(ex.Message);
+                    bok = false;
+                }
+              
+                if(bok)
+                {
+                    timer.Interval = 1000;
+                    timer.Tick += timer_Tick;
+                    timer.Start();
+                   
+                }
+            }
+        }
+
+        void timer_Tick(object sender, EventArgs e)
+        {
+            ProcessHelper.CloseWaiter();
+            AddInfo("try to close waiter.");
+            repeatTimes++;
+            if(repeatTimes == 5)
+            {
+                timer.Stop();
+                WriteResult(true);
+                WriteBarcodes();
+                this.Close();
+            }
+          
         }
 
         void CreateNamedPipeServer()

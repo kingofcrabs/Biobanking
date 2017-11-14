@@ -54,9 +54,6 @@ namespace Biobanking
             sciRobotHelper.ReadZValues(ref heights);
             return heights;
         }
-
-
-        
     }
   
     class PatientInfoReader
@@ -70,40 +67,13 @@ namespace Biobanking
             contents = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
             contents.RemoveAll(x => x.Trim() == "");
             List<PatientInfo> patientInfos = new List<PatientInfo>();
-            contents.ForEach(x=>patientInfos.Add(Parse(x)));
+            //contents.ForEach(x=>patientInfos.Add(Parse(x)));
+            for (int i = 0; i < contents.Count; i++ )
+            {
+                string id  = (i+1).ToString();
+                patientInfos.Add(new PatientInfo(id, contents[i]));
+            }
             return patientInfos;
-        }
-
-        private PatientInfo Parse(string content)
-        {
-            char[] splitters = { '\t', ',' };
-            char theSplitter = ' ';
-            foreach(var splitter in splitters)
-            {
-                if(content.Contains(splitter))
-                {
-                    theSplitter = splitter;
-                    break;
-                }
-            }
-
-            if( theSplitter == ' ')
-            {
-                return new PatientInfo(content, "", "", "");
-            }
-                //throw new Exception("Patient info's splitter is invalid!");
-
-
-            string[] strs = content.Split(theSplitter);
-            if(strs.Length == 3)
-                return new PatientInfo(strs[0], strs[1], strs[2]);
-
-            else if (strs.Length == 1)
-                return new PatientInfo(strs[0],"","","");
-            else
-            {
-                throw new Exception("Invalid patient information format!");
-            }
         }
 
     }
@@ -163,18 +133,22 @@ namespace Biobanking
                     string[] vals = sContent.Split(',');
                     detectedInfo.Z1 = double.Parse(vals[1]) * ratio;
                     detectedInfo.Z2 = double.Parse(vals[2]) * ratio;
+                   
                     //if(barcodes != null)
                     //    detectedInfo.sBarcode = trimedBarcodes[line-1];//vals[0];
                     line++;
                     heights.Add(detectedInfo);
-                    if(GlobalVars.Instance.IsRedCell)
+                    if (detectedInfo.Z2 < 10) //smaller than 1cm
                     {
-                        if (detectedInfo.Z1 < 5 )
-                            throw new Exception("Z1 cannot be smaller than 5mm at line: " + line);
-                        detectedInfo.Z2 = 5;
+                        detectedInfo.Z2 = detectedInfo.Z1 = 100; //set to very high
+                        //throw new Exception(string.Format("Z1 cannot be smaller than 1cm at for sample:{0}.", heights.Count));
                     }
-                    else if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)
-                        throw new Exception("Z1,Z2 cannot be smaller than 0 at line: " + line);
+
+                    if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)
+                    {
+                        Console.WriteLine(string.Format("Sample {0} 's Z1 Z2 value is invalid.", heights.Count + 1));
+                        detectedInfo.Z1 = detectedInfo.Z2 = 100; 
+                    }
                     curRow++;
                 }
             }

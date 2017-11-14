@@ -32,7 +32,6 @@ namespace SampleInfo
         string xmlFolder = Utility.GetExeFolder();
         string sLabwareSettingFileName;
         string sPipettingFileName;
-        //string sTubeSettingsFileName;
 
         LabwareSettings labwareSettings = new LabwareSettings();
         PipettingSettings pipettingSettings = new PipettingSettings();
@@ -79,7 +78,6 @@ namespace SampleInfo
             }
         }
 
-
         private void btnSubmit_Click(object sender, RoutedEventArgs e)
         {
             int tmpSampleCount,tmpPlasmaCount;
@@ -101,15 +99,16 @@ namespace SampleInfo
                 }
                 sampleCount = tmpSampleCount;
 
+                string desc = GetBloodType();
                 bok = int.TryParse(txtPlasmaCount.Text, out tmpPlasmaCount);
                 if (!bok)
                 {
-                    SetInfo("Plasma份数必须为数字！", Colors.Red);
+                    SetInfo(desc + "份数必须为数字！", Colors.Red);
                     return;
                 }
-                if (tmpPlasmaCount < 0 || tmpPlasmaCount > plasmaMaxCount)
+                if (tmpPlasmaCount <= 0 || tmpPlasmaCount > plasmaMaxCount)
                 {
-                    SetInfo("Plasma份数必须介于0到"+plasmaMaxCount+"之间",Colors.Red);
+                    SetInfo(desc + "份数必须介于1到"+plasmaMaxCount+"之间",Colors.Red);
                     return;
                 }
 
@@ -117,18 +116,20 @@ namespace SampleInfo
                 bok = int.TryParse(txtVolume.Text, out tmpVolume);
                 if (!bok)
                 {
-                    SetInfo("Plasma体积为数字！", Colors.Red);
+                    SetInfo(desc + "体积为数字！", Colors.Red);
                     return;
                 }
-                if (tmpVolume != 0)
+                
+                //if (tmpVolume != 0)
                 {
-                    if (tmpVolume <= 50 || tmpPlasmaCount > 2000)
+                    if (tmpVolume < 50 || tmpPlasmaCount > 2000)
                     {
-                        SetInfo("Plasma体积必须介于50ul到2000ul之间", Colors.Red);
+                        SetInfo(desc +"体积必须介于50ul到2000ul之间", Colors.Red);
                         return;
                     }
                 }
-     
+                
+               
 
                 int tmpBuffySliceCount;
                 bok = int.TryParse(txtbuffySliceCnt.Text, out tmpBuffySliceCount);
@@ -152,21 +153,12 @@ namespace SampleInfo
                 }
                 if (tmpBuffySliceCount > 0)
                 {
-                    if (tmpBuffyVolume <= 200 || tmpBuffyVolume > 1000)
+                    if (tmpBuffyVolume < 200 || tmpBuffyVolume > 1000)
                     {
                         SetInfo("Buffy体积数必须介于200ul到1000ul之间", Colors.Red);
                         return;
                     }
                 }
-                
-
-               
-                //if (tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
-                //{
-                //    SetInfo("红细胞没有Buffy", Colors.Red);
-                //    txtbuffySliceCnt.Text = "0";
-                //    return;
-                //}
 
                 pipettingSettings.plasmaGreedyVolume = tmpVolume;
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
@@ -200,10 +192,9 @@ namespace SampleInfo
         {
             if ((bool)rdbPlasma.IsChecked)
                 return "Plasma";
-            else if ((bool)rdbSerum.IsChecked)
-                return "Serum";
             else
-                return "RedCell";
+                return "Serum";
+        
         }
 
   
@@ -247,10 +238,6 @@ namespace SampleInfo
             txtBuffyVolume.Text = pipettingSettings.buffyVolume.ToString();
             txtbuffySliceCnt.Text = "0";//pipettingSettings.dstbuffySlice.ToString();
 
-            //InitListView();
-            //lstRadius.IsEnabled = false;
-            //chkHasBuffy.IsChecked = Convert.ToBoolean(Utility.ReadFolder(stringRes.hasBuffyFile));
-            //chkNucleinExtraction.IsChecked= Convert.ToBoolean(Utility.ReadFolder(stringRes.DoNucleinExtractionFile));
         }
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
@@ -267,33 +254,11 @@ namespace SampleInfo
              {
                  lblBloodSlice.Content = "血浆份数：";
                  lblBloodVolume.Content = "血浆体积(ul)：";
-                 txtbuffySliceCnt.Text = "1";
+                 txtbuffySliceCnt.Text = pipettingSettings.dstbuffySlice.ToString();
                  txtbuffySliceCnt.IsEnabled = true;
                  txtBuffyVolume.IsEnabled = true;
              }
-            
         }
-
-
-        //private void InitListView()
-        //{
-
-        //    DataTable tbl = new DataTable("template");
-        //    tbl.Columns.Add("radius", typeof(string));
-        //    tbl.Columns.Add("distance", typeof(string));
-        //    tbl.Columns.Add("startPos", typeof(string));
-           
-        //    for (int i = 0; i < tubeSettings.Settings.Count; i++)
-        //    {
-        //        object[] objs = new object[3];
-        //        objs[0] = tubeSettings.Settings[i].r_mm;
-        //        objs[1] = tubeSettings.Settings[i].msdZDistance;
-        //        objs[2] = tubeSettings.Settings[i].msdStartPositionAboveBuffy;
-        //        tbl.Rows.Add(objs);
-        //    }
-        //    lstSampleSettings.ItemsSource = tbl.DefaultView;
-        //    lstSampleSettings.SelectedIndex = tubeSettings.selectIndex;
-        //}
 
     }
 }

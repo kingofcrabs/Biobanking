@@ -18,7 +18,7 @@ namespace Biobanking
             bool bok = false;
 #if DEBUG
 #else
-            //try
+            try
 #endif
             {
                 Utility.Write2File(Utility.GetOutputFolder() + "result.txt", bok.ToString());
@@ -31,14 +31,14 @@ namespace Biobanking
             }
 #if DEBUG
 #else
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.Message + ex.StackTrace);
-            //    Console.WriteLine("Press any key to exit!");
-            //    Console.ReadKey();
-            //    Utility.Write2File(Utility.GetOutputFolder() + "errMsg.txt", ex.Message + ex.StackTrace);
-            //    log.Info(ex.Message);
-            //}
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + ex.StackTrace);
+                Console.WriteLine("Press any key to exit!");
+                Console.ReadKey();
+                Utility.Write2File(Utility.GetOutputFolder() + "errMsg.txt", ex.Message + ex.StackTrace);
+                log.Info(ex.Message);
+            }
 #endif
             Utility.Write2File(Utility.GetOutputFolder() + "result.txt", bok.ToString());
         }

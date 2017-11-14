@@ -118,6 +118,7 @@ namespace Settings
         public int maxVolumePerSlice;
         public int retractHeightcm;
         public bool needTransfer;
+        public int plasmaTransferExtraVol;
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -141,6 +142,7 @@ namespace Settings
             retractHeightcm = 10;
             maxVolumePerSlice = 5000;
             needTransfer = false;
+            plasmaTransferExtraVol = 20;
         }
     }
 

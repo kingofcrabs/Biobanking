@@ -28,14 +28,10 @@ namespace Biobanking
     {
         public string id;
         public string name;
-        public string seqNo;
-        public string age;
-        public PatientInfo(string id, string name, string seqNo, string age = "")
+        public PatientInfo(string id, string name)
         {
             this.id = id;
             this.name = name;
-            this.seqNo = seqNo;
-            this.age = age;
         }
     }
     public enum PipettingApproach

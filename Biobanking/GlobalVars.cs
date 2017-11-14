@@ -30,7 +30,7 @@ namespace Biobanking
             Barcode2DVendor = ConfigurationManager.AppSettings["2DBarcodeVendor"];
             string exePath = Utility.GetExeFolder() + "SampleInfo.exe";
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-            BloodDescription = "rawBlood";
+            BloodDescription = File.ReadAllText(Utility.GetBloodTypeFile());
             TrackBarcode = DstBarcodeFolder != "";
             if (File.Exists(sFileStruct))
             {

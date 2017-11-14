@@ -46,8 +46,6 @@ namespace Biobanking
                     grid++;
                 if (s == "998;0;" || s == "998;1;" || s == "998;4;0;System;")
                     continue;
-
-
                 label_basicDef_dict.Add(grid, ParseType(s));
                 grid++;
                 i++;

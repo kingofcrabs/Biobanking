@@ -60,6 +60,8 @@ namespace ConfigureTool
             item_Desc.Add("bottomOffset", "PAZ的偏移量，不要修改。");
             item_Desc.Add("needTransfer", "是否需要中转管。");
             item_Desc.Add("buffyTransferGrid", "buffy中转管Grid。");
+            item_Desc.Add("ScriptFile", "脚本文件路径。");
+            item_Desc.Add("plasmaTransferExtraVol", "血清或血浆转管额外体积。");
 
             
         }

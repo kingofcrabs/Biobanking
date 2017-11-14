@@ -23,7 +23,6 @@ namespace Settings
         public string plateBarcode;
         public string position;
         public string name;
-        public string seqNo;
         public TrackInfo()
         {
 
@@ -37,7 +36,6 @@ namespace Settings
             this.plateBarcode = plateBarcode;
             this.position = position;
             this.name = name;
-            this.seqNo = seqNo;
         }
     }
 

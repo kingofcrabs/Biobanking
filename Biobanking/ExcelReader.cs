@@ -29,13 +29,10 @@ namespace Biobanking
             this.pipettingSettings = pipettingSettings;
             string sFolder = GlobalVars.Instance.DstBarcodeFolder;
             var di = new DirectoryInfo(sFolder);
-            var files = di.EnumerateFiles("*.csv").ToList();
+            var files = di.EnumerateFiles("*.txt").ToList();
             files = files.OrderBy(x => x.CreationTime).ToList();
             List<List<Tuple<string, string>>> correspondingbarcodes = new List<List<Tuple<string, string>>>();
             List<string> fileFullNames = files.Select(x => x.FullName).ToList();
-            string buffyPlateName = "";
-
-
             fileFullNames.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, x));
           
             return correspondingbarcodes;
@@ -54,21 +51,16 @@ namespace Biobanking
             var strs = File.ReadAllLines(sFile).ToList();
             string plateBarcode = "dummy";
             string vendorName = ConfigurationManager.AppSettings["2DBarcodeVendor"] ;
-            if ( vendorName == "HR") //no plateID
-            {
-                plateBarcode = sFile.Substring(sFile.LastIndexOf("\\") + 1);
-                plateBarcode = plateBarcode.Replace(".csv", "");
-            }
-            else if( vendorName == "WG")
-            {
-                plateBarcode = GetPlateBarcode4WG();
-            }
+           
+            plateBarcode = sFile.Substring(sFile.LastIndexOf("\\") + 1);
+            plateBarcode = plateBarcode.Replace(".txt", "");
+          
 
             //plateBarcodes.Add(plateBarcode);
-            int barcodeColumnIndex = GetBarcodeColumnIndex();
+            int barcodeColumnIndex = 1;
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
             Dictionary<string, string> barcodesThisPlate = new Dictionary<string, string>();
-            ReadBarcodes(strs, barcode_Position, barcode_plateBarcode,barcodesThisPlate, barcodeColumnIndex, plateBarcode, vendorName);
+            ReadBarcodes(strs, barcode_Position, barcode_plateBarcode,barcodesThisPlate, barcodeColumnIndex, plateBarcode);
             int samplesPerRow;
             int buffySlice = pipettingSettings.dstbuffySlice;
             
@@ -105,19 +97,34 @@ namespace Biobanking
             Dictionary<string, string> barcode_plateBarcode,
             Dictionary<string, string> barcodesThisPlate,
             int barcodeColumnIndex,
-            string plateBarcode,
-            string vendorName)
+            string plateBarcode)
         {
-            switch(vendorName)
+            int sampleID = 1;
+            foreach (var s in strs)
             {
-                case "HR":
-                    ReadBarcode4HR(strs, barcode_Position, barcode_plateBarcode, barcodesThisPlate, plateBarcode, barcodeColumnIndex);
-                    break;
-                case "WG":
-                    ReadBarcode4WG(strs, barcode_Position, barcode_plateBarcode, barcodesThisPlate, plateBarcode, barcodeColumnIndex);
-                    break;
+                if (s == "")
+                    continue;
+                var subStrs = s.Split(',');
+                string position = subStrs[0];
+                var barcode = subStrs[1];
+                barcode = barcode.Replace("\"", "");
+                barcodesThisPlate.Add(position, barcode);
+                if (barcode == "" || barcode == "NOREAD" || barcode == "NOTUBE")
+                {
+                    continue; //ignore empty barcodes.
+                }
+
+                if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
+                {
+                    var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
+                    throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
+                         wells[0], wells[1], barcode));
+                }
+                barcode_Position.Add(barcode, position);
+                barcode_plateBarcode.Add(barcode, plateBarcode);
+                sampleID++;
             }
-            
+           
         }
 
         private void ReadBarcode4WG(List<string> strs,
@@ -239,7 +246,6 @@ namespace Biobanking
         }
 
 
-
         //private string GetDescription(int sampleID)
         //{
         //    int sampleIndex = sampleID - 1;
@@ -276,7 +282,6 @@ namespace Biobanking
 
         public static void SaveAsExcel(string sCSVFile, string sExcelFile)
         {
-
             Workbooks excelWorkBooks = null;
             Workbook excelWorkBook = null;
 

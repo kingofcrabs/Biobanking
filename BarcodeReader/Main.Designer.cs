@@ -50,45 +50,45 @@
             this.dataGridView.AllowUserToResizeColumns = false;
             this.dataGridView.AllowUserToResizeRows = false;
             this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView.Location = new System.Drawing.Point(12, 24);
+            this.dataGridView.Location = new System.Drawing.Point(12, 26);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.RowTemplate.Height = 23;
-            this.dataGridView.Size = new System.Drawing.Size(492, 415);
+            this.dataGridView.Size = new System.Drawing.Size(492, 450);
             this.dataGridView.TabIndex = 1;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 9);
+            this.label1.Location = new System.Drawing.Point(10, 10);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(89, 12);
+            this.label1.Size = new System.Drawing.Size(85, 13);
             this.label1.TabIndex = 2;
             this.label1.Text = "扫描出的条码：";
             // 
             // lblVersion
             // 
             this.lblVersion.AutoSize = true;
-            this.lblVersion.Location = new System.Drawing.Point(346, 8);
+            this.lblVersion.Location = new System.Drawing.Point(346, 9);
             this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(53, 12);
+            this.lblVersion.Size = new System.Drawing.Size(49, 13);
             this.lblVersion.TabIndex = 15;
             this.lblVersion.Text = "版本号：";
             // 
             // richTextInfo
             // 
-            this.richTextInfo.Font = new System.Drawing.Font("宋体", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.richTextInfo.Location = new System.Drawing.Point(12, 497);
+            this.richTextInfo.Font = new System.Drawing.Font("SimSun", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.richTextInfo.Location = new System.Drawing.Point(12, 538);
             this.richTextInfo.Name = "richTextInfo";
             this.richTextInfo.ReadOnly = true;
-            this.richTextInfo.Size = new System.Drawing.Size(492, 116);
+            this.richTextInfo.Size = new System.Drawing.Size(492, 125);
             this.richTextInfo.TabIndex = 17;
             this.richTextInfo.Text = "";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("宋体", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(9, 481);
+            this.label2.Font = new System.Drawing.Font("SimSun", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Location = new System.Drawing.Point(9, 521);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(72, 13);
             this.label2.TabIndex = 16;
@@ -97,8 +97,8 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("宋体", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label3.Location = new System.Drawing.Point(519, 8);
+            this.label3.Font = new System.Drawing.Font("SimSun", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label3.Location = new System.Drawing.Point(519, 9);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(46, 13);
             this.label3.TabIndex = 18;
@@ -106,18 +106,18 @@
             // 
             // txtLog
             // 
-            this.txtLog.Location = new System.Drawing.Point(522, 24);
+            this.txtLog.Location = new System.Drawing.Point(522, 26);
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
             this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtLog.Size = new System.Drawing.Size(214, 589);
+            this.txtLog.Size = new System.Drawing.Size(214, 638);
             this.txtLog.TabIndex = 19;
             // 
             // btnConfirm
             // 
-            this.btnConfirm.Location = new System.Drawing.Point(429, 445);
+            this.btnConfirm.Location = new System.Drawing.Point(429, 482);
             this.btnConfirm.Name = "btnConfirm";
-            this.btnConfirm.Size = new System.Drawing.Size(75, 23);
+            this.btnConfirm.Size = new System.Drawing.Size(75, 25);
             this.btnConfirm.TabIndex = 20;
             this.btnConfirm.Text = "确认";
             this.btnConfirm.UseVisualStyleBackColor = true;
@@ -125,9 +125,9 @@
             // 
             // btnDelete
             // 
-            this.btnDelete.Location = new System.Drawing.Point(349, 445);
+            this.btnDelete.Location = new System.Drawing.Point(349, 482);
             this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(75, 23);
+            this.btnDelete.Size = new System.Drawing.Size(75, 25);
             this.btnDelete.TabIndex = 22;
             this.btnDelete.Text = "删除";
             this.btnDelete.UseVisualStyleBackColor = true;
@@ -136,25 +136,25 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 450);
+            this.label4.Location = new System.Drawing.Point(12, 488);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(53, 12);
+            this.label4.Size = new System.Drawing.Size(49, 13);
             this.label4.TabIndex = 23;
             this.label4.Text = "样本数：";
             // 
             // txtSampleCnt
             // 
-            this.txtSampleCnt.Location = new System.Drawing.Point(67, 447);
+            this.txtSampleCnt.Location = new System.Drawing.Point(67, 484);
             this.txtSampleCnt.Name = "txtSampleCnt";
-            this.txtSampleCnt.Size = new System.Drawing.Size(67, 21);
+            this.txtSampleCnt.Size = new System.Drawing.Size(67, 20);
             this.txtSampleCnt.TabIndex = 24;
             this.txtSampleCnt.Text = "32";
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(429, 474);
+            this.btnClear.Location = new System.Drawing.Point(429, 514);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 23);
+            this.btnClear.Size = new System.Drawing.Size(75, 25);
             this.btnClear.TabIndex = 26;
             this.btnClear.Text = "清除";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -162,9 +162,9 @@
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(751, 625);
+            this.ClientSize = new System.Drawing.Size(751, 677);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.txtSampleCnt);
             this.Controls.Add(this.label4);
@@ -179,6 +179,7 @@
             this.Controls.Add(this.dataGridView);
             this.Name = "MainForm";
             this.Text = "条码扫描";
+            this.TopMost = true;
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
