@@ -40,6 +40,11 @@ namespace Biobanking
              return pts;
          }
 
+
+       
+
+
+
          internal static int GetWellID(int colIndex, int rowIndex)
          {
              int _row = 8;
@@ -117,10 +122,7 @@ namespace Biobanking
             return pts;
         }
 
-        internal List<POINT> GetDestWellsBuffyOnly(int srcRackIndex, int sliceIndex, int startSample, int sampleCount)
-        {
-            return GetDestWells(srcRackIndex, sliceIndex - pipettingSettings.dstPlasmaSlice, startSample, sampleCount, true);
-        }
+     
 
         internal List<POINT> GetTransferWells(int startSampleInRack, int sampleCount)
         {
@@ -133,52 +135,21 @@ namespace Biobanking
             }
             return pts;
         }
-        internal List<POINT> GetDestWells(int srcRackIndex, int sliceIndex, int startSample, int sampleCount,bool buffyOnly = false)
+
+
+        public List<POINT> GetDstWells(int startWellIndex, int wellsCount)
         {
-            if (pipettingSettings.onlyOneSlicePerLabware)
-                return GetDestWellsOneSlicePerRegion(srcRackIndex, startSample, sampleCount);
-            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
-            int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
-            int totalRow = labwareSettings.dstLabwareRows;
-            int plasmaSlice = buffyOnly ? 0 : pipettingSettings.dstPlasmaSlice;
-            
-            //for pipetting plasma, when Buffy should be pipeted to standalone plate, the buffy slice should be 0
-            
-            int buffySlice = pipettingSettings.dstbuffySlice;
-            int totalSlicePerSample = buffySlice + plasmaSlice;
-            int samplesPerRow = buffyOnly ? Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings) :
-                Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,false);
-            int samplesPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
-
-            int sampleIndexInLabware = nStartSampleIndex;
-            while (sampleIndexInLabware >= samplesPerLabware)
-                sampleIndexInLabware -= samplesPerLabware;
-
-            int subRegion = sampleIndexInLabware / labwareSettings.dstLabwareRows;
-            int subRegionUsedSlices = totalSlicePerSample * subRegion;
-
-            while (nStartSampleIndex >= totalRow)
-                nStartSampleIndex -= totalRow;
-
-            while (nEndSampleIndex >= totalRow)
-                nEndSampleIndex -= totalRow;
-
-            int nStartSampleRow = nStartSampleIndex + 1;
-            int nEndSampleRow = nEndSampleIndex + 1;
             List<POINT> pts = new List<POINT>();
-            if ( labwareSettings.dstLabwareColumns == 1)
+            int endWellIndex = startWellIndex + wellsCount - 1;
+            for (int i = startWellIndex; i <= endWellIndex; i++)
             {
-                sliceIndex = 0;
-            }
-
-            int col = sliceIndex + subRegionUsedSlices + 1;
-
-            for (int row = nStartSampleRow; row <= nEndSampleRow; row++)
-            {
-                pts.Add(new POINT(col, row));
+                int column = i / labwareSettings.dstLabwareRows;
+                int rowIndex = i - column * labwareSettings.dstLabwareRows;
+                pts.Add(new POINT((double)(1 + column), (double)(rowIndex + 1)));
             }
             return pts;
         }
+      
 
     }
 }

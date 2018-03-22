@@ -26,12 +26,12 @@ namespace Biobanking
         
         //const string plasmaName = "Plasma";
         //const string redCellName = "RedCell";
-        public BarcodeTracker(PipettingSettings pipettingSettings, LabwareSettings labwareSettings, List<string> srcBarcodes)
+        public BarcodeTracker(PipettingSettings pipettingSettings, LabwareSettings labwareSettings, List<string> srcBarcodes,int startWellID)
         {
             this.srcBarcodes = srcBarcodes;
             this.pipettingSettings = pipettingSettings;
             ExcelReader excelReader = new ExcelReader();
-            srcbarcode_EachSliceDstPositionAndBarcode = excelReader.ReadBarcodes(labwareSettings, pipettingSettings, barcode_plateBarcodes, barcode_Position, srcBarcodes, 1);
+            srcbarcode_EachSliceDstPositionAndBarcode = excelReader.ReadBarcodes(labwareSettings, pipettingSettings, barcode_plateBarcodes, barcode_Position, srcBarcodes, startWellID);
         }
 
         private bool IsValidBarcode(string s)
