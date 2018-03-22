@@ -118,9 +118,9 @@ namespace Biobanking
                     DetectedInfo detectedInfo = new DetectedInfo();
                     int infoIndex = (curRow - 1);
                     string[] vals = sContent.Split(',');
-                    detectedInfo.Z1 = double.Parse(vals[1]) * ratio;
-                    detectedInfo.Z2 = double.Parse(vals[2]) * ratio;
-                    detectedInfo.sBarcode = vals[0];
+                    detectedInfo.Z1 = double.Parse(vals[1]);
+                    detectedInfo.Z2 = double.Parse(vals[2]);
+                    detectedInfo.sBarcode = vals[0].Replace('\"',' ').Trim();
                     line++;
                     heights.Add(detectedInfo);
                     if (detectedInfo.Z2 < 10) //smaller than 1cm
