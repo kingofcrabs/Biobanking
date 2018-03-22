@@ -60,20 +60,7 @@ namespace Biobanking
     {
         public  List<PatientInfo> Read()
         {
-            List<string> contents = null;
-            if (GlobalVars.Instance.DstBarcodeFolder == "")
-                return null;
-            List<string> trimedBarcodes = new List<string>();
-            contents = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
-            contents.RemoveAll(x => x.Trim() == "");
-            List<PatientInfo> patientInfos = new List<PatientInfo>();
-            //contents.ForEach(x=>patientInfos.Add(Parse(x)));
-            for (int i = 0; i < contents.Count; i++ )
-            {
-                string id  = (i+1).ToString();
-                patientInfos.Add(new PatientInfo(id, contents[i]));
-            }
-            return patientInfos;
+            throw new NotImplementedException();
         }
 
     }
@@ -133,9 +120,7 @@ namespace Biobanking
                     string[] vals = sContent.Split(',');
                     detectedInfo.Z1 = double.Parse(vals[1]) * ratio;
                     detectedInfo.Z2 = double.Parse(vals[2]) * ratio;
-                   
-                    //if(barcodes != null)
-                    //    detectedInfo.sBarcode = trimedBarcodes[line-1];//vals[0];
+                    detectedInfo.sBarcode = vals[0];
                     line++;
                     heights.Add(detectedInfo);
                     if (detectedInfo.Z2 < 10) //smaller than 1cm

@@ -18,7 +18,7 @@ namespace Biobanking
     {
         List<TrackInfo> trackInfos = new List<TrackInfo>();
         PipettingSettings pipettingSettings = null;
-        List<List<Tuple<string,string>>> correspondingbarcodes;
+        Dictionary<string,List<Tuple<int,string>>> srcbarcode_EachSliceDstPositionAndBarcode;
         Dictionary<string, string> barcode_plateBarcodes = new Dictionary<string, string>();
         Dictionary<string, string> barcode_Position = new Dictionary<string, string>();
         List<string> srcBarcodes;
@@ -31,14 +31,7 @@ namespace Biobanking
             this.srcBarcodes = srcBarcodes;
             this.pipettingSettings = pipettingSettings;
             ExcelReader excelReader = new ExcelReader();
-            correspondingbarcodes = excelReader.ReadBarcodes(labwareSettings,
-                pipettingSettings,
-                barcode_plateBarcodes,
-                barcode_Position);
-            if (srcBarcodes.Count > correspondingbarcodes.Count)
-            {
-                throw new Exception(string.Format("source barcodes' count:{0} > dest barcodes' count :{1}", srcBarcodes.Count, correspondingbarcodes.Count));
-            }
+            srcbarcode_EachSliceDstPositionAndBarcode = excelReader.ReadBarcodes(labwareSettings, pipettingSettings, barcode_plateBarcodes, barcode_Position, srcBarcodes, 1);
         }
 
         private bool IsValidBarcode(string s)
@@ -57,21 +50,15 @@ namespace Biobanking
             int indexInList = 0;
             foreach (var vol in plasmaVols)
             {
-                var tuple= correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
+                string srcBarcode = detectInfos[indexInList].sBarcode;
+                var tuple = srcbarcode_EachSliceDstPositionAndBarcode[srcBarcode][sliceIndex];
                 string dstBarcode = tuple.Item2;
                 int sampleID = sampleIndex + indexInList + 1;
                 if (dstBarcode == "" || dstBarcode == "NOTUBE" ||dstBarcode == "NOREAD")
                     throw new Exception(string.Format("Cannot find dest barcode at position: {0} for sample: {1}!", tuple.Item1, sampleID));
                 
-                //if(!IsValidBarcode(dstBarcode))
-                //{
-                //    throw new Exception(string.Format("Sample:{0} slice:{1}'s corresponding barcode:{2} at {3} is invalid!",
-                //        sampleID, sliceIndex + 1, dstBarcode, tuple.Item1));
-                //}
                 var adjustVol = Math.Min(pipettingSettings.maxVolumePerSlice, vol);
-                if (srcBarcodes.Count <= sampleIndex + indexInList)
-                    throw new Exception(string.Format("Cannot find {0}th sample's source barcode!", sampleID));
-                var srcBarcode = srcBarcodes[sampleIndex + indexInList];
+                
                 string description = GlobalVars.Instance.BloodDescription;
                 TrackInfo info = new TrackInfo(
                     srcBarcode,
@@ -92,22 +79,21 @@ namespace Biobanking
                     double vol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
                     for (indexInList = 0; indexInList < plasmaVols.Count; indexInList++)
                     {
-                        var srcBarcode = srcBarcodes[sampleIndex + indexInList];
-                        
+                        string srcBarcode = detectInfos[indexInList].sBarcode;
                         for (int i = 0; i < pipettingSettings.dstbuffySlice; i++)
                         {
-                            if(sampleIndex + indexInList >= correspondingbarcodes.Count )
+                            if(sampleIndex + indexInList >= srcbarcode_EachSliceDstPositionAndBarcode.Count )
                             {
                                 throw new Exception(string.Format("Cannot find the corresponding barcode for sample:{0}", 
                                     sampleIndex + indexInList));
                             }
-                            if(pipettingSettings.dstPlasmaSlice + i >= correspondingbarcodes[sampleIndex + indexInList].Count)
-                            {
-                                throw new Exception(string.Format("Cannot find the corresponding barcode for sample:{0}, slice:{1}",
-                                    sampleIndex + indexInList, 
-                                    pipettingSettings.dstPlasmaSlice + i));
-                            }
-                            var tuple = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i];
+                            //if(pipettingSettings.dstPlasmaSlice + i >= srcbarcode_EachSliceDstPositionAndBarcode[sampleIndex + indexInList].Count)
+                            //{
+                            //    throw new Exception(string.Format("Cannot find the corresponding barcode for sample:{0}, slice:{1}",
+                            //        sampleIndex + indexInList, 
+                            //        pipettingSettings.dstPlasmaSlice + i));
+                            //}
+                            var tuple = srcbarcode_EachSliceDstPositionAndBarcode[srcBarcode][pipettingSettings.dstPlasmaSlice + i];
                             var dstBarcode = tuple.Item2;
                             var position = tuple.Item1;
                             if(dstBarcode == "" || dstBarcode== "NOREAD" || dstBarcode == "NOTUBE")
@@ -202,28 +188,6 @@ DestBarcode,Volume,TypeDescription,DestPlateBarcode,PositionInPlate) values
                 Directory.CreateDirectory(csvFolder);
         }
 
-        //private List<string> FormatInfos()
-        //{
-           
-        //    List<string> strs = new List<string>();
-        //    strs.Add("Barcode,Sample Source,Sample Type,Volume");
-        //    trackInfos.ForEach(x => Format(x, strs));
-        //    return strs;
-        //}
-
-        //private List<string> FormatInfosBeiJingUniv()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //private void Format(TrackInfo info, List<string> strs)
-        //{
-        //    string s = string.Format("{0},{1},{2},{3}", info.dstBarcode, info.sourceBarcode, info.description, info.volume);
-        //    strs.Add(s);
-        //}
-
-    
-            
     }
 
 }

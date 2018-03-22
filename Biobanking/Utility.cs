@@ -46,7 +46,7 @@ namespace Biobanking
     {
         public double Z1; //1/10 mm
         public double Z2;
-        //public string sBarcode;
+        public string sBarcode;
 
     }
 

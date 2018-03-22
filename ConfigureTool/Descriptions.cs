@@ -23,7 +23,6 @@ namespace ConfigureTool
             item_Desc.Add("2DBarcodeVendor", "二维条码扫描仪供应商。");
             item_Desc.Add("ExcelTemplate", "输出Excel模板。");
             item_Desc.Add("ConnectionString", "数据库连接字符串。");
-            item_Desc.Add("SrcBarcodeFile", "一维码文件。");
             item_Desc.Add("BuffyStandalone", "Buffy是否单独放一块板子。");
         
             //labwareSettings
@@ -62,7 +61,7 @@ namespace ConfigureTool
             item_Desc.Add("buffyTransferGrid", "buffy中转管Grid。");
             item_Desc.Add("ScriptFile", "脚本文件路径。");
             item_Desc.Add("plasmaTransferExtraVol", "血清或血浆转管额外体积。");
-
+            item_Desc.Add("maxPlasmaVolumePerTube", "血清或血浆每管最大体积。");
             
         }
 

@@ -24,10 +24,9 @@ namespace Biobanking
         private GlobalVars()
         {
             DstBarcodeFolder = ConfigurationManager.AppSettings["DstBarcodeFolder"];
-            SrcBarcodeFile = ConfigurationManager.AppSettings["SrcBarcodeFile"];
-            ResultFile = ConfigurationManager.AppSettings[stringRes.reportPath];
+                      ResultFile = ConfigurationManager.AppSettings[stringRes.reportPath];
             string sFileStruct = Settings.Utility.GetExeFolder() + "fileStruct.xml";
-            Barcode2DVendor = ConfigurationManager.AppSettings["2DBarcodeVendor"];
+            
             string exePath = Utility.GetExeFolder() + "SampleInfo.exe";
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
             BloodDescription = File.ReadAllText(Utility.GetBloodTypeFile());
@@ -46,15 +45,9 @@ namespace Biobanking
 
         public  static string TranslateDescription(string BloodDescription)
         {
-            string barcodeVendor = ConfigurationManager.AppSettings["2DBarcodeVendor"];
-            if (barcodeVendor != "HR")
-                return BloodDescription;
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-            dict.Add("Plasma", "血浆");
-            dict.Add("Serum", "血清");
-            dict.Add("Buffy", "白膜");
-            dict.Add("RedCell", "红细胞");
-            return dict[BloodDescription];
+           
+            return BloodDescription;
+        
         }
 
         public bool TrackBarcode { get; set; }
@@ -63,7 +56,7 @@ namespace Biobanking
 
         public string DstBarcodeFolder { get; set; }
 
-        public string SrcBarcodeFile { get; set; }
+    
 
         public FileStruct FileStruct { get; set; }
 
@@ -75,10 +68,10 @@ namespace Biobanking
         {
             get
             {
-                return TranslateDescription("Buffy");
+                return "Buffy";
             }
         }
 
-        public string Barcode2DVendor { get; set; }
+   
     }
 }

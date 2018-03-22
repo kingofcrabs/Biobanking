@@ -110,30 +110,13 @@ namespace Biobanking
         public bool DoJob()
         {
             detectInfos = ResultReader.Instance.Read();
-            patientInfos = ResultReader.Instance.ReadPatientInfos();
-            patientInfos = patientInfos.Take(detectInfos.Count).ToList();
-            Console.WriteLine(string.Format("{0} samples", patientInfos.Count));
+            List<string> srcBarcodes = detectInfos.Select(x => x.sBarcode).ToList();
+            Console.WriteLine(string.Format("{0} samples", srcBarcodes.Count));
             if(GlobalVars.Instance.TrackBarcode)
-                barcodeTracker = new BarcodeTracker(pipettingSettings, labwareSettings, patientInfos.Select(x=>x.name).ToList());
+                barcodeTracker = new BarcodeTracker(pipettingSettings, labwareSettings, srcBarcodes);
             log.Info("read heights");
             mappingCalculator = new MappingCalculator(Settings.Utility.GetExeFolder() + Settings.stringRes.calibFileName);
             DeleteRackFolders();
-            //try
-            //{
-            //    if(ConfigurationManager.AppSettings["ScriptFile"] != "")
-            //    {
-            //        LayoutChecker layoutChecker = new LayoutChecker(labwareSettings, pipettingSettings, detectInfos.Count);
-            //        layoutChecker.Check();
-            //    }
-            //}
-            //catch(Exception ex)
-            //{
-            //    Console.WriteLine(ex.Message);
-            //    Console.ReadKey();
-            //    return false;
-            //}
-            //Console.WriteLine("Check layout ok!");
-
             positionGenerator = new PositionGenerator(pipettingSettings, labwareSettings,detectInfos.Count);
             int maxSampleAllowed = positionGenerator.AllowedSamples();
             if (maxSampleAllowed < detectInfos.Count)
@@ -495,12 +478,10 @@ namespace Biobanking
                        
             int maxVolPerTip = 850;
             int maxVolmaxVolumePerSlice = pipettingSettings.maxVolumePerSlice;
-            //1 设置tipvolume, 
             bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
             int tipOffset = GetTipOffSet(bNeedUseLastFour);
             for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
             {
-                // set tip_volume 
                 double z1 = heightsThisTime[tipIndex].Z1;
                 double z2 = heightsThisTime[tipIndex].Z2;
                 double aspPositionVolume = Math.Round( CalcuAspiratePositionVolume(slice, totalSlice, z1, z2));
@@ -612,7 +593,11 @@ namespace Biobanking
                 }
             }
             else
+            {
                 aspirateVol = totalPlasmaVolume / totalSlice;//平均吸取
+                aspirateVol = Math.Min(aspirateVol, pipettingSettings.maxPlasmaVolumePerTube);
+            }
+                
 
             if (aspirateVol < 0)
                 aspirateVol = 0;

@@ -20,6 +20,13 @@ namespace Biobanking
              totalSample = nSample;
          }
 
+
+         public static string GetDesc(int wellID)
+         {
+             int colIndex = (wellID-1) / 8;
+             int rowIndex = wellID - colIndex * 8 -1;
+             return string.Format("{0}{1:00}", (char)('A' + rowIndex), colIndex + 1);
+         }
          public static  List<POINT> GetWells(int startWellIndex, int wellsCount, int x, int y)
          {
              List<POINT> pts = new List<POINT>();

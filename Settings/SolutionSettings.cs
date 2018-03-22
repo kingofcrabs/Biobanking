@@ -119,6 +119,7 @@ namespace Settings
         public int retractHeightcm;
         public bool needTransfer;
         public int plasmaTransferExtraVol;
+        public int maxPlasmaVolumePerTube;
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -143,6 +144,7 @@ namespace Settings
             maxVolumePerSlice = 5000;
             needTransfer = false;
             plasmaTransferExtraVol = 20;
+            maxPlasmaVolumePerTube = 1000;
         }
     }
 
