@@ -149,7 +149,7 @@ namespace Biobanking
                         heightsThisTime.Add(detectInfos[srcRack*labwareSettings.sourceWells+ startSample + tip]);
                     }
                     //CalculateDestGridAndSite(globalSampleIndex, sliceIndex, ref grid, ref site);
-                    WriteNeedDecapper(sOutput,ref curGrid, ref curSite, srcRack,startSample);
+                    //WriteNeedDecapper(sOutput,ref curGrid, ref curSite, srcRack,startSample);
                     GenerateForBatch(sOutput,srcRack, startSample, heightsThisTime);
                     AddEachSampleInfo2RunResult(srcRack, startSample, heightsThisTime, runResult);
                 }
@@ -234,24 +234,6 @@ namespace Biobanking
             List<POINT> ptsAsp = positionGenerator.GetSrcWells(sampleIndexInRack, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
             int plasmaSlice = pipettingSettings.dstPlasmaSlice;
             List<double> plasmaVols = new List<double>();
-
-            //transfer volumes
-            List<string> mov2TransferCmds = new List<string>();
-            if (pipettingSettings.needTransfer)
-            {
-                mov2TransferCmds.Add(GetComment("Move to transfer"));
-                var tmpCmds = GenerateMove2TransferCommands(rackIndex, sampleIndexInRack, heightsThisTime);
-                mov2TransferCmds.AddRange(tmpCmds);
-                mov2TransferCmds.ForEach(x => sw.WriteLine(x));
-                mov2TransferCmds.Clear();
-                //adjust heights
-                double adjustHeight = transferLossVolume / area;
-                for (int i = 0; i < heightsThisTime.Count; i++)
-                    heightsThisTime[i].Z1 -= adjustHeight;
-            }
-           
-            List<string> transfer2FinalCmds = new List<string>();
-            transfer2FinalCmds.Add(getDiti);
             for (int slice = 0; slice < plasmaSlice; slice++)
             {
                 string sExe = sNotifierFolder + string.Format("Notifier.exe Pipetting;{0};{1};{2}", rackIndex,batchID-1, slice);
@@ -262,15 +244,8 @@ namespace Biobanking
                 List<string> thisSliceTransfer2FinalCmds = new List<string>();
                
                 plasmaVols = GenerateForSlice(slice, plasmaSlice, ptsAsp, rackIndex, sampleIndexInRack, heightsThisTime, sw, thisSliceTransfer2FinalCmds);
-                if(!pipettingSettings.needTransfer)
-                {
-                    hintInfos.ForEach(x=>sw.WriteLine(x));
-                }
-                else
-                {
-                    transfer2FinalCmds.AddRange(hintInfos);
-                    transfer2FinalCmds.AddRange(thisSliceTransfer2FinalCmds);
-                }
+                
+                hintInfos.ForEach(x=>sw.WriteLine(x));
                 if(GlobalVars.Instance.TrackBarcode)
                     barcodeTracker.Track(plasmaVols,slice,heightsThisTime);
             }
@@ -318,11 +293,6 @@ namespace Biobanking
             }
             string dropDiti = string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask,labwareSettings.wasteGrid);
             sw.WriteLine(dropDiti);
-            transfer2FinalCmds.Add(dropDiti);
-            if(pipettingSettings.needTransfer)
-            {
-                File.WriteAllLines(sBatchFileTransfer2Final, transfer2FinalCmds,Encoding.Default);
-            }
             
             int endSampleID = rackIndex * 16 + sampleIndexInRack + heightsThisTime.Count;
             if (endSampleID >= detectInfos.Count)
@@ -647,33 +617,16 @@ namespace Biobanking
             }
 
             //2 吸，喷
-            if(!pipettingSettings.needTransfer)
-            {
-                string strAspirate = GenerateAspirateCommand(ptsAsp, volumes, liquidClass, srcGrid, 0, labwareSettings.sourceWells);
-                sw.WriteLine(strAspirate);
-                List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, ptsAspOrg.Count);
-                int grid = 0, site = 0;
-                CalculateDestGridAndSite(globalSampleIndex, sliceIndex, ref grid, ref site);
-                string strDispense = GenerateDispenseCommand(ptsDisp, volumes, liquidClass, grid, site, labwareSettings.dstLabwareRows);
-                sw.WriteLine(strDispense);
-            }
-            else
-            {
-                liquidClass = BBPlasmaTransfer;
-                List<POINT> ptsTransfer = positionGenerator.GetTransferWells(sampleIndexInRack, ptsAspOrg.Count);
-                List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, ptsAspOrg.Count);
-                int transferGrid = labwareSettings.transferGrid + srcRackIndex;
-                int transferSite = 0;
-                string aspFromTransfer = GenerateAspirateCommand(ptsTransfer, volumes, liquidClass, transferGrid, transferSite, 16);
+            string strAspirate = GenerateAspirateCommand(ptsAsp, volumes, liquidClass, srcGrid, 0, labwareSettings.sourceWells);
+            sw.WriteLine(strAspirate);
+            List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, ptsAspOrg.Count);
+            int grid = 0, site = 0;
 
-                int grid = 0, site = 0;
-                CalculateDestGridAndSite(globalSampleIndex, sliceIndex, ref grid, ref site);
-                string dispToFinal = GenerateDispenseCommand(ptsDisp, volumes, liquidClass, grid, site, labwareSettings.dstLabwareRows);
-                //sw.WriteLine(aspFromTransfer);
-                //sw.WriteLine(dispToFinal);
-                transfer2Final.Add(aspFromTransfer);
-                transfer2Final.Add(dispToFinal);
-            }
+            CalculateDestGridAndSite4OneSlicePerLabware(sliceIndex, ref grid, ref site);
+            //CalculateDestGridAndSite(globalSampleIndex, sliceIndex, ref grid, ref site);
+            string strDispense = GenerateDispenseCommand(ptsDisp, volumes, liquidClass, grid, site, labwareSettings.dstLabwareRows);
+            sw.WriteLine(strDispense);
+            
 
                 
           
@@ -941,7 +894,7 @@ namespace Biobanking
             int slice = pipettingSettings.dstPlasmaSlice;
             List<POINT> ptsDisp = positionGenerator.GetDestWells(rackIndex, slice, sampleIndexThisRack, detectInfos.Count);
             int grid = 0, site = 0;
-            CalculateDestBuffyGridAndSite(GetGlobalSampleIndex(rackIndex, sampleIndexThisRack), ref grid, ref site);
+            CalculateDestGridAndSite4OneSlicePerLabware(slice, ref grid, ref site);
             double buffyVol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
             if(pipettingSettings.dstbuffySlice == 2)
             {
