@@ -544,6 +544,7 @@ namespace Biobanking
 
             //2 吸，喷
             string strAspirate = GenerateAspirateCommand(ptsAsp, volumes, liquidClass, srcGrid, 0, labwareSettings.sourceWells);
+			sw.WriteLine(strAspirate);
             if (inSameColumn)
             {
                 int srcWellStartID = srcRackIndex * labwareSettings.dstLabwareRows +sampleIndexInRack+  1;
