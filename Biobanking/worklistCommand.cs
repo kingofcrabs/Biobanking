@@ -229,10 +229,15 @@ namespace Biobanking
         }
 
 
-        protected string GetCommandForAllTips(string sCommandPrefix, int samplesInTheBatch, int val)
+        protected string GetCommandForAllTips(string sCommandPrefix, int samplesInTheBatch, int val, int startTipIndex = 0)
         {
             string s = sCommandPrefix;
-           
+
+            for (int i = 0; i < startTipIndex; i++)
+            {
+                s += ",";
+            }
+
             for (int i = 0; i < samplesInTheBatch; i++)
             {
                 s += val.ToString() + ",";
@@ -259,10 +264,10 @@ namespace Biobanking
             WriteComand(s, sw);
         }
 
-        protected string GetPPAString(int samplesThisBatch, int pos)
+        protected string GetPPAString(int samplesThisBatch, int pos, int startTipIndex = 0)
         {
             string s = "C5PPA";
-            return GetCommandForAllTips(s, samplesThisBatch, pos);
+            return GetCommandForAllTips(s, samplesThisBatch, pos, startTipIndex);
         }
 
         //zposition, 0 is somewhere near table, so we assume 1500 => 15cm a good position
@@ -272,10 +277,10 @@ namespace Biobanking
             return GetCommandForAllTips(s, samplesInTheBatch, zPosition);
         }
 
-        protected string GetMoveLihaAbsoluteZSlow(int samplesInTheBatch, int zPosition)
+        protected string GetMoveLihaAbsoluteZSlow(int samplesInTheBatch, int zPosition, int startTipIndex = 0)
         {
             string s = "C5MAZ";
-            return GetCommandForAllTips(s, samplesInTheBatch, zPosition * 100) + "300";
+            return GetCommandForAllTips(s, samplesInTheBatch, zPosition * 100, startTipIndex) + "300";
         }
 
         protected string GetMoveLihaDown(int samplesInTheBatch, int deltaZ)
@@ -283,15 +288,15 @@ namespace Biobanking
             string s = "C5PRZ";
             return GetCommandForAllTips(s, samplesInTheBatch, deltaZ);
         }
-        protected string GetSEPString(int samplesInTheBatch, int aspSpeedSteps)
+        protected string GetSEPString(int samplesInTheBatch, int aspSpeedSteps, int startTipIndex = 0)
         {
             string sSEP = "C5SEP";
-            return GetCommandForAllTips(sSEP, samplesInTheBatch, aspSpeedSteps);
+            return GetCommandForAllTips(sSEP, samplesInTheBatch, aspSpeedSteps, startTipIndex);
         }
-        protected string GetSPPString(int samplesThisBatch, int speed)
+        protected string GetSPPString(int samplesThisBatch, int speed, int startTipIndex = 0)
         {
             string sSPP = "C5SPP";
-            return GetCommandForAllTips(sSPP, samplesThisBatch, speed);
+            return GetCommandForAllTips(sSPP, samplesThisBatch, speed, startTipIndex);
         }
         protected string GetMSDCommand(int deltaXY, int numSegments, int tipSel, int dialutorSteps, int speedXY, int accXY)
         {
