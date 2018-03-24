@@ -104,7 +104,7 @@ namespace Biobanking
 
         const int maxSourceCountOneRack = 10;
         List<DetectedInfo> detectInfos = null;
-        int dstPlateStartWellID = 3; //for test
+        int dstPlateStartWellID = 9; //for test
         
         public bool DoJob()
         {
@@ -710,9 +710,8 @@ namespace Biobanking
         private bool IsDstWellsInSameColumn(int srcRackIndex, int startSample, int sampleCount)
         {
             int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample + dstPlateStartWellID - 1;
-            int nEndSampleIndex = nStartSampleIndex + sampleCount - 1 + dstPlateStartWellID - 1;
+            int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
             int wellsCount = labwareSettings.dstLabwareRows;
-
             int nCol1 = nStartSampleIndex / wellsCount;
             int nCol2 = nEndSampleIndex / wellsCount;
             return nCol1 == nCol2;
