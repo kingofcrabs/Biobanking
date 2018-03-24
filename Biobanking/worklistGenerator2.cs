@@ -104,7 +104,7 @@ namespace Biobanking
 
         const int maxSourceCountOneRack = 10;
         List<DetectedInfo> detectInfos = null;
-        int dstPlateStartWellID = 9; //for test
+        int dstPlateStartWellID = 1; //for test
         
         public bool DoJob()
         {
@@ -523,7 +523,7 @@ namespace Biobanking
         private int GetDstWellStartID(int rackIndex, int sampleIndexInRack)
         {
             int srcWellStartID = rackIndex * labwareSettings.dstLabwareRows + sampleIndexInRack + 1;
-            return srcWellStartID - 1 + dstPlateStartWellID - 1;
+            return srcWellStartID - 1 + dstPlateStartWellID;
         }
 
         private void ProcessSliceOnce(List<POINT> ptsAspOrg, List<double> volumes, string liquidClass ,
@@ -551,7 +551,7 @@ namespace Biobanking
                 int dstWellStartIndex = srcWellStartID -1 + dstPlateStartWellID - 1;
                 List<POINT> ptsDisp = positionGenerator.GetDstWells(dstWellStartIndex, volumes.Count);
                 int grid = 0, site = 0;
-                CalculateDestGridAndSite(globalSampleIndex, sliceIndex, ref grid, ref site);
+                CalculateDestGridAndSite4OneSlicePerLabware(sliceIndex, ref grid, ref site);
                 if (bNeedUseLastFour)
                 {
                     POINT ptZero = new POINT(0, 0);
@@ -844,6 +844,19 @@ namespace Biobanking
             CalculateDestGridAndSite4OneSlicePerLabware(plateIndex, ref grid, ref site);
             double buffyVol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
             WriteDispenseBuffy(ptsDisp, grid, site, sw, startTipIndex);
+            if(pipettingSettings.dstbuffySlice == 2)
+            {
+                List<double> volumes = new List<double>();
+                for(int i = 0; i< detectInfos.Count; i++)
+                {
+                    volumes.Add(buffyVol);
+                }
+                sw.WriteLine(GetComment("Aspirate buffy to 2nd slice."));
+                sw.WriteLine(GenerateAspirateBuffy(ptsDisp, volumes, BB_Buffy, grid, site, labwareSettings.dstLabwareRows));
+                CalculateDestGridAndSite4OneSlicePerLabware(plateIndex + 1, ref grid, ref site);
+                sw.WriteLine(GenerateDispenseCommand(ptsDisp, volumes, BB_Buffy, grid, site, labwareSettings.dstLabwareRows));
+            }
+            
         }
 
         private List<POINT> GetTransferDispPts(int sampleIndexThisRack, List<DetectedInfo> detectInfos)

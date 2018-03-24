@@ -99,7 +99,11 @@ namespace Biobanking
 
         protected string GenerateAspirateCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height)
         {
-            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, true);
+            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, true,false);
+        }
+        protected string GenerateAspirateBuffy(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height)
+        {
+            return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, true, true);
         }
 
         protected string GenerateDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height, bool transfer = false)
@@ -132,7 +136,7 @@ namespace Biobanking
             return string.Format("B;{0}({1},\"{2}\",{3}{4},{5},1,\"{6}\",{7}, 0, 0);", objArray);
         }
 
-        protected string GenerateAspirateOrDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height, bool aspirate, bool transfer = false)
+        protected string GenerateAspirateOrDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height, bool aspirate, bool transferBuffy = false)
         {
             //B; Aspirate(3, "Water free dispense", "20", "20", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, "0110300", 0, 0);
             int tipMask = GetTipSelection(volumes);
@@ -156,11 +160,12 @@ namespace Biobanking
 
 
             int width = labwareSettings.dstLabwareColumns;
-            if (aspirate || transfer)
+            if (aspirate && !transferBuffy)
             {
-                //如果是吸样或者transfer，labware孔的宽度都是1,
+                //如果是吸样，labware孔的宽度是1,如果是转移buffy，则不是
                 width = 1;
             }
+            
 
             string sWellSelection = GetWellSelection(width, height, not0Wells);
             string sAspOrDis = aspirate ? "Aspirate" : "Dispense";
