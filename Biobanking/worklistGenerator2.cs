@@ -522,7 +522,7 @@ namespace Biobanking
 
         private int GetDstWellStartID(int rackIndex, int sampleIndexInRack)
         {
-            int srcWellStartID = rackIndex * labwareSettings.dstLabwareRows + sampleIndexInRack + 1;
+            int srcWellStartID = rackIndex * labwareSettings.sourceWells + sampleIndexInRack + 1;
             return srcWellStartID - 1 + dstPlateStartWellID;
         }
 
@@ -547,7 +547,7 @@ namespace Biobanking
 			sw.WriteLine(strAspirate);
             if (inSameColumn)
             {
-                int srcWellStartID = srcRackIndex * labwareSettings.dstLabwareRows +sampleIndexInRack+  1;
+                int srcWellStartID = srcRackIndex * labwareSettings.sourceWells +sampleIndexInRack+  1;
                 int dstWellStartIndex = srcWellStartID -1 + dstPlateStartWellID - 1;
                 List<POINT> ptsDisp = positionGenerator.GetDstWells(dstWellStartIndex, volumes.Count);
                 int grid = 0, site = 0;
