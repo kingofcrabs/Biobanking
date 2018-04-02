@@ -20,7 +20,7 @@ namespace Biobanking
         int startIndex = 0;
         LabwareSettings labwareSettings;
         PipettingSettings pipettingSettings;
-        public Dictionary<string, List<Tuple<int, string>>> ReadBarcodes(LabwareSettings labwareSettings,
+        public Dictionary<IDBarcodePair, List<Tuple<int, string>>> ReadBarcodes(LabwareSettings labwareSettings,
             PipettingSettings pipettingSettings,
             Dictionary<string, string> barcode_plateBarcode,
             Dictionary<string, string> barcode_Position, List<string> srcBarcodes,int startWellID)
@@ -30,9 +30,14 @@ namespace Biobanking
             this.pipettingSettings = pipettingSettings;
             string dstBarcodeFolder = GlobalVars.Instance.DstBarcodeFolder;
             DirectoryInfo directoryInfo = new DirectoryInfo(dstBarcodeFolder);
-            DirectoryInfo directoryToday = (from x in directoryInfo.EnumerateDirectories()
-                                            where (x.CreationTime.DayOfYear == DateTime.Now.DayOfYear && x.CreationTime.Year == DateTime.Now.Year)
-                                            select x).First<DirectoryInfo>();
+            var allDayDirectorys = from x in directoryInfo.EnumerateDirectories()
+                                   where (x.CreationTime.DayOfYear == DateTime.Now.DayOfYear && x.CreationTime.Year == DateTime.Now.Year)
+                                   select x;
+            if (allDayDirectorys == null || allDayDirectorys.Count() == 0)
+            {
+                throw new Exception("Cannot find directory of today!");
+            }
+            DirectoryInfo directoryToday = allDayDirectorys.First<DirectoryInfo>();
             if (directoryToday == null)
             {
                 throw new Exception("Cannot find directory of today!");
@@ -71,7 +76,7 @@ namespace Biobanking
             }
             if (csvFiles.Count < pipettingSettings.dstPlasmaSlice + pipettingSettings.dstbuffySlice)
                 throw new Exception(string.Format("Need {0} plates, only {1} can be found!",pipettingSettings.dstPlasmaSlice, pipettingSettings.dstbuffySlice));
-            Dictionary<string, List<Tuple<int, string>>> srcBarcode_eachSlicePosition_barcode = new Dictionary<string, List<Tuple<int, string>>>();
+            Dictionary<IDBarcodePair, List<Tuple<int, string>>> srcBarcode_eachSlicePosition_barcode = new Dictionary<IDBarcodePair, List<Tuple<int, string>>>();
             csvFiles.ForEach(delegate(string fileName)
             {
                 ReadBarcode(srcBarcodes, srcBarcode_eachSlicePosition_barcode, startWellID, barcode_plateBarcode, barcode_Position, fileName);
@@ -95,7 +100,7 @@ namespace Biobanking
         }
 
         private void ReadBarcode(List<string> srcBarcodes,
-            Dictionary<string,List<Tuple<int,string>>> srcBarcode_eachSlicePosition_barcode,
+            Dictionary<IDBarcodePair, List<Tuple<int, string>>> srcBarcode_eachSlicePosition_barcode,
             int startWellID,
             Dictionary<string, string> barcode_plateBarcode,
             Dictionary<string, string> barcode_Position,
@@ -104,10 +109,7 @@ namespace Biobanking
             var strs = File.ReadAllLines(sFile).ToList();
             string plateBarcode = "dummy";
             string vendorName = ConfigurationManager.AppSettings["2DBarcodeVendor"] ;
-           
             plateBarcode = GetPlateBarcode(sFile);
-            
-          
             int barcodeColumnIndex = 1;
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
             Dictionary<string, string> position_barcode = new Dictionary<string, string>();
@@ -121,14 +123,17 @@ namespace Biobanking
                 int wellID = startWellID + i;
                 string wellDesc = PositionGenerator.GetDesc(wellID);
                 string srcBarcode = srcBarcodes[i];
+                if (!position_barcode.ContainsKey(wellDesc))
+                    throw new Exception(string.Format("Cannot find barcode for well:{0} in plate:{1}", wellDesc, plateBarcode));
                 string dstBarcode = position_barcode[wellDesc];
                 if (dstBarcode == "" || dstBarcode == "NOREAD" || dstBarcode == "NOTUBE" || dstBarcode.Contains("DECODE"))
                     throw new Exception(string.Format("No valid tube found at well {0} at file :{1}!",wellDesc,sFile));
                 var newTuple = new Tuple<int, string>(wellID, dstBarcode);
-                if (srcBarcode_eachSlicePosition_barcode.ContainsKey(srcBarcode))
-                    srcBarcode_eachSlicePosition_barcode[srcBarcode].Add(newTuple);
+                IDBarcodePair pair = new IDBarcodePair(i + 1, srcBarcode);
+                if (srcBarcode_eachSlicePosition_barcode.ContainsKey(pair))
+                    srcBarcode_eachSlicePosition_barcode[pair].Add(newTuple);
                 else
-                    srcBarcode_eachSlicePosition_barcode.Add(srcBarcode, new List<Tuple<int, string>>() { newTuple });
+                    srcBarcode_eachSlicePosition_barcode.Add(pair, new List<Tuple<int, string>>() { newTuple });
             }
         }
 
@@ -158,7 +163,7 @@ namespace Biobanking
                 var barcode = subStrs[2];
                 barcode = barcode.Replace("\"", "");
                 position_barcode.Add(position, barcode);
-                if (barcode == "" || barcode == "NOREAD" || barcode == "NOTUBE" || barcode.Contains("DECODE"))
+                if (barcode == "" || barcode == "NOREAD" || barcode == "NOTUBE" || barcode.Contains("DECODE") || barcode.Contains("EMPTY"))
                 {
                     continue; //ignore empty barcodes.
                 }

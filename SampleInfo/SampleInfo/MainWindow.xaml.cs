@@ -99,7 +99,7 @@ namespace SampleInfo
                 }
                 sampleCount = tmpSampleCount;
 
-                string desc = GetBloodType();
+                string desc = "Plasma";
                 bok = int.TryParse(txtPlasmaCount.Text, out tmpPlasmaCount);
                 if (!bok)
                 {
@@ -160,19 +160,31 @@ namespace SampleInfo
                     }
                 }
 
+                string startWellID = txtStartWellID.Text;
+                int dstPlateStartWellID = ParseWellID(startWellID);
+                if (dstPlateStartWellID <= 0 || dstPlateStartWellID > 96)
+                {
+                    SetInfo(string.Format("Well ID:{0} is invalid.", dstPlateStartWellID), Colors.Red);
+                    return;
+                }
+                    
+
                 pipettingSettings.plasmaGreedyVolume = tmpVolume;
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
                 
+
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
-                string bloodType = GetBloodType();
-                File.WriteAllText(Utility.GetBloodTypeFile(),bloodType);
                 SaveSettings();
                
                 int destLabwareNeeded = Utility.CalculateDestLabwareNeededCnt(sampleCount, labwareSettings, pipettingSettings, buffyStandalone);
                 File.WriteAllText(Utility.GetOutputFolder() + "dstLabwareNeededCnt.txt", destLabwareNeeded.ToString());
+
                 File.WriteAllText(Utility.GetOutputFolder() + "buffySliceCnt.txt", pipettingSettings.dstbuffySlice.ToString());
+
+                File.WriteAllText(Utility.GetOutputFolder() + "startWellID.txt", txtStartWellID.Text);
+
                 Utility.WriteExecuteResult(true, "result.txt");
              
            }
@@ -187,15 +199,33 @@ namespace SampleInfo
             this.Close();
         }
 
-        private string GetBloodType()
+        internal static int GetWellID(int colIndex, int rowIndex)
         {
-            if ((bool)rdbPlasma.IsChecked)
-                return "血浆";
-            else
-                return "血清";
-        
+            int _row = 8;
+            return colIndex * _row + rowIndex + 1;
         }
+        public static int ParseWellID(string sWellID)
+        {
+            sWellID = sWellID.Trim();
+            if (sWellID.Length > 3)
+                throw new Exception("WellID length must <=3!");
 
+            if (sWellID.All(x => Char.IsDigit(x)))
+            {
+                return int.Parse(sWellID);
+            }
+            sWellID = sWellID.ToUpper();
+            char first = sWellID.First();
+            if (char.IsLetter(first))
+            {
+                string remain = sWellID.Substring(1);
+                int rowIndex = (int)(first - 'A');
+                int colIndex = int.Parse(remain) - 1;
+                return GetWellID(colIndex, rowIndex);
+            }
+            else
+                throw new Exception("Invalid WellID, must be digital or string likes A01!");
+        }
   
         private void SetInfo(string p, Color color)
         {
@@ -235,29 +265,11 @@ namespace SampleInfo
             txtPlasmaCount.Text = pipettingSettings.dstPlasmaSlice.ToString();
             txtVolume.Text = pipettingSettings.plasmaGreedyVolume.ToString();
             txtBuffyVolume.Text = pipettingSettings.buffyVolume.ToString();
-            txtbuffySliceCnt.Text = "0";//pipettingSettings.dstbuffySlice.ToString();
-
+            txtbuffySliceCnt.Text = pipettingSettings.dstbuffySlice.ToString();
+            txtStartWellID.Text = "A1";
         }
 
-        private void RadioButton_Checked(object sender, RoutedEventArgs e)
-        {
-             if((bool)rdbSerum.IsChecked)
-             {
-                 lblBloodSlice.Content = "血清份数：";
-                 lblBloodVolume.Content = "血清体积(ul)：";
-                 txtbuffySliceCnt.Text = "0";
-                 txtbuffySliceCnt.IsEnabled = false;
-                 txtBuffyVolume.IsEnabled = false;
-             }
-             else if ((bool)rdbPlasma.IsChecked)
-             {
-                 lblBloodSlice.Content = "血浆份数：";
-                 lblBloodVolume.Content = "血浆体积(ul)：";
-                 txtbuffySliceCnt.Text = pipettingSettings.dstbuffySlice.ToString();
-                 txtbuffySliceCnt.IsEnabled = true;
-                 txtBuffyVolume.IsEnabled = true;
-             }
-        }
+        
 
     }
 }

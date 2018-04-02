@@ -23,6 +23,12 @@
                
             </StackPanel>
         </Grid>
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" >
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="10,0,0,0">开始位置：</Label>
+                <TextBox Margin="40,0,0,0" Width ="76" Name="txtStartWellID"></TextBox>
+            </StackPanel>
+        </StackPanel>
         <Grid Grid.Column="1">
             <StackPanel>
                 <TextBox Height="23" HorizontalAlignment="Left" Margin="10,5,0,0" Name="txtSampleCount" VerticalAlignment="Top" Width="76" TabIndex="1" />
@@ -47,14 +53,7 @@
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" Grid.ColumnSpan="4"/>
-        <Grid Grid.Row="2" Grid.ColumnSpan="4">
-            <StackPanel Margin="10,0,0,0">
-                <Label>样本类型：</Label>
-                <RadioButton Margin="0,2,0,2" Name="rdbSerum" Checked="RadioButton_Checked"  IsChecked="True" Content="血清"  />
-                <RadioButton Content="血浆" Name="rdbPlasma" Checked="RadioButton_Checked" />
-            </StackPanel>
-            
-        </Grid>
+      
 
         <Grid Grid.Row="3" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>

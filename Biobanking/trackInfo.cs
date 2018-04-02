@@ -13,12 +13,21 @@ using Biobanking.ExcelExporter;
 
 namespace Biobanking
 {
-    
+    struct IDBarcodePair
+    {
+        public string barcode;
+        public int ID;
+        public IDBarcodePair(int id, string barcode)
+        {
+            this.ID = id;
+            this.barcode = barcode;
+        }
+    }
     public class BarcodeTracker
     {
         List<TrackInfo> trackInfos = new List<TrackInfo>();
         PipettingSettings pipettingSettings = null;
-        Dictionary<string,List<Tuple<int,string>>> srcbarcode_EachSliceDstPositionAndBarcode;
+        Dictionary<IDBarcodePair, List<Tuple<int, string>>> srcbarcode_EachSliceDstPositionAndBarcode;
         Dictionary<string, string> barcode_plateBarcodes = new Dictionary<string, string>();
         Dictionary<string, string> barcode_Position = new Dictionary<string, string>();
         List<string> srcBarcodes;
@@ -51,9 +60,11 @@ namespace Biobanking
             foreach (var vol in plasmaVols)
             {
                 string srcBarcode = detectInfos[indexInList].sBarcode;
-                var tuple = srcbarcode_EachSliceDstPositionAndBarcode[srcBarcode][sliceIndex];
-                string dstBarcode = tuple.Item2;
                 int sampleID = sampleIndex + indexInList + 1;
+                IDBarcodePair idBarcodePair = new IDBarcodePair(sampleID , srcBarcode);
+                var tuple = srcbarcode_EachSliceDstPositionAndBarcode[idBarcodePair][sliceIndex];
+                string dstBarcode = tuple.Item2;
+               
                 if (dstBarcode == "" || dstBarcode == "NOTUBE" ||dstBarcode == "NOREAD")
                     throw new Exception(string.Format("Cannot find dest barcode at position: {0} for sample: {1}!", tuple.Item1, sampleID));
                 
@@ -79,7 +90,10 @@ namespace Biobanking
                     double vol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
                     for (indexInList = 0; indexInList < plasmaVols.Count; indexInList++)
                     {
+                        int sampleID = sampleIndex + indexInList + 1;
+                       
                         string srcBarcode = detectInfos[indexInList].sBarcode;
+                        IDBarcodePair idBarcodePair = new IDBarcodePair(sampleID , srcBarcode);
                         for (int i = 0; i < pipettingSettings.dstbuffySlice; i++)
                         {
                             if(sampleIndex + indexInList >= srcbarcode_EachSliceDstPositionAndBarcode.Count )
@@ -93,7 +107,7 @@ namespace Biobanking
                             //        sampleIndex + indexInList, 
                             //        pipettingSettings.dstPlasmaSlice + i));
                             //}
-                            var tuple = srcbarcode_EachSliceDstPositionAndBarcode[srcBarcode][pipettingSettings.dstPlasmaSlice + i];
+                            var tuple = srcbarcode_EachSliceDstPositionAndBarcode[idBarcodePair][pipettingSettings.dstPlasmaSlice + i];
                             var dstBarcode = tuple.Item2;
                             var position = tuple.Item1;
                             if(dstBarcode == "" || dstBarcode== "NOREAD" || dstBarcode == "NOTUBE")
@@ -144,11 +158,12 @@ namespace Biobanking
           
             if (!Directory.Exists(sFolder))
                 Directory.CreateDirectory(sFolder);
-         
-            DefaultExcelTemplate.Save2Excel(trackInfos, csvFolder);
+            if (!Directory.Exists(excelFolder))
+                Directory.CreateDirectory(excelFolder);
+            if (!Directory.Exists(csvFolder))
+                Directory.CreateDirectory(csvFolder);
+            DefaultExcelTemplate.Save2Files(trackInfos, csvFolder,excelFolder);
         }
-
-       
 
         private void WriteResult2SqlServer()
         {

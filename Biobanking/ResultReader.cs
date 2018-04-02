@@ -121,6 +121,8 @@ namespace Biobanking
                     detectedInfo.Z1 = double.Parse(vals[1]);
                     detectedInfo.Z2 = double.Parse(vals[2]);
                     detectedInfo.sBarcode = vals[0].Replace('\"',' ').Trim();
+                    //if (detectedInfo.sBarcode == "***")
+                    //    throw new Exception(string.Format("Sample:{0}'s barcode:'***' is invalid.",curRow+1));
                     line++;
                     heights.Add(detectedInfo);
                     if (detectedInfo.Z2 < 10) //smaller than 1cm

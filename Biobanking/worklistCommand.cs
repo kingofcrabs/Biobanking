@@ -247,7 +247,7 @@ namespace Biobanking
             {
                 s += val.ToString() + ",";
             }
-            for (int i = samplesInTheBatch; i < 8; i++)
+            for (int i = samplesInTheBatch+startTipIndex; i < 8; i++)
             {
                 s += ",";
             }

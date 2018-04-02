@@ -29,7 +29,7 @@ namespace Biobanking
             
             string exePath = Utility.GetExeFolder() + "SampleInfo.exe";
             Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-            BloodDescription = File.ReadAllText(Utility.GetBloodTypeFile());
+            BloodDescription = "Blood-Plasma";
             TrackBarcode = DstBarcodeFolder != "";
             if (File.Exists(sFileStruct))
             {
@@ -68,7 +68,7 @@ namespace Biobanking
         {
             get
             {
-                return "Buffy";
+                return "Blood-Buffy";
             }
         }
 

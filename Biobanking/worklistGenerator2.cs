@@ -114,8 +114,12 @@ namespace Biobanking
             string startWellIDFile =  Utility.GetOutputFolder() + "startWellID.txt";
             if(File.Exists(startWellIDFile))
             {
-                dstPlateStartWellID = int.Parse(File.ReadAllText(startWellIDFile));
+                string sStartWellID = File.ReadAllText(startWellIDFile);
+                dstPlateStartWellID = PositionGenerator.ParseWellID(sStartWellID);
             }
+            string startInfo = "Start wellID is:" + PositionGenerator.GetDesc(dstPlateStartWellID);
+            Console.WriteLine(startInfo);
+            
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker = new BarcodeTracker(pipettingSettings, labwareSettings, srcBarcodes, dstPlateStartWellID);
             log.Info("read heights");
@@ -238,6 +242,7 @@ namespace Biobanking
             List<POINT> ptsAsp = positionGenerator.GetSrcWells(sampleIndexInRack, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
             int plasmaSlice = pipettingSettings.dstPlasmaSlice;
             List<double> plasmaVols = new List<double>();
+            
             for (int slice = 0; slice < plasmaSlice; slice++)
             {
                 string sExe = sNotifierFolder + string.Format("Notifier.exe Pipetting;{0};{1};{2}", rackIndex,batchID-1, slice);
@@ -251,7 +256,7 @@ namespace Biobanking
                 
                 hintInfos.ForEach(x=>sw.WriteLine(x));
                 if(GlobalVars.Instance.TrackBarcode)
-                    barcodeTracker.Track(plasmaVols,slice,heightsThisTime);
+                    barcodeTracker.Track(plasmaVols, slice, heightsThisTime);
             }
             
             //2 aspirate & dispense buffy
@@ -267,8 +272,6 @@ namespace Biobanking
                 sw.WriteLine(string.Format(breakPrefix + "Execute(\"{0}\",2,\"\",2);", sExe));
                 //3 为buffy设置tipVolume
                 List<double> buffyvolumes = new List<double>();
-               
-                
                 for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
                 {
                     int vol = heightsThisTime[tipIndex].Z2 == 100 ? 0 : 10;
@@ -583,7 +586,7 @@ namespace Biobanking
 
         private void GetTwoColumnInfo(int srcRackIndex, int sampleIndexInRack, ref int dstWellStartIndex, ref int firstColumnSampleCnt, ref int secondColumnStartSampleIndex)
         {
-            dstWellStartIndex = GetDstWellStartID(srcRackIndex, sampleIndexInRack);
+            dstWellStartIndex = GetDstWellStartID(srcRackIndex, sampleIndexInRack)-1;
             int columnIndex = dstWellStartIndex / labwareSettings.dstLabwareRows;
             int firstColumnEndIndex = (columnIndex + 1) * labwareSettings.dstLabwareRows - 1;
             firstColumnSampleCnt = firstColumnEndIndex - dstWellStartIndex + 1;
@@ -720,7 +723,8 @@ namespace Biobanking
      
 
 
-        private void WriteDispenseBuffyNoCheck(List<POINT> pts, int grid,int site, StreamWriter sw, int startTipIndex = 0)
+        private void WriteDispenseBuffyNoCheck(List<POINT> pts, int grid,int site, StreamWriter sw, int startTipIndex = 0,
+            int currentSliceIndex = 0)
         {
             log.Info("WriteDispenseBuffy for certain region");
             int sampleCnt = pts.Count;
@@ -732,16 +736,17 @@ namespace Biobanking
             }
             for (int i = startTipIndex; i < startTipIndex+sampleCnt; i++)
             {
-                vols[i] = 10;
+                vols[i] = 5;
             }
 
-            WriteDispenseBuffyWithMovingPluger(pts, ditiMask, vols, grid, site, sw, startTipIndex);
+            WriteDispenseBuffyWithMovingPluger(pts, ditiMask, vols, grid, site, sw, startTipIndex, currentSliceIndex);
         }
 
-        private void WriteDispenseBuffyWithMovingPluger(List<POINT> pts, int ditiMask, List<double> vols, int grid, int site, StreamWriter sw, int startTipIndex = 0)
+        private void WriteDispenseBuffyWithMovingPluger(List<POINT> pts, int ditiMask, List<double> vols, int grid, int site, StreamWriter sw,
+            int startTipIndex = 0, int currentSliceIndex = 0)
         {
-            
-            WriteDispenseByMovingPluger(pts, vols, ditiMask, grid, site, sw,startTipIndex);
+
+            WriteDispenseByMovingPluger(pts, vols, ditiMask, grid, site, sw, startTipIndex, currentSliceIndex);
 
             int sampleCnt = pts.Count;
             WriteComment(string.Format("Move LiHa up to {0}cm", pipettingSettings.retractHeightcm), sw);
@@ -754,20 +759,24 @@ namespace Biobanking
             WriteComment("Set stop speed for plungers", sw);
             string sSPP = GetSPPString(sampleCnt, 1500, startTipIndex);
             WriteComand(sSPP, sw);
-            WriteComment(string.Format("Aspirate air gap: {0}", pipettingSettings.airGap), sw);
-            string sPPA = GetPPAString(sampleCnt, pipettingSettings.airGap, startTipIndex);
+            int steps = 0;
+            if (pipettingSettings.dstbuffySlice == 2 && currentSliceIndex == 0) //1st slice of total two slices
+            {
+                //air liha total 1000ul, 3150 steps
+                int buffyVol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
+                steps = GetSteps(buffyVol);
+            }
+            WriteComment(string.Format("Aspirate air gap: {0}", steps+pipettingSettings.airGap), sw);
+            string sPPA = GetPPAString(sampleCnt, steps+pipettingSettings.airGap, startTipIndex);
             WriteComand(sPPA, sw);
         }
 
-        private void WriteDispenseByMovingPluger(List<POINT> pts, List<double> vols,int ditiMask, 
-            int grid, int site, StreamWriter sw,int startTipIndex =0)
+        private void WriteDispenseByMovingPluger(List<POINT> pts, List<double> vols,int ditiMask,
+            int grid, int site, StreamWriter sw, int startTipIndex = 0, int currentSliceIndex = 0)
         {
             string sVolumes = GetVolumeString(vols);
             string sWellSelection = GetWellSelection(labwareSettings.dstLabwareColumns, labwareSettings.dstLabwareRows, pts);
-            //if(pipettingSettings.dstbuffySlice == 2)
-            //{
-            //    sWellSelection = GetWellSelection(1, 16, pts);
-            //}
+           
             string sDispense = string.Format(breakPrefix + "{0}({1},\"{2}\",{3}{4},{5},1,\"{6}\", 0, 0);", "Dispense",
                 ditiMask, BB_Buffy, sVolumes, 
                 grid, site, sWellSelection);
@@ -781,9 +790,19 @@ namespace Biobanking
             WriteComment("Set stop speed for plungers", sw);
             string sSPP = GetSPPString(sampleCnt, 1500, startTipIndex);
             WriteComand(sSPP, sw);
-            WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
-            string sPPA = GetPPAString(sampleCnt, 0, startTipIndex);
+            //air liha total 1000ul, 3150 steps
+            int buffyVol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
+            int steps = 0;
+            if (pipettingSettings.dstbuffySlice == 2 && currentSliceIndex == 0) //1st slice of total two slices
+                steps = GetSteps(buffyVol);
+            WriteComment(string.Format("Move plunger to absolut position {0}.)",steps), sw);
+            string sPPA = GetPPAString(sampleCnt, steps, startTipIndex);
             WriteComand(sPPA, sw);
+        }
+
+        private int GetSteps(int buffyVol)
+        {
+            return (int)((3150.0 * buffyVol) / 1000.0) + 140;
         }
 
         private string GetVolumeString(List<double> vols)
@@ -812,7 +831,7 @@ namespace Biobanking
         }
 
 
-        private void WriteDispenseBuffy(List<POINT> pts,int grid, int site, StreamWriter sw,int startTipIndex = 0)
+        private void WriteDispenseBuffy(List<POINT> pts,int grid, int site, StreamWriter sw,int startTipIndex = 0,int curSliceIndex = 0)
         {
             //for safe liha movement.
             double maxWell = pts.Select(x => x.y).Max();
@@ -830,7 +849,7 @@ namespace Biobanking
                 if (!bCanMatch && model!=75 )
                     throw new Exception("Cannot match tips at labware edge");
             }
-            WriteDispenseBuffyNoCheck(pts, grid, site, sw, startTipIndex);
+            WriteDispenseBuffyNoCheck(pts, grid, site, sw, startTipIndex, curSliceIndex);
         }
 
         private void WriteDispenseBuffy(int rackIndex, 
@@ -843,18 +862,12 @@ namespace Biobanking
             int grid = 0, site = 0;
             CalculateDestGridAndSite4OneSlicePerLabware(plateIndex, ref grid, ref site);
             double buffyVol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
-            WriteDispenseBuffy(ptsDisp, grid, site, sw, startTipIndex);
+            WriteDispenseBuffy(ptsDisp, grid, site, sw, startTipIndex,0);
             if(pipettingSettings.dstbuffySlice == 2)
             {
-                List<double> volumes = new List<double>();
-                for(int i = 0; i< detectInfos.Count; i++)
-                {
-                    volumes.Add(buffyVol);
-                }
-                sw.WriteLine(GetComment("Aspirate buffy to 2nd slice."));
-                sw.WriteLine(GenerateAspirateBuffy(ptsDisp, volumes, BB_Buffy, grid, site, labwareSettings.dstLabwareRows));
-                CalculateDestGridAndSite4OneSlicePerLabware(plateIndex + 1, ref grid, ref site);
-                sw.WriteLine(GenerateDispenseCommand(ptsDisp, volumes, BB_Buffy, grid, site, labwareSettings.dstLabwareRows));
+                sw.WriteLine(GetComment("Dispense buffy to 2nd slice."));
+                CalculateDestGridAndSite4OneSlicePerLabware(plateIndex+1, ref grid, ref site);
+                WriteDispenseBuffy(ptsDisp, grid, site, sw, startTipIndex, 1);
             }
             
         }
