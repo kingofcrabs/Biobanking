@@ -39,8 +39,7 @@ namespace CheckPlateBarcodes
             string dstBarcodeFolder = GetDstBarcodeFoler();
             var di = new DirectoryInfo(dstBarcodeFolder);
             var files = di.EnumerateFiles("*.txt").ToList();
-            string checkPlateResult = Utility.GetOutputFolder()  + "checkPlateResult.txt";
-            Utility.WriteExecuteResult(false, checkPlateResult);
+            Utility.WriteExecuteResult(false, "checkPlateResult.txt");
             if(files.Count < labwaresNeeded)
             {
                 Console.WriteLine(string.Format("Need {0} plates, only {1} plates found!",labwaresNeeded,files.Count));
@@ -67,7 +66,7 @@ namespace CheckPlateBarcodes
                     Console.ReadKey();
                 }
             }
-            Utility.WriteExecuteResult(true, checkPlateResult);
+            Utility.WriteExecuteResult(true, "checkPlateResult.txt");
 
         }
 
@@ -114,13 +113,12 @@ namespace CheckPlateBarcodes
                         {
                             throw new Exception(string.Format("No valid barcode found for plate:{0} at:{1}", plateBarcode, well));
                         }
-                        if (currentSampleID == neededSamples)
+                        if (currentSampleID > neededSamples)
                         {
                             needFurtherTest = false;
                         }
-                        currentSampleID++;
-                        
                     }
+                    currentSampleID++;
                     
                     
                 }

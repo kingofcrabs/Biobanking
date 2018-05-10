@@ -61,7 +61,8 @@ namespace Biobanking
         public  List<PatientInfo> Read()
         {
             List<string> contents = null;
-            if (GlobalVars.Instance.DstBarcodeFolder == "")
+            Console.WriteLine("src barcode folder is: " + GlobalVars.Instance.SrcBarcodeFile);
+            if (GlobalVars.Instance.SrcBarcodeFile == "")
                 return null;
             List<string> trimedBarcodes = new List<string>();
             contents = File.ReadAllLines(GlobalVars.Instance.SrcBarcodeFile).ToList();
@@ -130,7 +131,10 @@ namespace Biobanking
                     
                     DetectedInfo detectedInfo = new DetectedInfo();
                     int infoIndex = (curRow - 1);
-                    string[] vals = sContent.Split(',');
+                    char sep = ',';
+                    if (sContent.Contains(';'))
+                        sep = ';';
+                    string[] vals = sContent.Split(sep);
                     detectedInfo.Z1 = double.Parse(vals[1]) * ratio;
                     detectedInfo.Z2 = double.Parse(vals[2]) * ratio;
                    

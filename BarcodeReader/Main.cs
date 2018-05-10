@@ -311,7 +311,6 @@ namespace BarcodeReader
             //this.Invalidate();
             if(tubeID == totalSampleCnt)
             {
-                
                 bool bok = true;
                 try
                 {
@@ -325,7 +324,7 @@ namespace BarcodeReader
               
                 if(bok)
                 {
-                    timer.Interval = 1000;
+                    timer.Interval = 2000;
                     timer.Tick += timer_Tick;
                     timer.Start();
                    
