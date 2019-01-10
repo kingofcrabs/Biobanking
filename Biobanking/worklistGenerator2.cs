@@ -284,7 +284,7 @@ namespace Biobanking
                 WriteComment(string.Format("Processing slice: {0}, red cell part", slice + 1), sw);
                 List<double> thisBatchRedCellVols = GetRedCellVol(redCellVols,slice);
 
-                ProcessSliceOnce(ptsAsp, thisBatchRedCellVols, BBPlasmaFast, rackIndex, slice + usedSlices, sampleIndexInRack, sw);
+                ProcessSliceOnce(ptsAsp, thisBatchRedCellVols, BBRedCell, rackIndex, slice + usedSlices, sampleIndexInRack, sw, redCellVols);
                 if (GlobalVars.Instance.TrackBarcode)
                     barcodeTracker.Track(thisBatchRedCellVols, slice + usedSlices, "redCell");
             }
@@ -502,6 +502,8 @@ namespace Biobanking
                         if (aspirateVol < greedyVolume)
                             aspirateVol = 0;
                     }
+                    if (aspirateVol < pipettingSettings.minVolumeAsp)
+                        aspirateVol = 0;
                 }
 
                 if (endVolume < totalPlasmaVolume && curSlice == totalSlice - 1) //最后一管还是不能吸干净
@@ -546,7 +548,7 @@ namespace Biobanking
         }
 
         private void ProcessSliceOnce(List<POINT> ptsAspOrg, List<double> volumes, string liquidClass ,
-             int srcRackIndex,int sliceIndex, int sampleIndexInRack,StreamWriter sw)
+             int srcRackIndex,int sliceIndex, int sampleIndexInRack,StreamWriter sw, List<double> redCellVols = null)
         {
             //有时候，液体需要被喷到不同列，比如目标载架为4*6时
             bool inSameColumn = IsDstWellsInSameColumn(srcRackIndex, sampleIndexInRack, ptsAspOrg.Count);
@@ -554,17 +556,26 @@ namespace Biobanking
             int globalSampleIndex = GetGlobalSampleIndex(srcRackIndex, sampleIndexInRack); //
             bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
             List<POINT> ptsAsp = new List<POINT>(ptsAspOrg);
-            if (bNeedUseLastFour)
+          
+            if (redCellVols != null)
             {
-                POINT ptZero = new POINT(0, 0);
-                ptsAsp.InsertRange(0, new List<POINT>() { ptZero, ptZero, ptZero, ptZero });
-                volumes.InsertRange(0, new List<double>() { 0, 0, 0, 0 });
+
+                //mix 3 times
+                //List<double> vols2Mix = new List<double>();
+                //foreach (var vol in redCellVols)
+                //    vols2Mix.Add(Math.Min(950, vol));
+                //string mixAsp = GenerateAspirateCommand(ptsAsp, vols2Mix, BBRedCellMix, srcGrid, 0, labwareSettings.sourceWells);
+                //string mixDisp = GenerateDispenseCommand(ptsAsp, vols2Mix, BBRedCellMix, srcGrid, 0, 1, labwareSettings.sourceWells);
+                //for (int i = 0; i < 3; i++)
+                //{
+                //    sw.WriteLine(mixAsp);
+                //    sw.WriteLine(mixDisp);
+                //}
             }
 
             //2 吸，喷
             string strAspirate = GenerateAspirateCommand(ptsAsp, volumes, liquidClass, srcGrid,0, labwareSettings.sourceWells);
             sw.WriteLine(strAspirate);
-
             if (inSameColumn)
             {
                 List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, ptsAspOrg.Count);
@@ -689,7 +700,7 @@ namespace Biobanking
             }
 
             if (sampleIndex + 1 > totalSampleAllowed)
-                throw new Exception("Max samples allowed is: " + string.Format("{0}!", totalSampleAllowed));
+                throw new Exception("Max  samples allowed is: " + string.Format("{0}!", totalSampleAllowed));
 
             int startGrid =labwareSettings.dstLabwareStartGrid;
             int maxGrid = GetMaxGrid();

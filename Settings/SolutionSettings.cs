@@ -105,6 +105,7 @@ namespace Settings
         public int safeDelta;
         public double buffySpeedFactor;
         public double plasmaGreedyVolume;
+        public double minVolumeAsp;
         public int dstRedCellSlice;
         public double redCellGreedyVolume;
         public bool giveUpNotEnough;
@@ -135,6 +136,7 @@ namespace Settings
             //redCellBottomHeight = 80; //8mm
             giveUpNotEnough = false;
             msdZDistance = 4;
+            minVolumeAsp = 100;
             msdStartPositionAboveBuffy = 1;
             onlyOneSlicePerLabware = false;
             airGap = 70;

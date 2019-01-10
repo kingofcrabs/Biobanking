@@ -14,6 +14,7 @@ namespace Biobanking
         protected const string BBPlasmaFast = "BB_Plasma_Fast";
         protected const string BBPlasmaMedium = "BB_Plasma_Medium";
         protected const string BBPlasmaSlow = "BB_Plasma_Slow";
+        protected const string BBRedCell = "BB_RedCell";
         protected const string BB_Buffy = "BB_Buffy";
         protected const string BB_Buffy_Mix = "BB_Buffy_Mix";
         protected string breakPrefix = "B;";
