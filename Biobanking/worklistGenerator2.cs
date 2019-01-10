@@ -254,7 +254,7 @@ namespace Biobanking
                 //5 dispense buffy
                 if (inSameColumn)
                 {
-                    WriteDispenseBuffy(rackIndex, sampleIndexInRack,  heightsThisTime.Count,bNeedUseLastFour, sw);
+                     WriteDispenseBuffy(rackIndex, sampleIndexInRack,  heightsThisTime.Count,bNeedUseLastFour, sw);
                 }
                 else//need to dispense to different column
                 {
@@ -661,8 +661,6 @@ namespace Biobanking
         }
 
      
-
-
         private void WriteDispenseBuffyNoCheck(List<POINT> pts, int grid,int site, StreamWriter sw, int tipOffset)
         {
             log.Info("WriteDispenseBuffy for certain region");
@@ -678,16 +676,10 @@ namespace Biobanking
                 if (tipOffset + i < 8)
                     vols[tipOffset + i] = 10;
             }
-            
-
             WriteDispenseBuffyWithMovingPluger(pts,ditiMask,vols,grid,site,tipOffset,sw);
-             //List<POINT> pts = positionGenerator.GetDestWellsForCertainSliceOfOneBatch(batchIndex,0,false);
-           
-
-          
+            //List<POINT> pts = positionGenerator.GetDestWellsForCertainSliceOfOneBatch(batchIndex,0,false);
             //WriteComment("Move tips up.", sw);
             //sw.WriteLine(sMoveLiha);
-
             List<double> volumes = new List<double>();
             //int startTip = 0;
             int buffySlice = pipettingSettings.dstbuffySlice;
@@ -770,10 +762,6 @@ namespace Biobanking
             WriteComment(string.Format("Aspirate air gap: {0}", pipettingSettings.airGap), sw);
             sPPA = GetPPAString(sampleCnt, pipettingSettings.airGap, tipOffset);
             WriteComand(sPPA, sw);
-
-            //WriteComment(string.Format("Move LiHa up to {0}cm", pipettingSettings.retractHeightcm), sw);
-            //var sMoveAbsoluteZ = GetMoveLihaAbsoluteZSlow(sampleCnt, pipettingSettings.retractHeightcm, tipOffset);
-            //WriteComand(sMoveAbsoluteZ, sw);
         }
 
         private string GetVolumeString(List<double> vols)
@@ -845,7 +833,20 @@ namespace Biobanking
             log.Info("Write MSD");
             int samplesInTheBatch = detectedInfos.Count;
             List<double> heights = detectedInfos.Select(x => x.Z2).ToList();
-           
+
+            WriteComment("Set Move values", sw);
+            WriteComment("Set end speed for plungers", sw);
+            string sSEP = GetSEPString(samplesInTheBatch, 2400, tipOffset);
+            WriteComand(sSEP, sw);
+
+            WriteComment("Set stop speed for plungers", sw);
+            string sSPP = GetSPPString(samplesInTheBatch, 1500, tipOffset);
+            WriteComand(sSPP, sw);
+
+            WriteComment("Leading air gap 70", sw);
+            string sPPA = GetPPAString(samplesInTheBatch, pipettingSettings.airGap, tipOffset);
+            WriteComand(sPPA, sw);
+
             //move tips to absolute position
             MoveTipsToAbsolutePosition(sw, heights, tipOffset);
 
@@ -868,8 +869,9 @@ namespace Biobanking
             //int tipOffset = bNeedUseLastFour ? 4 : 0;
             int tipSel = GetTipSelection(samplesInTheBatch,tipOffset);
 
-            WriteComment("Set Move values",sw);
-            string sSEP = GetSEPString(samplesInTheBatch, aspSpeedSteps, tipOffset);
+         
+
+            sSEP = GetSEPString(samplesInTheBatch, aspSpeedSteps, tipOffset);
             WriteComand(sSEP, sw);
             int totalZ = 0;
             for (int i = 0; i < pipettingSettings.buffyAspirateLayers; i++)
@@ -899,16 +901,9 @@ namespace Biobanking
             var sMoveAbsoluteZ = GetMoveLihaAbsoluteZSlow(samplesInTheBatch, pipettingSettings.retractHeightcm, tipOffset);
             WriteComand(sMoveAbsoluteZ, sw);
 
-            WriteComment("Set end speed for plungers", sw);
-            sSEP = GetSEPString(samplesInTheBatch, 2400, tipOffset);
-            WriteComand(sSEP, sw);
-
-            WriteComment("Set stop speed for plungers", sw);
-            string sSPP = GetSPPString(samplesInTheBatch, 1500, tipOffset);
-            WriteComand(sSPP, sw);
-
-            WriteComment("Air gap 70", sw);
-            string sPPA = GetPPAString(samplesInTheBatch, pipettingSettings.airGap, tipOffset);
+         
+            WriteComment("Trailing air gap 70", sw);
+            sPPA = GetPPAString(samplesInTheBatch, pipettingSettings.airGap, tipOffset);
             WriteComand(sPPA, sw);
 
         }

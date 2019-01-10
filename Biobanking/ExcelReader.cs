@@ -77,6 +77,10 @@ namespace Biobanking
             {
                 plateBarcode = GetPlateBarcode4WG();
             }
+            else if( vendorName == "INK")
+            {
+                plateBarcode = GetPlateBarcode4Ink(strs);
+            }
 
             //plateBarcodes.Add(plateBarcode);
             int barcodeColumnIndex = GetBarcodeColumnIndex();
@@ -146,6 +150,11 @@ namespace Biobanking
             }
         }
 
+        private string GetPlateBarcode4Ink(List<string> strs)
+        {
+            return strs[1].Replace("Plate barcode:", "");
+        }
+
         private void ReadBarcodes(List<string> strs, 
             Dictionary<string, string> barcode_Position, 
             Dictionary<string, string> barcode_plateBarcode,
@@ -162,8 +171,49 @@ namespace Biobanking
                 case "WG":
                     ReadBarcode4WG(strs, barcode_Position, barcode_plateBarcode, barcodesThisPlate, plateBarcode, barcodeColumnIndex);
                     break;
+                case "INK":
+                    ReadBarcode4INK(strs, barcode_Position, barcode_plateBarcode, barcodesThisPlate, plateBarcode, barcodeColumnIndex);
+                    break;
             }
             
+        }
+
+        private void ReadBarcode4INK(List<string> strs,
+            Dictionary<string, string> barcode_Position,
+            Dictionary<string, string> barcode_plateBarcode, 
+            Dictionary<string, string> barcodesThisPlate, 
+            string plateBarcode,
+            int barcodeColumnIndex)
+        {
+            int sampleID = 1;
+            strs = strs.Skip(2).ToList();
+            foreach (var s in strs)
+            {
+                if (s == "")
+                    continue;
+                var subStrs = s.Split(',');
+                int val = 0;
+                if (!int.TryParse(subStrs[0], out val))
+                    continue;
+
+                string position = Utility.GetDescription(sampleID);
+                var barcode = subStrs[1];
+                barcode = barcode.Replace("\"", "");
+                barcodesThisPlate.Add(position, barcode);
+                if (barcode == "noTube" || barcode == "error")
+                {
+                    continue; //ignore empty barcodes.
+                }
+                if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
+                {
+                    var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
+                    throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
+                         wells[0], wells[1], barcode));
+                }
+                barcode_Position.Add(barcode, position);
+                barcode_plateBarcode.Add(barcode, plateBarcode);
+                sampleID++;
+            }
         }
 
         private void ReadBarcode4WG(List<string> strs,
@@ -217,16 +267,23 @@ namespace Biobanking
                 if (s == "")
                     continue;
                 var subStrs = s.Split(',');
-                string position = Utility.GetDescription(sampleID);
+                int wellID = ParseWell(subStrs[0]);
+                string position = Utility.GetDescription(wellID);
                 var barcode = subStrs[barcodeColumnIndex];
                 barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
                 if (barcode == "")
                 {
+                    sampleID++;
                     continue; //ignore empty barcodes.
                 }
                 if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
                 {
+                    if (barcode == "")
+                    {
+                        sampleID++;
+                        continue; //ignore empty barcodes.
+                    }
                     var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
                     throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
                          wells[0], wells[1], barcode));
@@ -235,6 +292,13 @@ namespace Biobanking
                 barcode_plateBarcode.Add(barcode, plateBarcode);
                 sampleID++;
             }
+        }
+
+        private int ParseWell(string s)
+        {
+            int row = s.First() - 'A';
+            int column = int.Parse(s.Substring(1));
+            return (column -1) * 8 + row + 1;
         }
 
         private int GetBarcodeColumnIndex()
@@ -248,7 +312,8 @@ namespace Biobanking
 
         private string GetPlateBarcode4WG()
         {
-            throw new NotImplementedException();
+            return "WG" + DateTime.Now.Second.ToString() ;
+            //throw new NotImplementedException();
         }
 
         private string GetPosition(List<string> strs)
