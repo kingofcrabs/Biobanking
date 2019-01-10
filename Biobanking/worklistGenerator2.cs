@@ -108,15 +108,13 @@ namespace Biobanking
         
         public bool DoJob()
         {
+            SetLiquidClass();
             detectInfos = ResultReader.Instance.Read();
             List<string> srcBarcodes = detectInfos.Select(x => x.sBarcode).ToList();
             Console.WriteLine(string.Format("{0} samples", srcBarcodes.Count));
             string startWellIDFile =  Utility.GetOutputFolder() + "startWellID.txt";
-            if(File.Exists(startWellIDFile))
-            {
-                string sStartWellID = File.ReadAllText(startWellIDFile);
-                dstPlateStartWellID = PositionGenerator.ParseWellID(sStartWellID);
-            }
+            string sStartWellID = pipettingSettings.startWellIDDescription;
+            dstPlateStartWellID = PositionGenerator.ParseWellID(sStartWellID);
             string startInfo = "Start wellID is:" + PositionGenerator.GetDesc(dstPlateStartWellID);
             Console.WriteLine(startInfo);
             
@@ -766,8 +764,8 @@ namespace Biobanking
                 int buffyVol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
                 steps = GetSteps(buffyVol);
             }
-            WriteComment(string.Format("Aspirate air gap: {0}", steps+pipettingSettings.airGap), sw);
-            string sPPA = GetPPAString(sampleCnt, steps+pipettingSettings.airGap, startTipIndex);
+            WriteComment(string.Format("Aspirate air gap: {0}", steps+pipettingSettings.trailingAirGap), sw);
+            string sPPA = GetPPAString(sampleCnt, steps+pipettingSettings.trailingAirGap, startTipIndex);
             WriteComand(sPPA, sw);
         }
 
@@ -785,10 +783,10 @@ namespace Biobanking
 
             int sampleCnt = pts.Count;
             WriteComment("Set end speed for plungers", sw);
-            string sSEP = GetSEPString(sampleCnt, 2400,startTipIndex);
+            string sSEP = GetSEPString(sampleCnt,pipettingSettings.sep,startTipIndex);
             WriteComand(sSEP, sw);
             WriteComment("Set stop speed for plungers", sw);
-            string sSPP = GetSPPString(sampleCnt, 1500, startTipIndex);
+            string sSPP = GetSPPString(sampleCnt, pipettingSettings.spp, startTipIndex);
             WriteComand(sSPP, sw);
             //air liha total 1000ul, 3150 steps
             int buffyVol = pipettingSettings.buffyVolume / pipettingSettings.dstbuffySlice;
@@ -940,8 +938,8 @@ namespace Biobanking
             WriteComment("Set stop speed for plungers", sw);
             string sSPP = GetSPPString(samplesInTheBatch, 1500);
             WriteComand(sSPP, sw);
-            WriteComment(string.Format("Aspirate air gap: {0}", pipettingSettings.airGap), sw);
-            string sPPA = GetPPAString(samplesInTheBatch, pipettingSettings.airGap);
+            WriteComment(string.Format("Aspirate air gap: {0}", pipettingSettings.trailingAirGap), sw);
+            string sPPA = GetPPAString(samplesInTheBatch, pipettingSettings.trailingAirGap);
         }
 
         #region 

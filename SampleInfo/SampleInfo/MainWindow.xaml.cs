@@ -160,8 +160,8 @@ namespace SampleInfo
                     }
                 }
 
-                string startWellID = txtStartWellID.Text;
-                int dstPlateStartWellID = ParseWellID(startWellID);
+                string sStartWellID = txtStartWellID.Text;
+                int dstPlateStartWellID = ParseWellID(sStartWellID);
                 if (dstPlateStartWellID <= 0 || dstPlateStartWellID > 96)
                 {
                     SetInfo(string.Format("Well ID:{0} is invalid.", dstPlateStartWellID), Colors.Red);
@@ -173,8 +173,8 @@ namespace SampleInfo
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
-                
-
+                pipettingSettings.isWideMouthTip = (bool)chkIsWideMouthTip.IsChecked;
+                pipettingSettings.startWellIDDescription = sStartWellID;
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
                 SaveSettings();
                
@@ -267,6 +267,7 @@ namespace SampleInfo
             txtBuffyVolume.Text = pipettingSettings.buffyVolume.ToString();
             txtbuffySliceCnt.Text = pipettingSettings.dstbuffySlice.ToString();
             txtStartWellID.Text = "A1";
+            chkIsWideMouthTip.IsChecked = pipettingSettings.isWideMouthTip;
         }
 
         

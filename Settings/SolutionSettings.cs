@@ -113,12 +113,16 @@ namespace Settings
         public double msdStartPositionAboveBuffy;
         public bool onlyOneSlicePerLabware;
         public bool msdXYTogether;
-        public int airGap;
+        public int trailingAirGap;
+        public int sep;
+        public int spp;
         public int bottomOffset;
         public int maxVolumePerSlice;
         public int retractHeightcm;
         public bool needTransfer;
         public int plasmaTransferExtraVol;
+        public bool isWideMouthTip;
+        public string startWellIDDescription;
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -137,12 +141,16 @@ namespace Settings
             msdZDistance = 4;
             msdStartPositionAboveBuffy = 1;
             onlyOneSlicePerLabware = false;
-            airGap = 70;
+            trailingAirGap = 70;
             bottomOffset = 388;
             retractHeightcm = 10;
             maxVolumePerSlice = 5000;
             needTransfer = false;
             plasmaTransferExtraVol = 20;
+            isWideMouthTip = false;
+            sep = 2400;
+            spp = 1500;
+            startWellIDDescription = "A1";
         }
     }
 
@@ -163,6 +171,7 @@ namespace Settings
         public int sitesPerCarrier;
         public int transferGrid;
         public int buffyTransferGrid;
+        public bool isWideMouthTip;
         public LabwareSettings()
         {
             sourceLabwareStartGrid = 1;
@@ -178,6 +187,7 @@ namespace Settings
             sitesPerCarrier = 1;
             transferGrid = 17;
             buffyTransferGrid = 19;
+            isWideMouthTip = false;
         }
     }
 

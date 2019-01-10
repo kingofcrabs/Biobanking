@@ -27,6 +27,10 @@
             <StackPanel Orientation="Horizontal">
                 <Label Margin="10,0,0,0">开始位置：</Label>
                 <TextBox Margin="40,0,0,0" Width ="76" Name="txtStartWellID"></TextBox>
+                
+            </StackPanel>
+            <StackPanel Visibility="Hidden" Orientation="Horizontal">
+                <CheckBox Name="chkIsWideMouthTip" Margin="15,5,0,0">宽口枪头</CheckBox>
             </StackPanel>
         </StackPanel>
         <Grid Grid.Column="1">

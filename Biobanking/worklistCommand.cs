@@ -11,13 +11,13 @@ namespace Biobanking
     class worklistCommand
     {
 
-        protected const string BBPlasmaFast = "BB_Plasma_Fast";
-        protected const string BBPlasmaTransfer = "BB_Plasma_Transfer";
-        protected const string BBPlasmaMedium = "BB_Plasma_Medium";
-        protected const string BBPlasmaSlow = "BB_Plasma_Slow";
-        protected const string BB_Buffy = "BB_Buffy";
-        protected const string BB_Buffy_Transfer = "BB_Buffy_Transfer";
-        protected const string BB_Buffy_Mix = "BB_Buffy_Mix";
+        protected string BBPlasmaFast = "BB_Plasma_Fast";
+        protected string BBPlasmaTransfer = "BB_Plasma_Transfer";
+        protected string BBPlasmaMedium = "BB_Plasma_Medium";
+        protected string BBPlasmaSlow = "BB_Plasma_Slow";
+        protected string BB_Buffy = "BB_Buffy";
+        protected string BB_Buffy_Transfer = "BB_Buffy_Transfer";
+        protected string BB_Buffy_Mix = "BB_Buffy_Mix";
         protected string breakPrefix = "B;";
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         protected PipettingSettings pipettingSettings = new PipettingSettings();
@@ -33,6 +33,20 @@ namespace Biobanking
             if (!bok)
             {
                 throw new Exception("Invalid setting:" + errMsg);
+            }
+        }
+
+        protected void SetLiquidClass()
+        {
+            if(pipettingSettings.isWideMouthTip)
+            {
+                BBPlasmaFast = "BB_WidePlasma_Fast";
+                BBPlasmaTransfer = "BB_WidePlasma_Transfer";
+                BBPlasmaMedium = "BB_WidePlasma_Medium";
+                BBPlasmaSlow = "BB_WidePlasma_Slow";
+                BB_Buffy = "BB_WideBuffy";
+                BB_Buffy_Transfer = "BB_WideBuffy_Transfer";
+                BB_Buffy_Mix = "BB_WideBuffy_Mix";
             }
         }
 

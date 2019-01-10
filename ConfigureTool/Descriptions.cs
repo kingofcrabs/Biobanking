@@ -53,7 +53,7 @@ namespace ConfigureTool
             item_Desc.Add("msdStartPositionAboveBuffy", "msd从白膜层上方开始吸取的位置。");
             item_Desc.Add("onlyOneSlicePerLabware", "一个Labware只放一份Plasma，第二份就放到下一个Labware上");
             item_Desc.Add("msdXYTogether", "永远为false，MSD command的早期版本xy距离相等合用一个参数。");
-            item_Desc.Add("airGap", "打掉白膜后吸取的AirGap。");
+            item_Desc.Add("trailingAirGap", "打掉白膜后吸取的AirGap。");
             item_Desc.Add("retractHeightcm", "打掉白膜后retract高度，单位为cm。");
             item_Desc.Add("maxVolumePerSlice", "单份最大体积。");
             item_Desc.Add("bottomOffset", "PAZ的偏移量，不要修改。");
@@ -62,6 +62,10 @@ namespace ConfigureTool
             item_Desc.Add("ScriptFile", "脚本文件路径。");
             item_Desc.Add("plasmaTransferExtraVol", "血清或血浆转管额外体积。");
             item_Desc.Add("maxPlasmaVolumePerTube", "血清或血浆每管最大体积。");
+            item_Desc.Add("isWideMouthTip", "宽口枪头。");
+            item_Desc.Add("startWellIDDescription", "开始孔位，默认A1。");
+            item_Desc.Add("sep", "End Speed for Plungers,5-6000");
+            item_Desc.Add("spp", "Stop Speed for Plungers,50-2700");
             
         }
 
