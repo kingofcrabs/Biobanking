@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Ports;
@@ -30,6 +31,18 @@ namespace BarcodeReader
             WriteResult(false);
             this.FormClosed += MainForm_FormClosed;
             this.Load += MainForm_Load;
+            dataGridView.KeyUp += DataGridView_KeyUp;
+        }
+
+        private void DataGridView_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Enter)
+            {
+                if(dataGridView.CurrentCell.RowIndex == 15)
+                {
+                    Debug.WriteLine("15");
+                }
+            }
         }
 
         void MainForm_Load(object sender, EventArgs e)

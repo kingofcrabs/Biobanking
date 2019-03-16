@@ -77,6 +77,13 @@ namespace Biobanking
             {
                 plateBarcode = GetPlateBarcode4Ink(strs);
             }
+            else if(vendorName == "WG")
+            {
+                plateBarcode = strs[1].Split(',').ToList()[3];
+                if (plateBarcode == "")
+                    throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
+                strs = strs.Skip(1).ToList();
+            }
             else
             {
                 string firstLine = strs[0];
@@ -84,7 +91,7 @@ namespace Biobanking
                 var indexOfID = firstLine.IndexOf("id:");
                 if (indexOfID == -1)
                     throw new Exception("cannot find Plate ID！");
-                plateBarcode = strs[0].Substring(indexOfID + 3);
+                plateBarcode = strs[1].Substring(indexOfID+ 3);
                 if (plateBarcode == "")
                     throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
                 strs = strs.Skip(1).ToList();
@@ -192,7 +199,11 @@ namespace Biobanking
         {
 
             int sampleID = 1;
-            strs = strs.Skip(2).ToList();
+            int skipCnt = 2;
+
+            if (vendorName == "WG")
+                skipCnt = 0;
+            strs = strs.Skip(skipCnt).ToList();
             foreach (var s in strs)
             {
                 if (s == "")
@@ -203,7 +214,7 @@ namespace Biobanking
                 //    continue;
 
                 string position = Utility.GetDescription(sampleID);
-                var barcode = subStrs[1];
+                var barcode = subStrs[barcodeColumnIndex];
                 barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
                 if (barcode == "noTube" || barcode == "error")
@@ -220,8 +231,6 @@ namespace Biobanking
                 barcode_plateBarcode.Add(barcode, plateBarcode);
                 sampleID++;
             }
-
-            
         }
 
         private int GetBarcodeColumnIndex()
@@ -324,7 +333,7 @@ namespace Biobanking
             excelWorkBook = ((Workbook)excelWorkBooks.Open(sCSVFile, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value));
 
             log.InfoFormat("excel path is :{0}", sExcelFile);
-            excelWorkBook.SaveAs(sExcelFile, XlFileFormat.xlAddIn8, Missing.Value, Missing.Value, Missing.Value, Missing.Value, XlSaveAsAccessMode.xlNoChange, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value);
+            excelWorkBook.SaveAs(sExcelFile, XlFileFormat.xlAddIn, Missing.Value, Missing.Value, Missing.Value, Missing.Value, XlSaveAsAccessMode.xlNoChange, Missing.Value, Missing.Value, Missing.Value, Missing.Value, Missing.Value);
             excelWorkBook.Close();
             app.Quit();
         }

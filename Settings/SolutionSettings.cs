@@ -117,7 +117,7 @@ namespace Settings
         public int bottomOffset;
         public int maxVolumePerSlice;
         public int retractHeightcm;
-
+        public double plasmaRatio;
         public bool buffyStandalone;
         public PipettingSettings()
         {
@@ -143,7 +143,7 @@ namespace Settings
             bottomOffset = 388;
             retractHeightcm = 10;
             maxVolumePerSlice = 5000;
-
+            plasmaRatio = 0.6666;
         }
 
         public int GetTotalSlice()

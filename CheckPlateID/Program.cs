@@ -65,13 +65,10 @@ namespace CheckPlateID
             {
                 var sFile = file.FullName;
                 var strs = File.ReadAllLines(sFile).ToList();
-                string secondLine = strs[1];
-                secondLine = secondLine.ToLower();
-                Console.WriteLine("secondLine is:" + secondLine);
-                var indexOfID = secondLine.IndexOf("plate barcode:");
-                if (indexOfID == -1)
-                    throw new Exception("cannot find Plate ID！");
-                string plateBarcode = strs[1].Replace("Plate barcode:","");
+                string plateBarcode = strs[1].Split(',').ToList()[3];
+                if (plateBarcode == "")
+                    throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
+                strs = strs.Skip(1).ToList();
                 plateBarcode = plateBarcode.Trim();
                 if (plateBarcode == "")
                     throw new Exception(string.Format("Plate ID is empty in file：{0}", sFile));
