@@ -40,6 +40,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txtSampleCnt = new System.Windows.Forms.TextBox();
             this.btnClear = new System.Windows.Forms.Button();
+            this.btnSet = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -160,11 +161,22 @@
             this.btnClear.UseVisualStyleBackColor = true;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
+            // btnSet
+            // 
+            this.btnSet.Location = new System.Drawing.Point(140, 447);
+            this.btnSet.Name = "btnSet";
+            this.btnSet.Size = new System.Drawing.Size(75, 23);
+            this.btnSet.TabIndex = 27;
+            this.btnSet.Text = "设置";
+            this.btnSet.UseVisualStyleBackColor = true;
+            this.btnSet.Click += new System.EventHandler(this.btnSet_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(751, 625);
+            this.Controls.Add(this.btnSet);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.txtSampleCnt);
             this.Controls.Add(this.label4);
@@ -201,6 +213,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtSampleCnt;
         private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.Button btnSet;
     }
 }
 

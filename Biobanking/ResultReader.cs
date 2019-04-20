@@ -126,6 +126,8 @@ namespace Biobanking
             
         
             string reportPath = GlobalVars.Instance.ResultFile;//ConfigurationManager.AppSettings[stringRes.reportPath];
+            if (!File.Exists(reportPath))
+                throw new Exception("Cannot find measure result file!");
             int line = 1;
 
             var unitIsMM = ConfigurationManager.AppSettings["UnitIsMM"];

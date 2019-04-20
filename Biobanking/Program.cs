@@ -33,6 +33,7 @@ namespace Biobanking
 #else
             catch (Exception ex)
             {
+                bok = false;
                 Console.WriteLine(ex.Message + ex.StackTrace);
                 Console.WriteLine("Press any key to exit!");
                 Console.ReadKey();

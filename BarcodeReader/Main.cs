@@ -29,8 +29,13 @@ namespace BarcodeReader
         {
             InitializeComponent();
             WriteResult(false);
+            
+            totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
+            txtSampleCnt.Text = totalSampleCnt.ToString();
+            lblVersion.Text = "版本：0.15";
             this.FormClosed += MainForm_FormClosed;
             this.Load += MainForm_Load;
+            dataGridView.Enabled = false;
             dataGridView.KeyUp += DataGridView_KeyUp;
         }
 
@@ -273,7 +278,7 @@ namespace BarcodeReader
             dataGridView.EnableHeadersVisualStyles = false;
             dataGridView.Columns.Clear();
             List<string> strs = new List<string>();
-            totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
+            
             int gridCnt = (totalSampleCnt + 15) / 16;
 
             int srcStartGrid = 1;
@@ -342,7 +347,13 @@ namespace BarcodeReader
         {
             UpdateGridCell(dataGridView.CurrentCell.ColumnIndex + 1, dataGridView.CurrentCell.RowIndex, "");
         }
-        
+
+        private void btnSet_Click(object sender, EventArgs e)
+        {
+            dataGridView.Enabled = true;
+            totalSampleCnt = int.Parse(txtSampleCnt.Text);
+            InitDataGridView();
+        }
     }
 
 }

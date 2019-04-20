@@ -143,7 +143,7 @@ namespace Settings
             bottomOffset = 388;
             retractHeightcm = 10;
             maxVolumePerSlice = 5000;
-            plasmaRatio = 0.6666;
+            plasmaRatio = 1.0;
         }
 
         public int GetTotalSlice()

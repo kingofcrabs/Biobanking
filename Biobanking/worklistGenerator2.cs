@@ -300,8 +300,21 @@ namespace Biobanking
             {
                 WriteComment(string.Format("Processing slice: {0}, red cell part", slice + 1), sw);
                 List<double> thisBatchRedCellVols = GetRedCellVol(redCellVols,slice);
-
-                ProcessSliceOnce(ptsAsp, thisBatchRedCellVols, BBRedCell, rackIndex, slice + usedSlices, sampleIndexInRack, sw, redCellVols);
+                double maxVolume = thisBatchRedCellVols.Max();
+                int times = ((int)maxVolume+849) / 850;
+                for(int i = 0; i< times; i++)
+                {
+                    List<double> thisTimeRedCellVols = new List<double>();
+                    for(int tip = 0; tip < thisBatchRedCellVols.Count; tip++)
+                    {
+                        var vol = thisBatchRedCellVols[tip];
+                        var volThisTime = Math.Min(vol, 850);
+                        thisBatchRedCellVols[tip] -= volThisTime;
+                        thisTimeRedCellVols.Add(volThisTime);
+                        
+                    }
+                    ProcessSliceOnce(ptsAsp, thisTimeRedCellVols, BBRedCell, rackIndex, slice + usedSlices, sampleIndexInRack, sw, redCellVols);
+                }
                 if (GlobalVars.Instance.TrackBarcode)
                     barcodeTracker.Track(thisBatchRedCellVols, slice + usedSlices, "redCell");
             }
@@ -380,10 +393,7 @@ namespace Biobanking
 
         private bool NeedUseLastFour(int startSample)
         {
-            if (labwareSettings.tipCount != 4)
-                return false;
-            int remCnt = startSample % 16;
-            return 16 - remCnt <= 4;
+            return false;
         }
 
         private List<double> GenerateForSlice(int slice, int totalSlice, List<POINT> ptsAsp, int srcRackIndex,int sampleIndexInRack, List<DetectedInfo> heightsThisTime, StreamWriter sw,bool isRedCell = false)
@@ -797,7 +807,11 @@ namespace Biobanking
                 WriteComment(string.Format("Dispensing buffy slice: {0}", slice + 1), sw);
                 WriteDispenseBuffyWithMovingPluger(dispensePts, ditiMask, vols, grid, site, tipOffset,slice, sw);
             }
-            
+
+            WriteComment(string.Format("Aspirate air gap steps: {0}", pipettingSettings.airGap), sw);
+            string sPPA = GetPPAString(pts.Count, pipettingSettings.airGap, tipOffset);
+            WriteComand(sPPA, sw);
+
         }
 
         private void WriteDispenseBuffyWithMovingPluger(List<POINT> pts, int ditiMask,List<double> vols, int grid, int site, int tipOffset,int sliceIndex, StreamWriter sw)
@@ -818,6 +832,12 @@ namespace Biobanking
             WriteComment(string.Format("Move LiHa up to {0}cm", pipettingSettings.retractHeightcm), sw);
             var sMoveAbsoluteZ = GetMoveLihaAbsoluteZSlow(sampleCnt, pipettingSettings.retractHeightcm, tipOffset);
             WriteComand(sMoveAbsoluteZ, sw);
+
+
+            //aspirate 30ul air gap
+            string sPPA = GetPPAString(sampleCnt, stepsPluger + 90, tipOffset);
+            WriteComand(sPPA, sw);
+
 
             WriteComment("Set end speed for plungers", sw);
             string sSEP = GetSEPString(sampleCnt, 2400, tipOffset);
@@ -846,9 +866,12 @@ namespace Biobanking
             WriteComment("Set stop speed for plungers", sw);
             string sSPP = GetSPPString(sampleCnt, 1500, tipOffset);
             WriteComand(sSPP, sw);
-            WriteComment("Move plunger to absolut position 0 (0ul -> dispense all liquid plus part of airgap)", sw);
+            WriteComment(string.Format("Move plunger to absolut step: {0}", plugerStep), sw);
             string sPPA = GetPPAString(sampleCnt, plugerStep, tipOffset);
             WriteComand(sPPA, sw);
+
+           
+
         }
 
         private string GetVolumeString(List<double> vols)
@@ -967,6 +990,7 @@ namespace Biobanking
                 WriteComment(string.Format("Move LiHa deltaZ down -times: {0}",i+1), sw);
                 WriteComand(sMoveLihaDown, sw);
             }
+            
         }
 
         #region 

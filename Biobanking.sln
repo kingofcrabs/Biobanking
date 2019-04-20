@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biobanking", "Biobanking\Biobanking.csproj", "{004F4612-696B-4426-AD95-963076908E27}"
 EndProject
@@ -18,6 +18,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monitor", "Monitor\Monitor.csproj", "{39BCA6D3-CB68-4F8F-B457-47C9FD8D27AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckPlateID", "CheckPlateID\CheckPlateID.csproj", "{F7776DCA-2535-43C2-A409-08BFA719E8D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UploadRelation", "UploadRelation\UploadRelation.csproj", "{59223BEE-8A95-43CC-BA33-A3716A367F23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarcodeReader", "BarcodeReader\BarcodeReader.csproj", "{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +117,30 @@ Global
 		{F7776DCA-2535-43C2-A409-08BFA719E8D6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F7776DCA-2535-43C2-A409-08BFA719E8D6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F7776DCA-2535-43C2-A409-08BFA719E8D6}.Release|x86.ActiveCfg = Release|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Debug|x86.Build.0 = Debug|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Release|x86.ActiveCfg = Release|Any CPU
+		{59223BEE-8A95-43CC-BA33-A3716A367F23}.Release|x86.Build.0 = Release|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Debug|x86.Build.0 = Debug|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|x86.ActiveCfg = Release|Any CPU
+		{5496C6CB-EEB9-47DE-9B01-250FFC23CE26}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

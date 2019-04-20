@@ -41,6 +41,15 @@ namespace Settings
             this.seqNo = seqNo;
             this.age = age;
         }
+
+        public static void TrackBarcodes(List<string> fileFullNames, string srcBarcodeFile)
+        {
+           
+        }
+
+  
+
+      
     }
 
 
