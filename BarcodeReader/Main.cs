@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Ports;
@@ -22,18 +23,37 @@ namespace BarcodeReader
         bool programModify = false;
         int totalSampleCnt = 0;
         int tubeID = 0;
-        
+        int gridCnt = 0;
         List<string> simulateBarcodes = new List<string>();
+        DataGridViewCell lastCell;
         public MainForm()
         {
             InitializeComponent();
             WriteResult(false);
             this.FormClosed += MainForm_FormClosed;
             this.Load += MainForm_Load;
+            dataGridView.KeyUp += DataGridView_KeyUp;
+        }
+
+       
+
+        private void DataGridView_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (dataGridView.CurrentCell.RowIndex == 15 && dataGridView.CurrentCell.Value != null)
+                {
+                    var columnIndex = dataGridView.CurrentCell.ColumnIndex;
+                    if( columnIndex != gridCnt-1)
+                        dataGridView.CurrentCell = dataGridView.Rows[0].Cells[columnIndex+1];
+                }
+            }
+          
         }
 
         void MainForm_Load(object sender, EventArgs e)
         {
+            lblVersion.Text = "版本号：0.17";
             bool isSimulation = bool.Parse(ConfigurationManager.AppSettings["Simulation"]);
             if(isSimulation)
             {
@@ -54,7 +74,6 @@ namespace BarcodeReader
             }
             dataGridView.CellValueChanged += DataGridView_CellValueChanged;
             InitDataGridView();
-            
         }
 
         private void DataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -227,15 +246,15 @@ namespace BarcodeReader
                 {
                     if (tmpGrid == gridID && rowIndex == r) //dont compare to itself
                         continue;
-                    if (tmpBarcodes[r] == currentBarcode)
-                    {
-                        errMsg = string.Format("Grid{0}中第{1}个条码:{2}在Grid{3}中已经存在！",
-                                       gridID,
-                                       rowIndex + 1,
-                                       currentBarcode,
-                                       tmpGrid);
-                        return false;
-                    }
+                    //if (tmpBarcodes[r] == currentBarcode)
+                    //{
+                    //    errMsg = string.Format("Grid{0}中第{1}个条码:{2}在Grid{3}中已经存在！",
+                    //                   gridID,
+                    //                   rowIndex + 1,
+                    //                   currentBarcode,
+                    //                   tmpGrid);
+                    //    return false;
+                    //}
                 }
             }
             return true;
@@ -261,7 +280,8 @@ namespace BarcodeReader
             dataGridView.Columns.Clear();
             List<string> strs = new List<string>();
             totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
-            int gridCnt = (totalSampleCnt + 15) / 16;
+            txtSampleCnt.Text = totalSampleCnt.ToString();
+            gridCnt = (totalSampleCnt + 15) / 16;
 
             int srcStartGrid = 1;
             for (int i = 0; i < gridCnt; i++)
@@ -280,6 +300,8 @@ namespace BarcodeReader
                 dataGridView.Rows.Add(strs.ToArray());
                 dataGridView.Rows[i].HeaderCell.Value = string.Format("行{0}", i + 1);
             }
+            lastCell = dataGridView.Rows[0].Cells[0];
+            
         }
      
 

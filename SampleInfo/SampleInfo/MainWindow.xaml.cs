@@ -233,7 +233,7 @@ namespace SampleInfo
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            lblVersion.Content = 0.15;
+            lblVersion.Content = 0.17;
             try
             {
                 txtSampleCount.Text = Utility.ReadFolder(stringRes.SampleCountFile);
