@@ -232,6 +232,13 @@ namespace Biobanking
             return GetCommandForAllTips(s, samplesThisBatch, pos, tipOffset);
         }
 
+        protected string GetPPRString(int samplesThisBatch, int pos, int tipOffset)
+        {
+            string s = "C5PPR";
+            return GetCommandForAllTips(s, samplesThisBatch, pos, tipOffset);
+        }
+
+
         //zposition, 0 is somewhere near table, so we assume 1500 => 15cm a good position
         protected string GetMoveLihaAbsoluteZ(int samplesInTheBatch, int zPosition, int tipOffset)
         {

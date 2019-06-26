@@ -206,6 +206,10 @@ namespace Biobanking
                         detectResult.Z1 = 10 * double.Parse(dr.ItemArray[i].ToString());
                     if (nameValDict[i] == "Z2")
                         detectResult.Z2 = 10 * double.Parse(dr.ItemArray[i].ToString());
+                    if (nameValDict[i] == "Vh")
+                        detectResult.LiquidVol = double.Parse(dr.ItemArray[i].ToString());
+                    if (nameValDict[i] == "Vl")
+                        detectResult.SepVol = double.Parse(dr.ItemArray[i].ToString());
                 }
                 if (detectResult.Z1 < detectResult.Z2)
                     throw new Exception("Z1 must be greater than Z2");

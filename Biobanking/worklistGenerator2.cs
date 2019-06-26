@@ -345,10 +345,6 @@ namespace Biobanking
                         }
                     }
 
-                    //现在volumeTheTip中就是这次吸完后剩下的体积
-                    double adjustedVolume = aspPositionVolume + volumeTheTip;
-                    double tipVolume2Set = mappingCalculator.GetTipVolumeFromVolume(aspPositionVolume); /*CalculateTipVolume(adjustedHeight, heightsThisTime[tipIndex], slice == totalSlice - 1);*/
-                    eachTimesCommands[times].Add(GetSetVolString(tipIndex + tipOffset, tipVolume2Set));
                     eachTimesHeights[times].Add(mappingCalculator.GetHeightFromVolume(aspPositionVolume));
                 }
             }
@@ -760,8 +756,8 @@ namespace Biobanking
             WriteComand(sPPA, sw);
 
             WriteComment(string.Format("Aspirate air gap: {0}", pipettingSettings.airGap), sw);
-            sPPA = GetPPAString(sampleCnt, pipettingSettings.airGap, tipOffset);
-            WriteComand(sPPA, sw);
+            string sPPR = GetPPRString(sampleCnt, pipettingSettings.airGap, tipOffset);
+            WriteComand(sPPR, sw);
         }
 
         private string GetVolumeString(List<double> vols)
@@ -901,10 +897,9 @@ namespace Biobanking
             var sMoveAbsoluteZ = GetMoveLihaAbsoluteZSlow(samplesInTheBatch, pipettingSettings.retractHeightcm, tipOffset);
             WriteComand(sMoveAbsoluteZ, sw);
 
-         
             WriteComment("Trailing air gap 70", sw);
-            sPPA = GetPPAString(samplesInTheBatch, pipettingSettings.airGap, tipOffset);
-            WriteComand(sPPA, sw);
+            string sPPR = GetPPRString(samplesInTheBatch, pipettingSettings.airGap, tipOffset);
+            WriteComand(sPPR, sw);
 
         }
 

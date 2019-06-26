@@ -50,6 +50,8 @@ namespace Biobanking
     {
         public double Z1; //1/10 mm
         public double Z2;
+        public double LiquidVol;
+        public double SepVol;
         //public string sBarcode;
 
     }
