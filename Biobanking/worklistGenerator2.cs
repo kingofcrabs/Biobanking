@@ -191,8 +191,11 @@ namespace Biobanking
           
             //0 get diti
             WriteComment(string.Format("batch id is: {0}", batchID), sw);
-            sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask));
-
+            bool isSBS = bool.Parse(ConfigurationManager.AppSettings["SBS"]);
+            if (isSBS)
+                sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul SBS LiHa\",0,0,10,70);", ditiMask));
+            else
+                sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask));
             //1 aspirate plasmas
             double area = mappingCalculator.GetArea();
             if(GlobalVars.Instance.IsRedCell)
