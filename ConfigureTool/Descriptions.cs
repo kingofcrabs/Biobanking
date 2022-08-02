@@ -24,7 +24,6 @@ namespace ConfigureTool
             item_Desc.Add("ExcelTemplate", "输出Excel模板。");
             item_Desc.Add("ConnectionString", "数据库连接字符串。");
             item_Desc.Add("SrcBarcodeFile", "一维码文件。");
-            item_Desc.Add("BuffyStandalone", "Buffy是否单独放一块板子。");
         
             //labwareSettings
             item_Desc.Add("tipCount", "使用多少根枪头加样。");

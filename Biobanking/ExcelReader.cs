@@ -81,7 +81,10 @@ namespace Biobanking
             {
                 plateBarcode = GetPlateBarcode4Ink(strs);
             }
-
+            else if(vendorName == "NJ")
+            {
+                plateBarcode = GetPlateBarcode4NJ(strs);
+            }
             //plateBarcodes.Add(plateBarcode);
             int barcodeColumnIndex = GetBarcodeColumnIndex();
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
@@ -150,6 +153,12 @@ namespace Biobanking
             }
         }
 
+        private string GetPlateBarcode4NJ(List<string> strs)
+        {
+            var str = strs[1].Replace("Rack Identifier = ", "");
+            return str;
+        }
+
         private string GetPlateBarcode4Ink(List<string> strs)
         {
             return strs[1].Replace("Plate barcode:", "");
@@ -168,6 +177,7 @@ namespace Biobanking
                 case "HR":
                     ReadBarcode4HR(strs, barcode_Position, barcode_plateBarcode, barcodesThisPlate, plateBarcode, barcodeColumnIndex);
                     break;
+                case "NJ":
                 case "WG":
                     ReadBarcode4WG(strs, barcode_Position, barcode_plateBarcode, barcodesThisPlate, plateBarcode, barcodeColumnIndex);
                     break;
@@ -306,6 +316,7 @@ namespace Biobanking
             string vendorName = ConfigurationManager.AppSettings["2DBarcodeVendor"];
             Dictionary<string, int> vendor_Index = new Dictionary<string, int>();
             vendor_Index.Add("HR", 1);
+            vendor_Index.Add("NJ", 2);
             vendor_Index.Add("WG", 2);
             return vendor_Index[vendorName];
         }

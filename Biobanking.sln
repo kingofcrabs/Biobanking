@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddReagent", "AddReagent\Ad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectTest", "ProjectTest\ProjectTest.csproj", "{F0DB7A77-DDCF-4648-80C5-5E0B359B2120}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteCSVs", "DeleteCSVs\DeleteCSVs.csproj", "{FEE29914-902D-401E-9C2D-BA613555AEDB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -224,6 +226,18 @@ Global
 		{F0DB7A77-DDCF-4648-80C5-5E0B359B2120}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F0DB7A77-DDCF-4648-80C5-5E0B359B2120}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F0DB7A77-DDCF-4648-80C5-5E0B359B2120}.Release|x86.ActiveCfg = Release|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Debug|x86.Build.0 = Debug|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Release|x86.ActiveCfg = Release|Any CPU
+		{FEE29914-902D-401E-9C2D-BA613555AEDB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
