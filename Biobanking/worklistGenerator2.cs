@@ -161,12 +161,15 @@ namespace Biobanking
             AddCommonInfo2RunResult(runResult);
             SaveRunResult(runResult);
             Thread.Sleep(1000);
+         
+            Console.WriteLine("All finished!");
+
             return true;
         }
 
         private void GenerateForBatch(string sOutput,int rackIndex, int sampleIndexInRack, List<DetectedInfo> heightsThisTime)
         {
-            bool bNeedUseLastFour = NeedUseLastFour(sampleIndexInRack);
+            bool bNeedUseLastFour = false;
             log.InfoFormat("rack index : {0}, start sample : {1}", rackIndex, sampleIndexInRack);
              //batch index
             int batchID = 1+ sampleIndexInRack / labwareSettings.tipCount;
@@ -192,7 +195,7 @@ namespace Biobanking
             //0 get diti
             WriteComment(string.Format("batch id is: {0}", batchID), sw);
             bool isSBS = bool.Parse(ConfigurationManager.AppSettings["SBS"]);
-            if (isSBS)
+            if(isSBS)
                 sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul SBS LiHa\",0,0,10,70);", ditiMask));
             else
                 sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask));

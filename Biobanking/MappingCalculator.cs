@@ -19,7 +19,7 @@ namespace Biobanking
         }
         public double GetArea()
         {
-            var tempCalibItems = calibItems.Skip(1).ToList();
+            var tempCalibItems = calibItems;  //.Skip(1).ToList();
             var last = tempCalibItems.Last();
             var first = tempCalibItems.First();
             return (last.volumeUL - first.volumeUL) / (last.height - first.height);
@@ -28,27 +28,12 @@ namespace Biobanking
 
         private void GetVolumeAndTipVolume(double height,ref int volume, ref int tipVolume)
         {
+            calibItems = calibItems.OrderBy(x => x.height).ToList();
             double maxH = calibItems.Max(x => x.height);
             double minH = calibItems.Min(x => x.height);
             CalibrationItem higher = calibItems.Last();
             CalibrationItem lower = calibItems.First();
-            if (height < maxH)//find first higher
-            {
-                for (int i = 1; i < calibItems.Count; i++)
-                {
-                    if (height < calibItems[i].height)
-                    {
-                        higher = calibItems[i];
-                        lower = calibItems[i - 1];
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                higher = calibItems.Last();
-                lower = calibItems[calibItems.Count - 2];
-            }
+           
             double vDiff = higher.volumeUL - lower.volumeUL;
             //double tipVDiff = higher.tipVolume - lower.tipVolume;
             double hDiff = higher.height - lower.height;
@@ -65,25 +50,10 @@ namespace Biobanking
         {
             double maxV = calibItems.Max(x => x.volumeUL);
             double minV = calibItems.Min(x => x.volumeUL);
+            calibItems = calibItems.OrderBy(x => x.volumeUL).ToList();
             CalibrationItem higher = calibItems.Last();
             CalibrationItem lower = calibItems.First();
-            if (v < maxV)//find first higher
-            {
-                for (int i = 1; i < calibItems.Count; i++)
-                {
-                    if (v < calibItems[i].volumeUL)
-                    {
-                        higher = calibItems[i];
-                        lower = calibItems[i - 1];
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                higher = calibItems.Last();
-                lower = calibItems[calibItems.Count - 2];
-            }
+            
             double vDiff = higher.volumeUL - lower.volumeUL;
             //double tipVDiff = higher.tipVolume - lower.tipVolume;
             double hDiff = higher.height - lower.height;

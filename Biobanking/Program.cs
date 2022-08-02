@@ -11,9 +11,14 @@ namespace Biobanking
     class Program
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+      
+
+
         static void Main(string[] args)
         {
             Console.WriteLine("Version is :" + stringRes.version);
+            Utility.Write2File(Utility.GetOutputFolder() + "result.txt", false.ToString());
             worklistGenerator generator = new worklistGenerator();
             bool bok = false;
 #if DEBUG
