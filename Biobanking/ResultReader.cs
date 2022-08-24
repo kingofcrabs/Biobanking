@@ -161,19 +161,19 @@ namespace Biobanking
                     DetectedInfo detectedInfo = new DetectedInfo();
                     int infoIndex = (curRow - 1);
                     string[] vals = sContent.Split(',');
-                    detectedInfo.Z1 = double.Parse(vals[1]) * ratio;
-                    detectedInfo.Z2 = double.Parse(vals[2]) * ratio;
+                    detectedInfo.ZLiquid = double.Parse(vals[1]) * ratio;
+                    detectedInfo.ZBuffy = double.Parse(vals[2]) * ratio;
                     //if(barcodes != null)
                     //    detectedInfo.sBarcode = trimedBarcodes[line-1];//vals[0];
                     line++;
                     heights.Add(detectedInfo);
                     if(GlobalVars.Instance.IsRedCell)
                     {
-                        if (detectedInfo.Z1 < 5 )
+                        if (detectedInfo.ZLiquid < 5 )
                             throw new Exception("Z1 cannot be smaller than 5mm at line: " + line);
-                        detectedInfo.Z2 = 5;
+                        detectedInfo.ZBuffy = 5;
                     }
-                    else if (detectedInfo.Z1 < 0 || detectedInfo.Z2 < 0)
+                    else if (detectedInfo.ZLiquid < 0 || detectedInfo.ZBuffy < 0)
                         throw new Exception("Z1,Z2 cannot be smaller than 0 at line: " + line);
                     curRow++;
                 }
@@ -203,15 +203,15 @@ namespace Biobanking
                 for (int i = 0; i < dr.ItemArray.Count(); i++)
                 {
                     if (nameValDict[i] == "Z1")
-                        detectResult.Z1 = 10 * double.Parse(dr.ItemArray[i].ToString());
+                        detectResult.ZLiquid = 10 * double.Parse(dr.ItemArray[i].ToString());
                     if (nameValDict[i] == "Z2")
-                        detectResult.Z2 = 10 * double.Parse(dr.ItemArray[i].ToString());
+                        detectResult.ZBuffy = 10 * double.Parse(dr.ItemArray[i].ToString());
                     if (nameValDict[i] == "Vh")
                         detectResult.LiquidVol = double.Parse(dr.ItemArray[i].ToString());
                     if (nameValDict[i] == "Vl")
                         detectResult.SepVol = double.Parse(dr.ItemArray[i].ToString());
                 }
-                if (detectResult.Z1 < detectResult.Z2)
+                if (detectResult.ZLiquid < detectResult.ZBuffy)
                     throw new Exception("Z1 must be greater than Z2");
                 heights.Add(detectResult);
             }

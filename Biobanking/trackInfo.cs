@@ -107,7 +107,11 @@ namespace Biobanking
                                     sampleIndex + indexInList, 
                                     pipettingSettings.dstPlasmaSlice + i));
                             }
-                            var dstBarcode = correspondingbarcodes[sampleIndex+indexInList][pipettingSettings.dstPlasmaSlice + i].Item2;
+                            var tuple = correspondingbarcodes[sampleIndex + indexInList][pipettingSettings.dstPlasmaSlice + i];
+                            var position = tuple.Item1;
+                            var dstBarcode = tuple.Item2;
+                            if (dstBarcode == "")
+                                throw new Exception($"{position}条码为空");
                             TrackInfo info = new TrackInfo(
                             patient.id, 
                             dstBarcode,

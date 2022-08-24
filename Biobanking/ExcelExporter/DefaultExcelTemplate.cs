@@ -22,7 +22,7 @@ namespace Biobanking.ExcelExporter
         private static void Save2Excel(List<TrackInfo> trackInfos, string sFile, Formater formater)
         {
             List<string> strs = new List<string>();
-            string header = "样本条码,目标板条码,坐标,血液类型,分血时间,体积";
+            string header = "样本条码,目标孔条码,目标板条码,坐标,血液类型,分血时间,体积";
             strs.Add(header);
             trackInfos.ForEach(x => strs.Add(formater(x)));
             File.WriteAllLines(sFile, strs, Encoding.Unicode);

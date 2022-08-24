@@ -26,12 +26,12 @@ namespace Biobanking
 
             {
                 Utility.Write2File(Utility.GetOutputFolder() + "result.txt", bok.ToString());
-                if(args.Length != 0)
-                {
-                    CopyConfigurationFiles(args[0]);
-                }
+                //if(args.Length != 0)
+                //{
+                //    CopyConfigurationFiles(args[0]);
+                //}
 
-                bok = generator.DoJob();
+                bok = generator.DoJob(args.Length == 0);
             }
             catch (Exception ex)
             {

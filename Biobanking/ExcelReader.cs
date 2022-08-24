@@ -155,7 +155,7 @@ namespace Biobanking
 
         private string GetPlateBarcode4NJ(List<string> strs)
         {
-            var str = strs[1].Replace("Rack Identifier = ", "");
+            var str = strs[3].Split(',').ToList().First();
             return str;
         }
 
@@ -210,7 +210,7 @@ namespace Biobanking
                 var barcode = subStrs[1];
                 barcode = barcode.Replace("\"", "");
                 barcodesThisPlate.Add(position, barcode);
-                if (barcode == "noTube" || barcode == "error")
+                if (barcode == "NoData" || barcode == "error")
                 {
                     continue; //ignore empty barcodes.
                 }
@@ -233,24 +233,44 @@ namespace Biobanking
             string plateBarcode, 
             int barcodeColumnIndex)
         {
-            int sampleID = 1;
             foreach (var s in strs)
             {
                 if (s == "")
                     continue;
                 var subStrs = s.Split(',');
-                int val = 0;
-                if (!int.TryParse(subStrs[0], out val))
+         
+                if (subStrs.Count() <= 1)
+                    continue;
+               
+
+                string position = subStrs[1];
+                if (position.ToLower().Contains("tube"))
                     continue;
 
-                string position = Utility.GetDescription(sampleID);
+                int val = 0;
+                try
+                {
+                    bool bok = int.TryParse(position, out val);
+                    if(!bok)
+                        val = ParseWell(position);
+                    if (val > 96 || val < 1)
+                        continue;
+                }
+                catch(Exception ex)
+                {
+                    continue;
+                }
+
+
                 var barcode = subStrs[barcodeColumnIndex];
                 barcode = barcode.Replace("\"", "");
-                barcodesThisPlate.Add(position, barcode);
-                if (barcode == "")
+                
+                if (barcode == "" || barcode == "NoData")
                 {
                     continue; //ignore empty barcodes.
                 }
+                string formatPosition = GetWellDescription(val);
+                barcodesThisPlate.Add(formatPosition, barcode);
                 if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
                 {
                     var wells = barcodesThisPlate.Where(x => x.Value == barcode).Select(x => x.Key).ToList();
@@ -259,10 +279,15 @@ namespace Biobanking
                 }
                 barcode_Position.Add(barcode, position);
                 barcode_plateBarcode.Add(barcode, plateBarcode);
-                sampleID++;
             }
         }
 
+        private string GetWellDescription(int wellID)
+        {
+            int colIndex = (wellID-1) / 8;
+            int rowIndex = wellID - colIndex * 8 - 1;
+            return $"{(char)('A' + rowIndex)}{(colIndex + 1).ToString("00")}";
+        }
 
         private void ReadBarcode4HR(List<string> strs,
             Dictionary<string, string> barcode_Position, 

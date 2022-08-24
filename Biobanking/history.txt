@@ -14,4 +14,5 @@
 2019-6-10 1.60 PPA=>PPR
 2022-8-2 1.63  calibration计算只用2个calibItem, 以前用超过2个。
 2022-8-2 1.64  去除exe.config里面的standalone。
-2022-8-2 1.65  add track for NJ
+2022-8-15 1.65  add track for NJ
+2022-8-23 1.66  add dummy mode,只检测条码

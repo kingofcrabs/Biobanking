@@ -74,9 +74,9 @@ namespace Biobanking
                         int infoIndex = (curRow - 1) % nSamples;
                             string[] vals = sContent.Split('\t');
                             if (curRow < (lineCount + 1) / 2)
-                                heights[infoIndex].Z1 = 10*double.Parse(vals[nHeightColumn]); //unit is mm, scirobot unit is cm
+                                heights[infoIndex].ZLiquid = 10*double.Parse(vals[nHeightColumn]); //unit is mm, scirobot unit is cm
                             else
-                                heights[infoIndex].Z2 = 10*double.Parse(vals[nHeightColumn]);
+                                heights[infoIndex].ZBuffy = 10*double.Parse(vals[nHeightColumn]);
                         
                     }
                     curRow++;
@@ -107,9 +107,12 @@ namespace Biobanking
         const int maxSourceCountOneRack = 10;
         List<DetectedInfo> detectInfos = null;
         List<PatientInfo> patientInfos = null;
-        public bool DoJob()
+        public bool DoJob(bool realData)
         {
-            detectInfos = ResultReader.Instance.Read();
+            if (realData)
+                detectInfos = ResultReader.Instance.Read();
+            else
+                detectInfos = GenerateTestInfos();
             patientInfos = ResultReader.Instance.ReadPatientInfos();
             if(patientInfos != null)
             {
@@ -167,6 +170,23 @@ namespace Biobanking
             return true;
         }
 
+        private List<DetectedInfo> GenerateTestInfos()
+        {
+            string sCountFilePath = Utility.GetOutputFolder() + "SampleCount.txt";
+            string sampleCntTxt = File.ReadAllText(sCountFilePath);
+            int cnt = int.Parse(sampleCntTxt);
+            List<DetectedInfo> detectedInfos = new List<DetectedInfo>();
+            for (int i = 0; i < cnt; i++)
+                detectedInfos.Add(new DetectedInfo()
+                {
+                    ZLiquid = 5,
+                    ZBuffy = 2,
+                    LiquidVol = 4.5,
+                    SepVol = 2.0
+                }); 
+            return detectedInfos;
+        }
+
         private void GenerateForBatch(string sOutput,int rackIndex, int sampleIndexInRack, List<DetectedInfo> heightsThisTime)
         {
             bool bNeedUseLastFour = false;
@@ -206,7 +226,7 @@ namespace Biobanking
                 pipettingSettings.dstbuffySlice = 0;
                 mixCommand mixCommand = new mixCommand();
                 List<int> vols = new List<int>();
-                heightsThisTime.ForEach(x=>vols.Add((int)(mappingCalculator.GetVolumeFromHeight(x.Z1)-mappingCalculator.GetVolumeFromHeight(x.Z2))));
+                heightsThisTime.ForEach(x=>vols.Add((int)(mappingCalculator.GetVolumeFromHeight(x.ZLiquid)-mappingCalculator.GetVolumeFromHeight(x.ZBuffy))));
                 var strs = mixCommand.GenerateMixForBatch(rackIndex,sampleIndexInRack,vols);
                 strs.ForEach(s => sw.WriteLine(s));
                 return;
@@ -323,8 +343,8 @@ namespace Biobanking
             for (int tipIndex = 0; tipIndex < heightsThisTime.Count; tipIndex++)
             {
                 // set tip_volume 
-                double z1 = heightsThisTime[tipIndex].Z1;
-                double z2 = heightsThisTime[tipIndex].Z2;
+                double z1 = heightsThisTime[tipIndex].ZLiquid;
+                double z2 = heightsThisTime[tipIndex].ZBuffy;
                 double aspPositionVolume = CalcuAspiratePositionVolume(slice, totalSlice, z1, z2);
                 double volumeTheTip = CalculateAspirateVolume(slice, totalSlice, z1, z2);
                 vols.Add(volumeTheTip);
@@ -388,7 +408,7 @@ namespace Biobanking
             {
                 if (volumes[tipIndex] != 0)
                 {
-                    double diff = heights[tipIndex] - heightsThisTime[tipIndex].Z2;
+                    double diff = heights[tipIndex] - heightsThisTime[tipIndex].ZBuffy;
                     if (diff < smalleastDiff)
                         smalleastDiff = diff;
                 }
@@ -834,7 +854,7 @@ namespace Biobanking
         {
             log.Info("Write MSD");
             int samplesInTheBatch = detectedInfos.Count;
-            List<double> heights = detectedInfos.Select(x => x.Z2).ToList();
+            List<double> heights = detectedInfos.Select(x => x.ZBuffy).ToList();
 
             WriteComment("Set Move values", sw);
             WriteComment("Set end speed for plungers", sw);
@@ -938,8 +958,8 @@ namespace Biobanking
             double area = mappingCalculator.GetArea();
             for (int i = 0; i < heightsThisTime.Count; i++)
             {
-                double z1 = heightsThisTime[i].Z1;
-                double z2 = heightsThisTime[i].Z2;
+                double z1 = heightsThisTime[i].ZLiquid;
+                double z2 = heightsThisTime[i].ZBuffy;
                 
                 double totalPlasmaVolume = mappingCalculator.GetVolumeFromHeight(z1) -
                     mappingCalculator.GetVolumeFromHeight(z2) - pipettingSettings.safeDelta *area;
@@ -962,8 +982,8 @@ namespace Biobanking
             double area = mappingCalculator.GetArea();
             for (int i = 0; i < heightsThisTime.Count; i++)
             {
-                double z1 = heightsThisTime[i].Z1;
-                double z2 = heightsThisTime[i].Z2;
+                double z1 = heightsThisTime[i].ZLiquid;
+                double z2 = heightsThisTime[i].ZBuffy;
                 double totalPlasmaVolume = (z1 - z2 - pipettingSettings.safeDelta) * area;
                 int plasmaSlice = pipettingSettings.dstPlasmaSlice;
                 if (pipettingSettings.plasmaGreedyVolume != 0)

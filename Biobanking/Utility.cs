@@ -48,8 +48,8 @@ namespace Biobanking
 
     public class DetectedInfo
     {
-        public double Z1; //1/10 mm
-        public double Z2;
+        public double ZLiquid; //1/10 mm
+        public double ZBuffy;
         public double LiquidVol;
         public double SepVol;
         //public string sBarcode;
