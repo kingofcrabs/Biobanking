@@ -203,8 +203,10 @@ namespace Biobanking
                     continue;
                 var subStrs = s.Split(',');
                 int val = 0;
-                if (!int.TryParse(subStrs[0], out val))
-                    continue;
+                //A1 A2
+                val = ParseWell(subStrs[0]);
+                //if (!int.TryParse(subStrs[0], out val))
+                //    continue;
 
                 string position = Utility.GetDescription(sampleID);
                 var barcode = subStrs[1];
@@ -343,6 +345,7 @@ namespace Biobanking
             vendor_Index.Add("HR", 1);
             vendor_Index.Add("NJ", 2);
             vendor_Index.Add("WG", 2);
+            vendor_Index.Add("INK", 1);
             return vendor_Index[vendorName];
         }
 

@@ -16,3 +16,4 @@
 2022-8-2 1.64  去除exe.config里面的standalone。
 2022-8-15 1.65  add track for NJ
 2022-8-23 1.66  add dummy mode,只检测条码
+2023-3-23 1.69  ink 2d barcode bug fix
