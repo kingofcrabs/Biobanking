@@ -79,8 +79,8 @@ namespace Biobanking
                     Math.Round(adjustVol, 2).ToString(),
                     barcode_plateBarcodes[dstBarcode],
                     barcode_Position[dstBarcode],
-                    patient.name,
-                    patient.seqNo);
+                    patient.name, patient.seqNo
+                    );
                 trackInfos.Add(info);
                 indexInList++;
             }

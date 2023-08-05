@@ -4,7 +4,6 @@
     <StartArguments>g</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <StartArguments>
-    </StartArguments>
+    <StartArguments>g</StartArguments>
   </PropertyGroup>
 </Project>
