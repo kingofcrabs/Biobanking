@@ -23,11 +23,11 @@ namespace Biobanking.ExcelExporter
         {
             List<string> strs = new List<string>();
             //string header = "样本条码,目标孔条码,目标板条码,坐标,血液类型,分血时间,体积";
-            string header = "Rack Id\tCavity Id\tPosition\tSample Id\tCONCENTRATION\tCONCENTRATIONUNIT\tVOLUME"
-                + "USERDEFINED1\tUSERDEFINED2\tUSERDEFINED3\tUSERDEFINED4\tUSERDEFINED5\tPlateErrors\tSampleErrors\tSAMPLEINSTANCEID\tSAMPLEID";
+            string header = "Rack Id,Cavity Id,Position,Sample Id,CONCENTRATION,CONCENTRATIONUNIT,VOLUME"
+                + "USERDEFINED1,USERDEFINED2,USERDEFINED3,USERDEFINED4,USERDEFINED5,PlateErrors,SampleErrors,SAMPLEINSTANCEID,SAMPLEID";
             strs.Add(header);
             trackInfos.ForEach(x => strs.Add(formater(x)));
-            File.WriteAllLines(sFile, strs, Encoding.Unicode);
+            File.WriteAllLines(sFile, strs, Encoding.UTF8);
             string sFolder = Utility.GetOutputFolder() + "Latest\\";
             if (!Directory.Exists(sFolder))
                 Directory.CreateDirectory(sFolder);
@@ -51,8 +51,9 @@ namespace Biobanking.ExcelExporter
             bool isDigital = int.TryParse(sWell, out wellID);
             if (isDigital)
                 sWell = GetWellDescription(wellID);
-            return $"{x.plateBarcode}\t{x.dstBarcode}\t{sWell}\t{x.sourceBarcode}\t{CONCENTRATION}\t{CONCENTRATIONUNIT}\t" +
-                $"{x.volume}\t{x.description}\t\t\t\t\t\t{x.seqNo}\t{x.seqNo}";
+            char splitter = ',';
+            return $"{x.plateBarcode},{x.dstBarcode},{sWell},{x.sourceBarcode},{CONCENTRATION},{CONCENTRATIONUNIT}," +
+                $"{x.volume},{x.description},,,,,,{x.seqNo},{x.seqNo}";
             //return string.Format("{0},{1},{2},{3},{4},{5},{6}", x.sourceBarcode, x.dstBarcode,x.plateBarcode, x.position, x.description, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),x.volume);
         }
 

@@ -34,21 +34,36 @@ namespace Biobanking
             List<List<Tuple<string, string>>> correspondingbarcodes = new List<List<Tuple<string, string>>>();
             List<string> fileFullNames = files.Select(x => x.FullName).ToList();
             string buffyPlateName = "";
+            if(pipettingSettings.onlyOneSlicePerLabware)
+            {
+                if(fileFullNames.Count < pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice)
+                {
+                    throw new Exception("Not enough barcode files!");
+                }
+                //plateBarcode = GetPlateBarcode4NJ(strs);
+                //foreach(var fileName in fileFullNames)
+                //{
+                //    var strs = File.ReadAllLines(fileName).ToList();
+                //    plateBarcode = GetPlateBarcode4NJ(strs);
+                //}
+            }
+
+
 
             bool buffy2Standalone = pipettingSettings.buffyStandalone && pipettingSettings.dstbuffySlice != 0;
-            if (buffy2Standalone)
+            if (buffy2Standalone && !pipettingSettings.onlyOneSlicePerLabware)
             {
-                int cnt = files.Count(x => x.FullName.ToLower().Contains("buffy"));
-                if (cnt == 0)
-                    throw new Exception("No barcode file for buffy plate found!");
-                if (cnt != 1)
-                    throw new Exception("Only one buffy plate supported!");
+                //int cnt = files.Count(x => x.FullName.ToLower().Contains("buffy"));
+                //if (cnt == 0)
+                //    throw new Exception("No barcode file for buffy plate found!");
+                //if (cnt != 1)
+                //    throw new Exception("Only one buffy plate supported!");
                 buffyPlateName = files.Where(x => x.FullName.ToLower().Contains("buffy")).First().FullName;
                 fileFullNames = fileFullNames.Except(new List<string>() { buffyPlateName }).ToList();
             }
 
             fileFullNames.ForEach(x => ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, x));
-            if (buffy2Standalone)
+            if (buffy2Standalone && !pipettingSettings.onlyOneSlicePerLabware)
             {
                 ReadBarcode(correspondingbarcodes, barcode_plateBarcode, barcode_Position, buffyPlateName);
             }
@@ -92,10 +107,11 @@ namespace Biobanking
             ReadBarcodes(strs, barcode_Position, barcode_plateBarcode,barcodesThisPlate, barcodeColumnIndex, plateBarcode, vendorName);
             int samplesPerRow;
             int buffySlice = pipettingSettings.dstbuffySlice;
+            int sampleIndex = 0;
             if (buffySlice != 0 && pipettingSettings.buffyStandalone && sFile.ToLower().Contains("buffy"))
             {
                 samplesPerRow = Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings);
-                int sampleIndex = 0;
+               
                 for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
                 {
                     int startColumn = subRegionIndex * buffySlice;
@@ -128,7 +144,10 @@ namespace Biobanking
 
             int dstBuffySlice = pipettingSettings.buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
             int totalSliceCnt = dstBuffySlice + pipettingSettings.dstPlasmaSlice;
+            if (pipettingSettings.onlyOneSlicePerLabware)
+                totalSliceCnt = 1;
             samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings, pipettingSettings.buffyStandalone);
+            sampleIndex = 0;
             for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
             {
                 int startColumn = subRegionIndex * totalSliceCnt;
@@ -148,7 +167,18 @@ namespace Biobanking
                         var tuple = Tuple.Create(well, tmpBarcode);
                         subRegionPosition_Barcodes.Add(tuple);
                     }
-                    srcTubeCorrespondingBarcodes.Add(subRegionPosition_Barcodes);
+                    if(pipettingSettings.onlyOneSlicePerLabware)
+                    {
+                        if (srcTubeCorrespondingBarcodes.Count < 96)
+                            srcTubeCorrespondingBarcodes.Add(subRegionPosition_Barcodes);
+                        else
+                            srcTubeCorrespondingBarcodes[sampleIndex++].Add(subRegionPosition_Barcodes[0]);
+                    }
+                   else
+                    {
+                        srcTubeCorrespondingBarcodes.Add(subRegionPosition_Barcodes);
+                    }
+                   
                 }
             }
         }
@@ -279,8 +309,12 @@ namespace Biobanking
                     throw new Exception(string.Format("Position at {0} and {1}'s barcodes:{2} are duplicated.",
                          wells[0], wells[1], barcode));
                 }
-                barcode_Position.Add(barcode, position);
-                barcode_plateBarcode.Add(barcode, plateBarcode);
+                if(!barcode.Contains("NoData"))
+                {
+                    barcode_Position.Add(barcode, position);
+                    barcode_plateBarcode.Add(barcode, plateBarcode);
+                }
+                   
             }
         }
 

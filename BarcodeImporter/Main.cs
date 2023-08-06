@@ -153,7 +153,7 @@ namespace BarcodeImporter
             InitDataGridView(patientInfos.Count);
             int maxAllowed = int.Parse(ConfigurationManager.AppSettings["maxSampleCnt"]);
             if(patientInfos.Count > maxAllowed)
-                throw new Exception(string.Format("一共有{0}个样品，超过最大允许数{1}",patientInfos.Count,maxAllowed));
+                throw new Exception(string.Format("there are {0} samples，exceed max allowed{1}",patientInfos.Count,maxAllowed));
 
             for (int i = 0; i < patientInfos.Count; i++)
             {

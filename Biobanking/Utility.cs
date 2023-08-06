@@ -114,7 +114,7 @@ namespace Biobanking
         {
             if (list.Count < 4)
             {
-                throw new Exception("配置文件格式错误，配置项不全");
+                throw new Exception("configure error, incomplete keys");
             }
             DestRack rack = new DestRack();
             rack.Name = list[0];

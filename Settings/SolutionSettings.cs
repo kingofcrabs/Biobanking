@@ -119,6 +119,7 @@ namespace Settings
         public int retractHeightcm;
         public bool buffyStandalone;
         public bool buffyOneByOne;
+        public double minVolumeAsSlice;
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -143,6 +144,7 @@ namespace Settings
             maxVolumePerSlice = 5000;
             buffyStandalone = false;
             buffyOneByOne = false;
+            minVolumeAsSlice = 100;
 
         }
     }

@@ -24,7 +24,7 @@ namespace ConfigureTool
             item_Desc.Add("ExcelTemplate", "输出Excel模板。");
             item_Desc.Add("ConnectionString", "数据库连接字符串。");
             item_Desc.Add("SrcBarcodeFile", "一维码文件。");
-        
+           
             //labwareSettings
             item_Desc.Add("tipCount", "使用多少根枪头加样。");
             item_Desc.Add("dstLabwareRows", "目标Labware的行数，96孔板的话就是8行，16孔载架就是16。");
@@ -38,6 +38,7 @@ namespace ConfigureTool
             item_Desc.Add("gridsPerCarrier", "一个目标载架占几个Grid。");
             item_Desc.Add("sitesPerCarrier", "一个目标载架有几个Site");
             item_Desc.Add("SBS", "枪头载架是否是SBS盒子");
+            item_Desc.Add("sliceUniqueLabware", "每份单独一个载架");
             //pipettingSettings
 
             item_Desc.Add("buffyAspirateLayers", "白膜吸取层数。");

@@ -36,7 +36,7 @@ namespace ConfigureTool
             {
                 return GetSetting(pipettingSettings);
             }
-            throw new Exception("不支持的设置！");
+            throw new Exception("unsupported settings");
         }
 
 
@@ -57,7 +57,7 @@ namespace ConfigureTool
                 Utility.SaveSettings(labwareSettings, sLabwareSettingFileName);
             }
             else
-                throw new Exception("不支持的配置文件！");
+                throw new Exception("config file not supported!");
         }
         internal void SetSetting(Object obj, Dictionary<string, string> settings)
         {

@@ -234,17 +234,61 @@ namespace Biobanking
             List<POINT> ptsAsp = positionGenerator.GetSrcWells(sampleIndexInRack, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
             int plasmaSlice = pipettingSettings.dstPlasmaSlice;
             List<double> plasmaVols = new List<double>();
-            for (int slice = 0; slice < plasmaSlice; slice++)
+
+   
+
+            int plasmaSliceFinished = 0;
+            
+            if (pipettingSettings.onlyOneSlicePerLabware)
             {
-                string sExe = sNotifierFolder + string.Format("Notifier.exe Pipetting;{0};{1};{2}", rackIndex,batchID-1, slice);
-                if(sNotifierFolder != "")
-                sw.WriteLine(string.Format(breakPrefix + "Execute(\"{0}\",2,\"\",2);", sExe));
-         
-                WriteComment(string.Format("Processing slice: {0}, plasma part", slice + 1), sw);
-                plasmaVols = GenerateForSlice(slice, plasmaSlice,ptsAsp,rackIndex,sampleIndexInRack, heightsThisTime,sw);
-                if(GlobalVars.Instance.TrackBarcode)
-                    barcodeTracker.Track(plasmaVols,slice);
+                int srcGrid = GetSrcGrid(rackIndex);
+                int maxSliceTogether = GetMaxSliceTogether(heightsThisTime);
+                int oneTipMaxSlice = 950 / (int)pipettingSettings.plasmaGreedyVolume;
+                maxSliceTogether = Math.Min(maxSliceTogether, pipettingSettings.dstPlasmaSlice);
+                while(maxSliceTogether> 0)
+                {
+                    int thisTimeSliceCnt = Math.Min(oneTipMaxSlice, maxSliceTogether);
+                    maxSliceTogether -= thisTimeSliceCnt;
+                    List<double> volumes = new List<double>();
+                    heightsThisTime.ForEach(x => volumes.Add(thisTimeSliceCnt * pipettingSettings.plasmaGreedyVolume));
+                    string strAspirate = GenerateAspirateCommand(ptsAsp, volumes, BBPlasmaFast, srcGrid, 0, labwareSettings.sourceWells);
+                    sw.WriteLine(strAspirate);
+                    int grid = 0, site = 0;
+                    for (int i = 0; i < thisTimeSliceCnt; i++)
+                    {
+                        GetGridSite4OneSlicePerLabware(plasmaSliceFinished, ref grid, ref site);
+                        List<double> thisBatchVolumes = GetDispenseVolume(volumes);
+                        List<POINT> ptsDisp = positionGenerator.GetDestWellsOneSlicePerRegion(sampleIndexInRack, sampleIndexInRack, heightsThisTime.Count); 
+                        var strDispense = GenerateDispenseCommand(ptsDisp, thisBatchVolumes, BBPlasmaFast, grid, site, labwareSettings.dstLabwareRows);
+                        sw.WriteLine(strDispense);
+                        string sExe = sNotifierFolder + string.Format("Notifier.exe Pipetting;{0};{1};{2}", rackIndex, batchID - 1, i);
+                        if (sNotifierFolder != "")
+                            sw.WriteLine(string.Format(breakPrefix + "Execute(\"{0}\",2,\"\",2);", sExe));
+
+                        if (GlobalVars.Instance.TrackBarcode)
+                            barcodeTracker.Track(thisBatchVolumes, plasmaSliceFinished);
+                        plasmaSliceFinished++;
+                      
+                    }
+
+                }
+
             }
+            
+            for (int slice = plasmaSliceFinished; slice < plasmaSlice; slice++)
+            {
+               
+                string sExe = sNotifierFolder + string.Format("Notifier.exe Pipetting;{0};{1};{2}", rackIndex, batchID - 1, slice);
+                if (sNotifierFolder != "")
+                    sw.WriteLine(string.Format(breakPrefix + "Execute(\"{0}\",2,\"\",2);", sExe));
+
+                WriteComment(string.Format("Processing slice: {0}, plasma part", slice + 1), sw);
+                plasmaVols = GenerateForSlice(slice, plasmaSlice, ptsAsp, rackIndex, sampleIndexInRack, heightsThisTime, sw);
+                if (GlobalVars.Instance.TrackBarcode)
+                    barcodeTracker.Track(plasmaVols, slice);
+            }
+            
+         
             
             //2 aspirate & dispense buffy
             bool bhasBuffyCoat = pipettingSettings.dstbuffySlice > 0;//ResultReader.Instance.HasBuffyCoat();
@@ -304,7 +348,63 @@ namespace Biobanking
             
         }
 
+        private void GetGridSite4OneSlicePerLabware(int plasmaSliceFinished, ref int grid, ref int site)
+        {
+            grid = labwareSettings.dstLabwareStartGrid + labwareSettings.gridsPerCarrier* (plasmaSliceFinished / labwareSettings.sitesPerCarrier);
+            site = plasmaSliceFinished % 3 ;
+        }
+
+        private int GetMaxSliceTogether(List<DetectedInfo> heightsThisTime)
+        {
+            double minVol = detectInfos.Min(x => x.LiquidVol - x.SepVol);
+            return (int)minVol / (int)pipettingSettings.plasmaGreedyVolume;
+
+        }
+
+        
        
+        private List<double> GetDispenseVolume(List<double> volumes)
+        {
+            List<double> thisBatchVolumes = new List<double>();
+            for(int i = 0; i< volumes.Count; i++)
+            {
+                var volume = Math.Min(volumes[i], pipettingSettings.plasmaGreedyVolume);
+                volumes[i] -= volume;
+                thisBatchVolumes.Add(volume);
+               
+            }
+            return thisBatchVolumes;
+        }
+
+        private List<int> CalculateSlices4Channels(List<DetectedInfo> detectInfos)
+        {
+            List<int> fastSlicesEachChannelOnce = new List<int>();
+            if (pipettingSettings.plasmaGreedyVolume == 0)
+                throw new Exception("multiple dispense doesn't support average");
+            int maxVol = (950 / (int)pipettingSettings.plasmaGreedyVolume) * (int)pipettingSettings.plasmaGreedyVolume;
+            for(int i = 0; i< detectInfos.Count; i++)
+            {
+                var detectInfo = detectInfos[i];
+                double area = mappingCalculator.GetArea();
+                double vol = detectInfo.LiquidVol - detectInfo.SepVol - (pipettingSettings.safeDelta + 10)*area;
+                int sliceCnt = pipettingSettings.dstPlasmaSlice;
+                int maxSlice = maxVol / (int)pipettingSettings.plasmaGreedyVolume;
+                if (vol < maxVol)
+                {
+                    sliceCnt = (int)vol / (int)pipettingSettings.plasmaGreedyVolume;
+                    if(!pipettingSettings.giveUpNotEnough)
+                    {
+                        throw new Exception("multiple dispense doesn't support different volume");
+                        //if( remainVol / )
+                    }
+                }
+                sliceCnt = Math.Min(maxSlice, sliceCnt);
+                detectInfo.LiquidVol -= sliceCnt * pipettingSettings.plasmaGreedyVolume;
+                fastSlicesEachChannelOnce.Add(sliceCnt);
+            }
+            return fastSlicesEachChannelOnce;
+        }
+
         private int GetTipOffSet(bool bNeedUseLastFour)
         {
              return bNeedUseLastFour ? 4 : 0;
@@ -507,6 +607,7 @@ namespace Biobanking
                 List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex, sliceIndex, sampleIndexInRack, ptsAspOrg.Count);
                 int grid = 0, site = 0;
                 CalculateDestGridAndSite(globalSampleIndex, sliceIndex, ref grid, ref site);
+
                 if(bNeedUseLastFour)
                 {
                     POINT ptZero = new POINT(0, 0);
@@ -591,7 +692,12 @@ namespace Biobanking
         }
         private void CalculateDestGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
-            CalculateDestPlasmaGridAndSite(sampleIndex,slice, ref grid, ref site);
+            if(pipettingSettings.onlyOneSlicePerLabware)
+            {
+                GetGridSite4OneSlicePerLabware(slice, ref grid, ref site);
+            }
+            else
+                 CalculateDestPlasmaGridAndSite(sampleIndex,slice, ref grid, ref site);
         }
 
         //in each region, only 1 slice would be dispensed to

@@ -194,6 +194,8 @@ namespace Settings
         {
             int buffySlice = buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
             int totalSlicePerSample = buffySlice + pipettingSettings.dstPlasmaSlice;
+            if (pipettingSettings.onlyOneSlicePerLabware)
+                totalSlicePerSample = 1;
             if (labwareSettings.dstLabwareColumns == 1)
                 return 1;
             return labwareSettings.dstLabwareColumns / totalSlicePerSample;
