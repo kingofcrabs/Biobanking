@@ -178,7 +178,6 @@ namespace Biobanking
                     {
                         srcTubeCorrespondingBarcodes.Add(subRegionPosition_Barcodes);
                     }
-                   
                 }
             }
         }

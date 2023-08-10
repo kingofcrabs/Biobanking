@@ -357,7 +357,7 @@ namespace Biobanking
         private int GetMaxSliceTogether(List<DetectedInfo> heightsThisTime)
         {
             double minVol = detectInfos.Min(x => x.LiquidVol - x.SepVol);
-            return (int)minVol / (int)pipettingSettings.plasmaGreedyVolume;
+            return Math.Min((int)minVol / (int)pipettingSettings.plasmaGreedyVolume,pipettingSettings.dstPlasmaSlice);
 
         }
 

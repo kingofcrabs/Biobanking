@@ -76,6 +76,8 @@ namespace TubeChecker
 
         private int ParseID(string position)
         {
+            if (char.IsDigit(position[0]))
+                return int.Parse(position);
             int rowIndex = position[0] - 'A';
             int colID = int.Parse(position.Substring(1));
             return (colID-1) * 8 + rowIndex + 1;
