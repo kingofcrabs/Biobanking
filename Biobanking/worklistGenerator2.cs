@@ -234,11 +234,7 @@ namespace Biobanking
             List<POINT> ptsAsp = positionGenerator.GetSrcWells(sampleIndexInRack, heightsThisTime.Count);  //.GetSrcWellsForCertainSliceOfOneBatch(batchIndex);
             int plasmaSlice = pipettingSettings.dstPlasmaSlice;
             List<double> plasmaVols = new List<double>();
-
-   
-
             int plasmaSliceFinished = 0;
-            
             if (pipettingSettings.onlyOneSlicePerLabware)
             {
                 int srcGrid = GetSrcGrid(rackIndex);
@@ -258,7 +254,7 @@ namespace Biobanking
                     {
                         GetGridSite4OneSlicePerLabware(plasmaSliceFinished, ref grid, ref site);
                         List<double> thisBatchVolumes = GetDispenseVolume(volumes);
-                        List<POINT> ptsDisp = positionGenerator.GetDestWellsOneSlicePerRegion(sampleIndexInRack, sampleIndexInRack, heightsThisTime.Count); 
+                        List<POINT> ptsDisp = positionGenerator.GetDestWellsOneSlicePerRegion(rackIndex, sampleIndexInRack, heightsThisTime.Count); 
                         var strDispense = GenerateDispenseCommand(ptsDisp, thisBatchVolumes, BBPlasmaFast, grid, site, labwareSettings.dstLabwareRows);
                         sw.WriteLine(strDispense);
                         string sExe = sNotifierFolder + string.Format("Notifier.exe Pipetting;{0};{1};{2}", rackIndex, batchID - 1, i);
@@ -268,11 +264,8 @@ namespace Biobanking
                         if (GlobalVars.Instance.TrackBarcode)
                             barcodeTracker.Track(thisBatchVolumes, plasmaSliceFinished);
                         plasmaSliceFinished++;
-                      
                     }
-
                 }
-
             }
             
             for (int slice = plasmaSliceFinished; slice < plasmaSlice; slice++)

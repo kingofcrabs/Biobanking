@@ -24,7 +24,7 @@ namespace ConfigureTool
             item_Desc.Add("ExcelTemplate", "输出Excel模板。");
             item_Desc.Add("ConnectionString", "数据库连接字符串。");
             item_Desc.Add("SrcBarcodeFile", "一维码文件。");
-           
+            item_Desc.Add("startWell", "从哪个孔开始加样。");
             //labwareSettings
             item_Desc.Add("tipCount", "使用多少根枪头加样。");
             item_Desc.Add("dstLabwareRows", "目标Labware的行数，96孔板的话就是8行，16孔载架就是16。");

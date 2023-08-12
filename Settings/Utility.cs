@@ -133,6 +133,13 @@ namespace Settings
                 Directory.CreateDirectory(sFolder);
         }
 
+        public static int ParseWellID(string sNewWell, LabwareSettings labwareSettings)
+        {
+            int rowIndex = sNewWell[0] - 'A';
+            int colIndex = int.Parse(sNewWell.Substring(1))-1;
+            return GetWellID(rowIndex, colIndex, labwareSettings);
+        }
+
         public static string GetOutputFolder()
         {
             string sExeParent = GetExeParentFolder();
@@ -188,6 +195,19 @@ namespace Settings
             if (labwareSettings.dstLabwareColumns == 1)
                 return 1;
             return labwareSettings.dstLabwareColumns / buffySlice;
+        }
+
+        public static int GetWellID(int rowIndex, int colIndex, LabwareSettings labwareSettings)
+        {
+            int rowCnt = labwareSettings.dstLabwareRows;
+            return colIndex * rowCnt + rowIndex + 1;
+        }
+
+        public static string GetWellDescription(int wellID, LabwareSettings labwareSettings)
+        {
+            int colIndex = (wellID - 1) / labwareSettings.dstLabwareRows;
+            int rowIndex = wellID - colIndex * labwareSettings.dstLabwareRows - 1;
+            return $"{(char)('A' + rowIndex)}{(colIndex + 1).ToString("00")}";
         }
 
         public static int GetSamplesPerRow4Plasma(LabwareSettings labwareSettings, PipettingSettings pipettingSettings, bool buffyStandalone)

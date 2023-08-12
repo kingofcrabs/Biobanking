@@ -156,7 +156,9 @@ namespace Biobanking
                     List<Tuple<string, string>> subRegionPosition_Barcodes = new List<Tuple<string, string>>();
                     for (int slice = 0; slice < totalSliceCnt; slice++)
                     {
-                        string well = string.Format("{0}{1:D2}", (char)('A' + rowIndex), startColumn + slice + 1);
+                        int wellID = Utility.GetWellID(rowIndex, startColumn + slice, labwareSettings);
+                        wellID += pipettingSettings.startWell - 1;
+                        string well = Utility.GetWellDescription(wellID,labwareSettings);
                         //if (!IsValidBarcode(barcodesThisPlate[well]))
                         //    throw new Exception(string.Format("{0}处的条码:{1}非法！", well, barcodesThisPlate[well]));
                         string tmpBarcode = "";
@@ -300,7 +302,7 @@ namespace Biobanking
                 {
                     continue; //ignore empty barcodes.
                 }
-                string formatPosition = GetWellDescription(val);
+                string formatPosition = Utility.GetWellDescription(val,labwareSettings);
                 barcodesThisPlate.Add(formatPosition, barcode);
                 if (barcodesThisPlate.Where(x => x.Value == barcode).Count() > 1)
                 {
@@ -317,12 +319,7 @@ namespace Biobanking
             }
         }
 
-        private string GetWellDescription(int wellID)
-        {
-            int colIndex = (wellID-1) / 8;
-            int rowIndex = wellID - colIndex * 8 - 1;
-            return $"{(char)('A' + rowIndex)}{(colIndex + 1).ToString("00")}";
-        }
+     
 
         private void ReadBarcode4HR(List<string> strs,
             Dictionary<string, string> barcode_Position, 

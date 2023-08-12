@@ -63,21 +63,30 @@ namespace Biobanking
      
          internal int AllowedSamples()
          {
-             int columnsPerLabware = labwareSettings.dstLabwareColumns;
+            int dispenseAllowed = 0;
+            if (pipettingSettings.onlyOneSlicePerLabware)
+            {
+                dispenseAllowed = labwareSettings.dstLabwareColumns * labwareSettings.dstLabwareRows;
+                dispenseAllowed -= (pipettingSettings.startWell - 1);
+
+            }
+            else
+            {
+                int columnsPerLabware = labwareSettings.dstLabwareColumns;
+                int totalSlice = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;// + pipettingSettings.dstRedCellSlice;
+                int samplesPerRow = columnsPerLabware / totalSlice;
+                log.InfoFormat("samples per row is: {0}", samplesPerRow);
+
+                dispenseAllowed = samplesPerRow * labwareSettings.dstLabwareRows * labwareSettings.dstCarrierCnt * labwareSettings.sitesPerCarrier;
 
 
-            int totalSlice = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;// + pipettingSettings.dstRedCellSlice;
-             int samplesPerRow = columnsPerLabware / totalSlice;
-             log.InfoFormat("samples per row is: {0}", samplesPerRow);
-
-             int dispenseAllowed = samplesPerRow*labwareSettings.dstLabwareRows * labwareSettings.dstCarrierCnt * labwareSettings.sitesPerCarrier;
-             
-
-             if (columnsPerLabware == 1)
-             {
-                 dispenseAllowed = labwareSettings.dstLabwareRows * (labwareSettings.dstCarrierCnt / totalSlice) * labwareSettings.sitesPerCarrier;
-             }
-             log.InfoFormat("dispenseAllowed is: {0}", dispenseAllowed);
+                if (columnsPerLabware == 1)
+                {
+                    dispenseAllowed = labwareSettings.dstLabwareRows * (labwareSettings.dstCarrierCnt / totalSlice) * labwareSettings.sitesPerCarrier;
+                }
+                log.InfoFormat("dispenseAllowed is: {0}", dispenseAllowed);
+            }
+            
 
              int srcSampleAllowed = labwareSettings.sourceLabwareGrids * labwareSettings.sourceWells;
              log.InfoFormat("srcSampleAllowed is: {0}", srcSampleAllowed);
@@ -98,7 +107,7 @@ namespace Biobanking
 
         internal List<POINT> GetDestWellsOneSlicePerRegion(int srcRackIndex, int startSample, int sampleCount)
         {
-            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
+            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample + pipettingSettings.startWell -1;
             List<POINT> pts = new List<POINT>();
             for(int i = 0; i< sampleCount ; i++)
             {
@@ -118,7 +127,7 @@ namespace Biobanking
         {
             if (pipettingSettings.onlyOneSlicePerLabware)
                 return GetDestWellsOneSlicePerRegion(srcRackIndex, startSample, sampleCount);
-            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
+            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample + pipettingSettings.startWell -1;
             int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
             int totalRow = labwareSettings.dstLabwareRows;
             int plasmaSlice = buffyOnly ? 0 : pipettingSettings.dstPlasmaSlice;

@@ -39,9 +39,10 @@ namespace SampleInfo
         //TubeSettings tubeSettings = new TubeSettings();
         int maxSampleCount = 0;
         bool buffyStandalone = false;
-        
+        PlateViewer plateViewer;
         public MainWindow()
         {
+            plateViewer = new PlateViewer(new Size(400,300), new Size(30, 40));
             InitializeComponent();
             string exePath = "";
             try
@@ -56,8 +57,9 @@ namespace SampleInfo
                 string s = "";
                 plasmaMaxCount = int.Parse(config.AppSettings.Settings["PlasmaMaxCount"].Value);
                 buffyMaxCount = int.Parse(config.AppSettings.Settings["BuffyMaxCount"].Value);
-
-
+                gridParent.Children.Add(plateViewer);
+                plateViewer.SetSelectedWellID(1);
+                plateViewer.OnSelectedWellChanged += PlateViewer_OnSelectedWellChanged;
                 if (!File.Exists(sLabwareSettingFileName))
                 {
                     SetInfo("LabwareSettings xml does not exist! at : " + sLabwareSettingFileName, Colors.Red);
@@ -81,6 +83,11 @@ namespace SampleInfo
             }
         }
 
+        private void PlateViewer_OnSelectedWellChanged(string sNewWell)
+        {
+            txtWellDesc.Text = sNewWell;
+            pipettingSettings.startWell = Utility.ParseWellID(sNewWell,labwareSettings);
+        }
 
         private void btnSubmit_Click(object sender, RoutedEventArgs e)
         {

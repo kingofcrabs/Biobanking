@@ -120,6 +120,7 @@ namespace Settings
         public bool buffyStandalone;
         public bool buffyOneByOne;
         public double minVolumeAsSlice;
+        public int startWell;
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -145,7 +146,7 @@ namespace Settings
             buffyStandalone = false;
             buffyOneByOne = false;
             minVolumeAsSlice = 100;
-
+            startWell = 1;
         }
     }
 
