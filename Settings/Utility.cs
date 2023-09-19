@@ -24,11 +24,12 @@ namespace Settings
         public string position;
         public string name;
         public string seqNo;
+        public int sliceID;
         public TrackInfo()
         {
 
         }
-        public TrackInfo(string src, string dst, string desc, string v,string plateBarcode, string position,string name = "",string seqNo = "")
+        public TrackInfo(string src, string dst, string desc, string v,string plateBarcode, string position,int sliceID, string name = "",string seqNo = "")
         {
             sourceBarcode = src;
             dstBarcode = dst;
@@ -38,6 +39,7 @@ namespace Settings
             this.position = position;
             this.name = name;
             this.seqNo = seqNo;
+            this.sliceID = sliceID;
         }
     }
 

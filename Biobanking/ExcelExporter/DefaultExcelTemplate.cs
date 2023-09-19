@@ -53,7 +53,7 @@ namespace Biobanking.ExcelExporter
                 sWell = GetWellDescription(wellID);
             char splitter = ',';
             return $"{x.plateBarcode},{x.dstBarcode},{sWell},{x.sourceBarcode},{CONCENTRATION},{CONCENTRATIONUNIT}," +
-                $"{x.volume},{x.description},,,,,,{x.seqNo},{x.seqNo}";
+                $"{x.volume},{x.description},{x.sli},,,,,{x.seqNo},{x.seqNo}";
             //return string.Format("{0},{1},{2},{3},{4},{5},{6}", x.sourceBarcode, x.dstBarcode,x.plateBarcode, x.position, x.description, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),x.volume);
         }
 

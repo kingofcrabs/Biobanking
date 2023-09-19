@@ -21,3 +21,4 @@
 2023-8-3 1.71  调整tracking 文件格式,位置A01 B02类似
 2023-8-12 1.72  每份放到一个管子里面,fix bug dispense pt 错误
 2023-8-12 1.73  startwell 
+2023-8-12 1.74  add slice index 

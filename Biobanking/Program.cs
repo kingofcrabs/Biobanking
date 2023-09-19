@@ -21,10 +21,9 @@ namespace Biobanking
             Utility.Write2File(Utility.GetOutputFolder() + "result.txt", false.ToString());
             worklistGenerator generator = new worklistGenerator();
             bool bok = false;
-#if DEBUG
-#else
+
             try
-#endif
+
             {
                 Utility.Write2File(Utility.GetOutputFolder() + "result.txt", bok.ToString());
                 //if(args.Length != 0)
@@ -32,12 +31,9 @@ namespace Biobanking
                 //    CopyConfigurationFiles(args[0]);
                 //}
 
-                bok = generator.DoJob(args.Length == 0);
+                bok = generator.DoJob(args.Length != 0);
             }
-#if DEBUG
-#else
-              catch (Exception ex)
-
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 Console.WriteLine("Press any key to exit!");
@@ -45,7 +41,7 @@ namespace Biobanking
                 Utility.Write2File(Utility.GetOutputFolder() + "errMsg.txt", ex.Message);
                 log.Info(ex.Message);
             }
-#endif
+
             Utility.Write2File(Utility.GetOutputFolder() + "result.txt", bok.ToString());
         }
 
