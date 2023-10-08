@@ -154,8 +154,9 @@ namespace Biobanking
                             break;
                         heightsThisTime.Add(detectInfos[srcRack*labwareSettings.sourceWells+ startSample + tip]);
                     }
-                    GenerateForBatch(sOutput,srcRack, startSample, heightsThisTime);
                     AddEachSampleInfo2RunResult(srcRack, startSample, heightsThisTime, runResult);
+                    GenerateForBatch(sOutput,srcRack, startSample, heightsThisTime);
+                    
                 }
             }
             if(GlobalVars.Instance.TrackBarcode)
@@ -239,12 +240,14 @@ namespace Biobanking
             {
                 int srcGrid = GetSrcGrid(rackIndex);
                 int maxSliceTogether = GetMaxSliceTogether(heightsThisTime);
+                WriteHeightInfo(heightsThisTime);
                 int oneTipMaxSlice = 950 / (int)pipettingSettings.plasmaGreedyVolume;
                 maxSliceTogether = Math.Min(maxSliceTogether, pipettingSettings.dstPlasmaSlice);
                 while(maxSliceTogether> 0)
                 {
                     int thisTimeSliceCnt = Math.Min(oneTipMaxSlice, maxSliceTogether);
                     maxSliceTogether -= thisTimeSliceCnt;
+            
                     List<double> volumes = new List<double>();
                     heightsThisTime.ForEach(x => volumes.Add(thisTimeSliceCnt * pipettingSettings.plasmaGreedyVolume));
                     string strAspirate = GenerateAspirateCommand(ptsAsp, volumes, BBPlasmaFast, srcGrid, 0, labwareSettings.sourceWells);
@@ -265,6 +268,8 @@ namespace Biobanking
                             barcodeTracker.Track(thisBatchVolumes, plasmaSliceFinished);
                         plasmaSliceFinished++;
                     }
+                    //Adjust heights
+                    AdjustHeights(heightsThisTime, thisTimeSliceCnt * pipettingSettings.plasmaGreedyVolume);
                 }
             }
             
@@ -341,6 +346,22 @@ namespace Biobanking
             
         }
 
+        private void WriteHeightInfo(List<DetectedInfo> heightsThisTime)
+        {
+            foreach(var heightInfo in heightsThisTime)
+            {
+                Console.Write($"liqVol:{heightInfo.LiquidVol},sepVol:{heightInfo.SepVol}");
+            }
+            Console.WriteLine("=============");
+        }
+
+        private void AdjustHeights(List<DetectedInfo> heightsThisTime, double v)
+        {
+            double usedHeight = mappingCalculator.GetHeightFromVolume(v);
+            for (int i = 0; i < heightsThisTime.Count; i++)
+                heightsThisTime[i].ZLiquid -= usedHeight;
+        }
+
         private void GetGridSite4OneSlicePerLabware(int plasmaSliceFinished, ref int grid, ref int site)
         {
             grid = labwareSettings.dstLabwareStartGrid + labwareSettings.gridsPerCarrier* (plasmaSliceFinished / labwareSettings.sitesPerCarrier);
@@ -405,10 +426,11 @@ namespace Biobanking
 
         private bool NeedUseLastFour(int startSample)
         {
-            if (labwareSettings.tipCount != 4)
-                return false;
-            int remCnt = startSample % 16;
-            return 16 - remCnt <= 4;
+            return false; //never consider this
+            //if (labwareSettings.tipCount != 4)
+            //    return false;
+            //int remCnt = startSample % 16;
+            //return 16 - remCnt <= 4;
         }
 
         private List<double> GenerateForSlice(int slice, int totalSlice, List<POINT> ptsAsp, int srcRackIndex,int sampleIndexInRack, List<DetectedInfo> heightsThisTime, StreamWriter sw,bool isRedCell = false)

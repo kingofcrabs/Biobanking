@@ -22,3 +22,11 @@
 2023-8-12 1.72  每份放到一个管子里面,fix bug dispense pt 错误
 2023-8-12 1.73  startwell 
 2023-8-12 1.74  add slice index 
+2023-8-12 1.75  userdefine3 = plasma + sliceindex + 1 
+2023-8-12 1.76  userdefine3 = sliceindex + 1 
+2023-10-8 1.77  
+fix bug, 用最后四根枪头[其实只有4根，多加了4根]
+一吸多喷，没有调整液面高度
+1.78
+fix bug, track 计算放到GenerateForBatch前面，因GenerateForBatch修改了高度
+ 

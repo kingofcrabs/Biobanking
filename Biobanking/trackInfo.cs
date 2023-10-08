@@ -79,7 +79,7 @@ namespace Biobanking
                     Math.Round(adjustVol, 2).ToString(),
                     barcode_plateBarcodes[dstBarcode],
                     barcode_Position[dstBarcode],
-                    sliceIndex+1,
+                    sliceIndex+1,  //plasma starts from 2
                     patient.name, patient.seqNo
                     );
                 trackInfos.Add(info);

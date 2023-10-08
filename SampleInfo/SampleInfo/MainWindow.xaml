@@ -50,6 +50,7 @@
             <StackPanel Orientation="Horizontal">
                 <Label>初始孔位：</Label>
                 <TextBox Name="txtWellDesc"></TextBox>
+                <CheckBox VerticalContentAlignment="Center" IsChecked="True" FontWeight="Heavy" Height="30" Name="chkUsePosID">用POSID扫描条码</CheckBox>
             </StackPanel>
     
             <Grid Name="gridParent" Height="340">

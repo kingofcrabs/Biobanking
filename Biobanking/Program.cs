@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using Settings;
 using System.IO;
+using System.Reflection;
 
 namespace Biobanking
 {
@@ -12,12 +13,13 @@ namespace Biobanking
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      
 
 
+       
         static void Main(string[] args)
         {
-            Console.WriteLine("Version is :" + stringRes.version);
+            var version =  Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            Console.WriteLine("Version is :" + version);
             Utility.Write2File(Utility.GetOutputFolder() + "result.txt", false.ToString());
             worklistGenerator generator = new worklistGenerator();
             bool bok = false;

@@ -181,7 +181,9 @@ namespace SampleInfo
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
                 pipettingSettings.dstbuffySlice = tmpBuffySliceCount;
                 pipettingSettings.buffyVolume = tmpBuffyVolume;
-                
+                File.WriteAllText(Utility.GetOutputFolder() + "racksCount.txt", $"{(tmpSampleCount+16-1)/16}");
+                File.WriteAllText(Utility.GetOutputFolder() + "usePosID.txt", $"{(bool)chkUsePosID.IsChecked}");
+
                 File.WriteAllText(Utility.GetOutputFolder() + "SampleCount.txt", txtSampleCount.Text);
                 //string bloodType = GetBloodType();
                 //File.WriteAllText(Utility.GetBloodTypeFile(),bloodType);
@@ -240,7 +242,9 @@ namespace SampleInfo
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            lblVersion.Content = 0.17;
+            var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            lblVersion.Content = version;
             try
             {
                 txtSampleCount.Text = Utility.ReadFolder(stringRes.SampleCountFile);

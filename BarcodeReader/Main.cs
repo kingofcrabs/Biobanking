@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,9 +52,17 @@ namespace BarcodeReader
           
         }
 
+        public string AssemblyVersion
+        {
+            get
+            {
+                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
+        }
+
         void MainForm_Load(object sender, EventArgs e)
         {
-            lblVersion.Text = "版本号：0.17";
+            lblVersion.Text = $"版本号:{AssemblyVersion}";
             bool isSimulation = bool.Parse(ConfigurationManager.AppSettings["Simulation"]);
             if(isSimulation)
             {
@@ -231,11 +240,13 @@ namespace BarcodeReader
 
         private bool IsValidBarcode(string currentBarcode,Dictionary<int,List<string>>eachGridBarcodes, int gridID, int rowIndex, ref string errMsg)
         {
-            if(currentBarcode == "")
+            if(currentBarcode == "" || currentBarcode == "***" ||
+                currentBarcode == "$$$")
             {
                 errMsg = string.Format("Grid{0}中第{1}个条码为空！", gridID, rowIndex + 1);
                 return false;
             }
+
             foreach (var pair in eachGridBarcodes)
             {
                 int tmpGrid = pair.Key;
@@ -279,7 +290,8 @@ namespace BarcodeReader
             dataGridView.EnableHeadersVisualStyles = false;
             dataGridView.Columns.Clear();
             List<string> strs = new List<string>();
-            totalSampleCnt = int.Parse(Utility.ReadFolder(stringRes.SampleCountFile));
+            string smpCntFile = ConfigurationManager.AppSettings["SampleCntFile"];
+            totalSampleCnt = int.Parse(File.ReadAllText(smpCntFile));
             txtSampleCnt.Text = totalSampleCnt.ToString();
             gridCnt = (totalSampleCnt + 15) / 16;
 
@@ -351,6 +363,55 @@ namespace BarcodeReader
         {
             UpdateGridCell(dataGridView.CurrentCell.ColumnIndex + 1, dataGridView.CurrentCell.RowIndex, "");
         }
+        private void btnImportLastTime_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "请选择文件";
+            dialog.RestoreDirectory = true;
+            dialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
+            string selectfile = dialog.FileName;
+            List<string> strs = File.ReadAllLines(selectfile).ToList();
+            tubeID = 1;
+            foreach (var barcode in strs)
+            {
+                OnNewBarcode(barcode);
+                if (totalSampleCnt == tubeID)
+                    break;
+                tubeID++;
+            }
+        }
+        private void btnImport_Click(object sender, EventArgs e)
+        {
+            string sFile = ConfigurationManager.AppSettings["PosIDFile"];
+            List<string> contents = File.ReadAllLines(sFile).ToList();
+            contents = contents.Where(x => x != "").ToList();
+            List<string> barcodes = new List<string>();
+            string firstLine = contents[1];
+            string[] strs = firstLine.Split(';');
+            var grid = int.Parse(strs[0]);
+            contents.RemoveAt(0);
+            tubeID = 1;
+
+            foreach (string s in contents)
+            {
+                var barcode = Parse(s);
+                OnNewBarcode(barcode);
+                if (totalSampleCnt == tubeID)
+                    break;
+                tubeID++;
+                
+            }
+            
+        }
+
+        private string Parse(string s)
+        {
+            string[] strs = s.Split(';');
+            return strs.Last();
+        }
+
         
     }
 
