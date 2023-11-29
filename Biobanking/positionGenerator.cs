@@ -137,7 +137,7 @@ namespace Biobanking
             int buffySlice = plasmaWhenBuffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
             int totalSlicePerSample = buffySlice + plasmaSlice;
             int samplesPerRow = buffyOnly ? Utility.GetSamplesPerRow4Buffy(labwareSettings, pipettingSettings) :
-                Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
+                Utility.GetSamplesPerRow(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
             int samplesPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
 
             int sampleIndexInLabware = nStartSampleIndex;

@@ -121,6 +121,8 @@ namespace Settings
         public bool buffyOneByOne;
         public double minVolumeAsSlice;
         public int startWell;
+        public int dstRedCellSlice = 0;
+      
         public PipettingSettings()
         {
             msdXYTogether = false;
@@ -132,9 +134,7 @@ namespace Settings
             buffySpeedFactor = 2.5;
             buffyVolume = 300;
             plasmaGreedyVolume = 0;
-            //dstRedCellSlice = 0;
-            //redCellGreedyVolume = 300;
-            //redCellBottomHeight = 80; //8mm
+            dstRedCellSlice = 2;
             giveUpNotEnough = false;
             msdZDistance = 4;
             msdStartPositionAboveBuffy = 1;

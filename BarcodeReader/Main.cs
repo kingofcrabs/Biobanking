@@ -62,6 +62,7 @@ namespace BarcodeReader
 
         void MainForm_Load(object sender, EventArgs e)
         {
+            WriteResult(false);
             lblVersion.Text = $"版本号:{AssemblyVersion}";
             bool isSimulation = bool.Parse(ConfigurationManager.AppSettings["Simulation"]);
             if(isSimulation)

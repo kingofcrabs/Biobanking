@@ -1,0 +1,34 @@
+﻿author rex
+2013-11-7 0.66 add reader for TIU.
+2013-11-7 0.69 一个region 就是一列载架，每个载架上可以有X*Y组孔位，不像以前一个载架只有1*Y组孔位.
+2013-12-24 0.77 检测TIU的值不为负.
+2014-1-02 0.78 增加Run Result File.
+2014-1-13 0.79 增加Notifer
+2014-5-7 0.86 runResult file存成xml文件
+2015-4-21 0.89 增加slice最大限制
+2016-12-6 1.35 EVO75在目标板是96孔板时，不能直接拉动Plunger，应为1，3孔同时match。且dispense之后，一根在上面。
+2017-1-5 hint empty code.
+2017-3-17 1.43 可以将buffy加到一个单独的板子。
+2017-3-30 1.44 重构代码。
+2017-4-22 1.50 buffy一个个加，用于75-2，当板子不能两根枪头一起下去的时候。
+2019-6-10 1.60 PPA=>PPR
+2022-8-2 1.63  calibration计算只用2个calibItem, 以前用超过2个。
+2022-8-2 1.64  去除exe.config里面的standalone。
+2022-8-15 1.65  add track for NJ
+2022-8-23 1.66  add dummy mode,只检测条码
+2023-3-23 1.69  ink 2d barcode bug fix
+2023-8-3 1.70  调整tracking 文件格式
+2023-8-3 1.71  调整tracking 文件格式,位置A01 B02类似
+2023-8-12 1.72  每份放到一个管子里面,fix bug dispense pt 错误
+2023-8-12 1.73  startwell 
+2023-8-12 1.74  add slice index 
+2023-8-12 1.75  userdefine3 = plasma + sliceindex + 1 
+2023-8-12 1.76  userdefine3 = sliceindex + 1 
+2023-10-8 1.77  
+fix bug, 用最后四根枪头[其实只有4根，多加了4根]
+一吸多喷，没有调整液面高度
+1.78
+fix bug, track 计算放到GenerateForBatch前面，因GenerateForBatch修改了高度
+2023.10.31 1.79  白膜下降只用msdDistance 不加白膜体积下降距离
+1.8.0.3 增加红细胞及track
+ 

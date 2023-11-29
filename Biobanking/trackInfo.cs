@@ -60,6 +60,7 @@ namespace Biobanking
                 var tuple= correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
                 string dstBarcode = tuple.Item2;
                 int sampleID = sampleIndex + indexInList + 1;
+              
                 if (dstBarcode == "")
                     throw new Exception(string.Format("Cannot find dest barcode at position: {0} for sample: {1}!", tuple.Item1, sampleID));
                 

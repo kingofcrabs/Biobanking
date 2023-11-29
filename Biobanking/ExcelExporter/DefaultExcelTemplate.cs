@@ -53,10 +53,11 @@ namespace Biobanking.ExcelExporter
                 sWell = GetWellDescription(wellID);
             char splitter = ',';
             string descriptionWithSlice = x.description;
-            if(!descriptionWithSlice.Contains("Buffy"))
-            {
-                descriptionWithSlice += $"{x.sliceID}";
-            }
+            //注意，昆山要加后缀
+            //if(!descriptionWithSlice.Contains("Buffy"))
+            //{
+            //    descriptionWithSlice += $"{x.sliceID}";
+            //}
             return $"{x.plateBarcode},{x.dstBarcode},{sWell},{x.sourceBarcode},{CONCENTRATION},{CONCENTRATIONUNIT}," +
                 $"{x.volume},{descriptionWithSlice},{x.sliceID},,,,,{x.seqNo},{x.seqNo}";
         }

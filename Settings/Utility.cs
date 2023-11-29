@@ -182,7 +182,7 @@ namespace Settings
         }
         public static int CalculateDestLabwareNeededCnt(int totalSampleCnt,LabwareSettings labwareSettings, PipettingSettings pipettingSettings,bool buffyStandalone)
         {
-            int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,buffyStandalone);
+            int samplesPerRow = Utility.GetSamplesPerRow(labwareSettings, pipettingSettings,buffyStandalone);
             if (labwareSettings.gridsPerCarrier == 1)
                 samplesPerRow = 1;
             int maxSampleCntPerLabware = samplesPerRow * labwareSettings.dstLabwareRows;
@@ -212,12 +212,10 @@ namespace Settings
             return $"{(char)('A' + rowIndex)}{(colIndex + 1).ToString("00")}";
         }
 
-        public static int GetSamplesPerRow4Plasma(LabwareSettings labwareSettings, PipettingSettings pipettingSettings, bool buffyStandalone)
+        public static int GetSamplesPerRow(LabwareSettings labwareSettings, PipettingSettings pipettingSettings, bool buffyStandalone)
         {
-            int buffySlice = buffyStandalone ? 0 : pipettingSettings.dstbuffySlice;
-            int totalSlicePerSample = buffySlice + pipettingSettings.dstPlasmaSlice;
-            if (pipettingSettings.onlyOneSlicePerLabware)
-                totalSlicePerSample = 1;
+            int buffySlice = pipettingSettings.dstbuffySlice;
+            int totalSlicePerSample = buffySlice + pipettingSettings.dstPlasmaSlice + pipettingSettings.dstRedCellSlice;
             if (labwareSettings.dstLabwareColumns == 1)
                 return 1;
             return labwareSettings.dstLabwareColumns / totalSlicePerSample;

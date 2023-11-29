@@ -146,7 +146,7 @@ namespace Biobanking
             int totalSliceCnt = dstBuffySlice + pipettingSettings.dstPlasmaSlice;
             if (pipettingSettings.onlyOneSlicePerLabware)
                 totalSliceCnt = 1;
-            samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings, pipettingSettings.buffyStandalone);
+            samplesPerRow = Utility.GetSamplesPerRow(labwareSettings, pipettingSettings, pipettingSettings.buffyStandalone);
             sampleIndex = 0;
             for (int subRegionIndex = 0; subRegionIndex < samplesPerRow; subRegionIndex++)
             {

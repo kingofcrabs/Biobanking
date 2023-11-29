@@ -119,6 +119,7 @@ namespace Biobanking
                 patientInfos = patientInfos.Take(detectInfos.Count).ToList();
                 Console.WriteLine(string.Format("{0} samples", patientInfos.Count));
             }
+            Console.WriteLine($"patient count:{patientInfos.Count}");
 
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker = new BarcodeTracker(pipettingSettings, labwareSettings, patientInfos);
@@ -729,7 +730,7 @@ namespace Biobanking
 
         private void CalculateDestPlasmaGridAndSite(int sampleIndex, int slice,ref int grid, ref int site)
         {
-            int samplesPerRow = Utility.GetSamplesPerRow4Plasma(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
+            int samplesPerRow = Utility.GetSamplesPerRow(labwareSettings, pipettingSettings,pipettingSettings.buffyStandalone);
             int sampleCountPerLabware = samplesPerRow* labwareSettings.dstLabwareRows;
             int labwareCnt = labwareSettings.dstCarrierCnt * labwareSettings.sitesPerCarrier;
             int sampleCountPerCarrier = sampleCountPerLabware * labwareSettings.sitesPerCarrier;
@@ -997,8 +998,9 @@ namespace Biobanking
             int aspSpeed = 9;
             double speedFactor = pipettingSettings.buffySpeedFactor;
             int speedXY = (int)(60 * speedFactor);
-            double area = mappingCalculator.GetArea(); 
-            double totalHmm = pipettingSettings.buffyVolume * 10 / area;
+            double area = mappingCalculator.GetArea();
+            //double totalHmm = pipettingSettings.buffyVolume * 10 / area;
+            double totalHmm = 0;
             double adjustedZPerLayer = (totalHmm + pipettingSettings.msdZDistance * 10) / (2 * pipettingSettings.buffyAspirateLayers);
             
             int deltaXY = pipettingSettings.deltaXYForMSD;
