@@ -188,7 +188,8 @@ namespace Biobanking
                 }); 
             return detectedInfos;
         }
-
+        string sGetDiti = "";
+        string sDropDiti = "";
         private void GenerateForBatch(string sOutput,int rackIndex, int sampleIndexInRack, List<DetectedInfo> heightsThisTime)
         {
             bool bNeedUseLastFour = false;
@@ -217,10 +218,12 @@ namespace Biobanking
             //0 get diti
             WriteComment(string.Format("batch id is: {0}", batchID), sw);
             bool isSBS = bool.Parse(ConfigurationManager.AppSettings["SBS"]);
-            if(isSBS)
-                sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul SBS LiHa\",0,0,10,70);", ditiMask));
+            if (isSBS)
+                sGetDiti = string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul SBS LiHa\",0,0,10,70);", ditiMask);
             else
-                sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask));
+                sGetDiti = string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask);
+            sw.WriteLine(sGetDiti);
+            sDropDiti = string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask, labwareSettings.wasteGrid);
             //1 aspirate plasmas
             double area = mappingCalculator.GetArea();
             if(GlobalVars.Instance.IsRedCell)
@@ -335,7 +338,7 @@ namespace Biobanking
                 }
             }
 
-            sw.WriteLine(string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask,labwareSettings.wasteGrid));
+            sw.WriteLine(sDropDiti);
 
             int endSampleID = rackIndex * 16 + sampleIndexInRack + heightsThisTime.Count;
             if (endSampleID >= detectInfos.Count)

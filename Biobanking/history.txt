@@ -30,4 +30,4 @@ fix bug, 用最后四根枪头[其实只有4根，多加了4根]
 1.78
 fix bug, track 计算放到GenerateForBatch前面，因GenerateForBatch修改了高度
 2023.10.31 1.79  白膜下降只用msdDistance 不加白膜体积下降距离
- 
+1.8.0.2  南京条码格式变更

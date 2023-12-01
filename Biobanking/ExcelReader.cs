@@ -186,13 +186,12 @@ namespace Biobanking
 
         private string GetPlateBarcode4NJ(List<string> strs)
         {
-            var str = strs[3].Split(',').ToList().First();
-            return str;
+            return GetPlateBarcode4Ink(strs);
         }
 
         private string GetPlateBarcode4Ink(List<string> strs)
         {
-            return strs[1].Replace("Plate barcode:", "");
+            return strs[1].Replace("rackID=", "");
         }
 
         private void ReadBarcodes(List<string> strs, 

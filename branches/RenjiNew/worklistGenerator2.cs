@@ -199,6 +199,9 @@ namespace Biobanking
             return detectedInfos;
         }
 
+
+        string sGetDiti = "";
+        string sDropDiti = "";
         private void GenerateForBatch(string sOutput,int rackIndex, int sampleIndexInRack, List<DetectedInfo> heightsThisTime)
         {
             bool bNeedUseLastFour = false;
@@ -227,10 +230,13 @@ namespace Biobanking
             //0 get diti
             WriteComment(string.Format("batch id is: {0}", batchID), sw);
             bool isSBS = bool.Parse(ConfigurationManager.AppSettings["SBS"]);
-            if(isSBS)
-                sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul SBS LiHa\",0,0,10,70);", ditiMask));
+            if (isSBS)
+                sGetDiti = string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul SBS LiHa\",0,0,10,70);", ditiMask);
             else
-                sw.WriteLine(string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask));
+                sGetDiti = string.Format(breakPrefix + "GetDiti2({0},\"DiTi 1000ul LiHa\",0,0,10,70);", ditiMask);
+            sw.WriteLine(sGetDiti);
+            sDropDiti = string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask, labwareSettings.wasteGrid);
+
             //1 aspirate plasmas
             double area = mappingCalculator.GetArea();
          
@@ -315,7 +321,7 @@ namespace Biobanking
                 }
             }
 
-            sw.WriteLine(string.Format(breakPrefix + "DropDiti({0},{1},2,10,70,0);", ditiMask,labwareSettings.wasteGrid));
+            sw.WriteLine(sDropDiti);
 
             int endSampleID = rackIndex * 16 + sampleIndexInRack + heightsThisTime.Count;
             if (endSampleID >= detectInfos.Count)
@@ -413,15 +419,17 @@ namespace Biobanking
             //int remCnt = startSample % 16;
             //return 16 - remCnt <= 4;
         }
-
+    
         private List<double> GenerateForSlice(int slice, int totalSlice, List<POINT> ptsAsp, int srcRackIndex,int sampleIndexInRack, List<DetectedInfo> heightsThisTime, StreamWriter sw,bool isRedCell = false)
         {
 
             bool addBuffer = bool.Parse(ConfigurationManager.AppSettings["AddBuffer"]);
             if (addBuffer && slice == 4)  //only 4th slice we need add buffer
             {
+                sw.WriteLine(sDropDiti);
+                sw.WriteLine(sGetDiti);
                 int bufferGrid = int.Parse(ConfigurationManager.AppSettings["BufferGrid"]);
-                int bufferSite = int.Parse(ConfigurationManager.AppSettings["BufferSite"]);
+                int bufferSite = int.Parse(ConfigurationManager.AppSettings["BufferSite"]) - 1;
                 //GenerateAspirateCommand(new List<POINT>() { 1, 2, 3, 4 })
                 List<POINT> srcPts = positionGenerator.GetSrcWells(0, heightsThisTime.Count);
                 List<double> bufferVol = new List<double>();
@@ -431,11 +439,13 @@ namespace Biobanking
                 {
                     bufferVol.Add(pipettingSettings.plasmaGreedyVolume);
                 }
-
+                string liquidName = "BB_FirstBuffer";
                 for (int i = 0; i < 2; i++)
                 {
-                    string strAspirateBuffer = GenerateAspirateCommand(srcPts, bufferVol, "BB_AddBuffer", bufferGrid, bufferSite, bufferWellCnt);
-                    string strDispenseBuffer = GenerateDispenseCommand(ptsAsp, bufferVol, "BB_Buffer", srcGrid, 0, labwareSettings.sourceWells);
+                    if (i != 0)
+                        liquidName = "BB_GeneralBuffer";
+                    string strAspirateBuffer = GenerateAspirateCommand(srcPts, bufferVol, liquidName, bufferGrid, bufferSite, bufferWellCnt);
+                    string strDispenseBuffer = GenerateDispenseCommand(ptsAsp, bufferVol, liquidName, srcGrid, 0, labwareSettings.sourceWells);
                     sw.WriteLine(strAspirateBuffer);
                     sw.WriteLine(strDispenseBuffer);
                 }
@@ -834,6 +844,7 @@ namespace Biobanking
             List<double> volumes = new List<double>();
             //int startTip = 0;
             int buffySlice = pipettingSettings.dstbuffySlice;
+            List<List<POINT>> eachSlice_ptsDisp = new List<List<POINT>>();
             if (buffySlice > 1) //need dispense the buffy
             {
                 volumes.Clear();
@@ -858,6 +869,7 @@ namespace Biobanking
                 for (int i = 0; i < volumes.Count; i++)
                     volumes[i] = volumes[i] / (buffySlice - 1);
                 List<POINT> ptsDisp = new List<POINT>(pts);
+                eachSlice_ptsDisp.Add(pts);
                 for (int slice = 1; slice < pipettingSettings.dstbuffySlice; slice++)
                 {
                     int sliceUsedGrid = 0;
@@ -867,10 +879,31 @@ namespace Biobanking
                     {
                         ptsDisp = ChangePositions(pts, slice);
                     }
+                    eachSlice_ptsDisp.Add(ptsDisp);
                     string strDispense = GenerateDispenseCommand(ptsDisp, volumes, BB_Buffy_Mix, grid + sliceUsedGrid, site, labwareSettings.dstLabwareRows);
                     WriteComment(string.Format("Dispensing buffy slice: {0}", slice + 1), sw);
                     sw.WriteLine(strDispense);
                 }
+
+                //add buffer,250ul
+                int bufferGrid = int.Parse(ConfigurationManager.AppSettings["BufferGrid"]);
+                int bufferSite = int.Parse(ConfigurationManager.AppSettings["BufferSite"]) - 1;
+                List<POINT> srcPts = positionGenerator.GetSrcWells(0, ptsDisp.Count);
+                List<double> bufferVol = new List<double>();
+                const int bufferWellCnt = 8;
+                for (int i = 0; i < ptsDisp.Count; i++)
+                {
+                    bufferVol.Add(250);
+                }
+
+                for (int i = 0; i < 3; i++)
+                {
+                    string strAspirateBuffer = GenerateAspirateCommand(srcPts, bufferVol, "BB_Buffer", bufferGrid, bufferSite, bufferWellCnt);
+                    string strDispenseBuffer = GenerateDispenseCommand(eachSlice_ptsDisp[i], bufferVol, "BB_Buffer", grid, 0, labwareSettings.sourceWells);
+                    sw.WriteLine(strAspirateBuffer);
+                    sw.WriteLine(strDispenseBuffer);
+                }
+
             }
         }
 

@@ -137,7 +137,7 @@ namespace SampleInfo
                         return;
                     }
                 }
-     
+                
 
                 int tmpBuffySliceCount;
                 bok = int.TryParse(txtbuffySliceCnt.Text, out tmpBuffySliceCount);
@@ -167,15 +167,30 @@ namespace SampleInfo
                         return;
                     }
                 }
-                
 
-               
+
+
                 //if (tmpBuffySliceCount > 0 && (bool)rdbRedCell.IsChecked)
                 //{
                 //    SetInfo("红细胞没有Buffy", Colors.Red);
                 //    txtbuffySliceCnt.Text = "0";
                 //    return;
                 //}
+                int regionCnt = (tmpBuffySliceCount + tmpPlasmaCount) * 8;
+                int tmpStartWellID = pipettingSettings.startWell;
+                while (tmpStartWellID > regionCnt)
+                {
+                    tmpStartWellID -= regionCnt;
+                }
+
+
+                if(  (pipettingSettings.startWell - 1) % (tmpPlasmaCount+ tmpBuffySliceCount) !=0)
+                {
+                    SetInfo("开始孔位不能被plasma加白膜份数整除",Colors.Red);
+                    return;
+                }
+
+
 
                 pipettingSettings.plasmaGreedyVolume = tmpVolume;
                 pipettingSettings.dstPlasmaSlice = tmpPlasmaCount;
