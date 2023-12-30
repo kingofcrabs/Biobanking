@@ -134,6 +134,13 @@ namespace Biobanking
             WriteRacksCount(sourceRackCount);
             string sOrgOutPut = sOutput;
             RunResult runResult = new RunResult();
+
+
+            if(labwareSettings.dstLabwareColumns == 1)
+            {
+                throw new Exception("Doesn't support dispense to tube carriers");
+            }
+
             for (int srcRack = 0; srcRack < sourceRackCount; srcRack++)
             {
                 sOutput = sOrgOutPut + "\\srcRack" + (srcRack + 1).ToString() + "\\";

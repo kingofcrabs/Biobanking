@@ -119,7 +119,6 @@ namespace Settings
         public int retractHeightcm;
         public bool buffyStandalone;
         public bool buffyOneByOne;
-        public double minVolumeAsSlice;
         public int startWell;
         public int dstRedCellSlice = 0;
       
@@ -145,7 +144,6 @@ namespace Settings
             maxVolumePerSlice = 5000;
             buffyStandalone = false;
             buffyOneByOne = false;
-            minVolumeAsSlice = 100;
             startWell = 1;
         }
     }

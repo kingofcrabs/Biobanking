@@ -93,6 +93,26 @@ namespace Biobanking
             return GenerateAspirateOrDispenseCommand(wells, volumes, liquidClass, gridPos, site, height, false);
         }
 
+
+        protected string GetMoveLiha(List<double> volumes, List<POINT> wells, int grid, int site)
+        {
+            //MoveLiha(255,15,0,1,"0110?0",0,0,0,10,0,0);
+
+            int tipMask = GetTipSelection(volumes);
+            List<POINT> not0Wells = new List<POINT>();
+            for (int i = 0; i < wells.Count; i++)
+            {
+                if (volumes[i] != 0)
+                    not0Wells.Add(wells[i]);
+            }
+         
+            int width = labwareSettings.dstLabwareColumns;
+            int height = labwareSettings.dstLabwareRows;
+            string sWellSelection = GetWellSelection(width, height, not0Wells);
+            const int tipSpacing = 1;
+            return breakPrefix + $"MoveLiha({tipMask},{grid},{site},{tipSpacing},\"{sWellSelection}\",0,1,0,10,0,0)";
+        }
+
         protected string GenerateAspirateOrDispenseCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height, bool aspirate)
         {
             //B; Aspirate(3, "Water free dispense", "20", "20", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, "0110300", 0, 0);

@@ -183,6 +183,11 @@ namespace SampleInfo
                     tmpStartWellID -= regionCnt;
                 }
 
+                if(labwareSettings.dstLabwareColumns == 1)
+                {
+                    SetInfo("不支持到管子",Colors.Red);
+                    return;
+                }
 
                 if(  (pipettingSettings.startWell - 1) % (tmpPlasmaCount+ tmpBuffySliceCount) !=0)
                 {
