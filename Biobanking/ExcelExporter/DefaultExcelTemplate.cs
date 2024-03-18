@@ -23,7 +23,8 @@ namespace Biobanking.ExcelExporter
         {
             List<string> strs = new List<string>();
             //string header = "样本条码,目标孔条码,目标板条码,坐标,血液类型,分血时间,体积";
-            string header = "Rack Id,Cavity Id,Position,Sample Id,CONCENTRATION,CONCENTRATIONUNIT,VOLUME"
+
+            string header = "Rack Id,Cavity Id,Position,Sample Id,CONCENTRATION,CONCENTRATIONUNIT,VOLUME,"
                 + "USERDEFINED1,USERDEFINED2,USERDEFINED3,USERDEFINED4,USERDEFINED5,PlateErrors,SampleErrors,SAMPLEINSTANCEID,SAMPLEID";
             strs.Add(header);
             trackInfos.ForEach(x => strs.Add(formater(x)));

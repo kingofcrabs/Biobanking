@@ -32,7 +32,7 @@ namespace Monitor
             bFinished = false;
         }
     }
-    class EVOPipettingInfo
+    class PipettingInfo
     {
         public int rackIndex;
         public int batchIndex;
@@ -403,9 +403,6 @@ namespace Monitor
             double xPos = rc.Left + rc.Width / 2.0;
             Point ptOrg = new Point(yPos, yPos);
 
-            DrawOrgCircle(ptOrg, r, carrierIndex, drawingContext);
-           
-            
             int startID = carrierIndex * wellsPerLabware;
             for (int i = 0; i < wellsPerLabware; i++)
             {
@@ -413,41 +410,13 @@ namespace Monitor
                 int thisWellID = startID + i + 1;
                 if (thisWellID > smpCount)
                     return;
-                DrawArrowForMeasure(thisWellID,ptWell, ptOrg, drawingContext);
                 Color wellColor = GetWellColor(thisWellID);
                 DrawCircle(drawingContext, ptWell, r,wellColor);
                 yPos += 2.5 * r ;
             }
         }
 
-        private void DrawOrgCircle(Point ptOrg, double r, int carrierIndex, DrawingContext drawingContext)
-        {
-            if (carrierIndex != 0)
-                return;
-            if (curStage != Stage.Measure)
-                return;
-            
-            Color color = frame % 2 == 0 ? Colors.Orange : Colors.Transparent;
-            if (EVOMeasureInfo.curSampleID == 0 || EVOMeasureInfo.bFinished)
-                color = Colors.Gray;
-            DrawCircle(drawingContext, ptOrg, r, color);
-        }
-
-        private void DrawArrowForMeasure(int thisWellID,Point ptWell, Point ptOrg, DrawingContext drawingContext)
-        {
-            if (curStage != Stage.Measure)
-                return;
-           
-            if (thisWellID != EVOMeasureInfo.curSampleID)
-                return;
-            if (EVOMeasureInfo.bFinished)
-                return;
-
-            Point ptFrom = EVOMeasureInfo.go2MeasurePos ? ptWell : ptOrg;
-            Point ptTo = EVOMeasureInfo.go2MeasurePos ? ptOrg : ptWell;
-            ArrowHelper.DrawArrow(ptFrom, ptTo, drawingContext);
-
-        }
+     
 
         private Color GetWellColor(int thisID)
         {

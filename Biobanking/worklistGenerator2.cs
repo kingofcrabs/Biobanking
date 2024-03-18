@@ -118,10 +118,11 @@ namespace Biobanking
             {
                 patientInfos = patientInfos.Take(detectInfos.Count).ToList();
                 Console.WriteLine(string.Format("{0} samples", patientInfos.Count));
-            }
-            Console.WriteLine($"patient count:{patientInfos.Count}");
+                Console.WriteLine($"patient count:{patientInfos.Count}");
 
-            if(GlobalVars.Instance.TrackBarcode)
+            }
+
+            if (GlobalVars.Instance.TrackBarcode)
                 barcodeTracker = new BarcodeTracker(pipettingSettings, labwareSettings, patientInfos);
             log.Info("read heights");
             mappingCalculator = new MappingCalculator(Settings.Utility.GetExeFolder() + Settings.stringRes.calibFileName);

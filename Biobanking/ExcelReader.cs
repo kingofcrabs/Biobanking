@@ -83,7 +83,7 @@ namespace Biobanking
             var strs = File.ReadAllLines(sFile).ToList();
             string plateBarcode = "dummy";
             string vendorName = ConfigurationManager.AppSettings["2DBarcodeVendor"] ;
-            if ( vendorName == "HR") //no plateID
+            if ( vendorName == "HR" || vendorName == "NJ") //no plateID
             {
                 plateBarcode = sFile.Substring(sFile.LastIndexOf("\\") + 1);
                 plateBarcode = plateBarcode.Replace(".csv", "");
@@ -96,10 +96,7 @@ namespace Biobanking
             {
                 plateBarcode = GetPlateBarcode4Ink(strs);
             }
-            else if(vendorName == "NJ")
-            {
-                plateBarcode = GetPlateBarcode4NJ(strs);
-            }
+          
             //plateBarcodes.Add(plateBarcode);
             int barcodeColumnIndex = GetBarcodeColumnIndex();
             startIndex += labwareSettings.dstLabwareRows * labwareSettings.dstLabwareColumns;
@@ -182,11 +179,6 @@ namespace Biobanking
                     }
                 }
             }
-        }
-
-        private string GetPlateBarcode4NJ(List<string> strs)
-        {
-            return GetPlateBarcode4Ink(strs);
         }
 
         private string GetPlateBarcode4Ink(List<string> strs)
