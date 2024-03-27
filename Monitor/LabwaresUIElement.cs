@@ -32,7 +32,7 @@ namespace Monitor
             bFinished = false;
         }
     }
-    class PipettingInfo
+    class EVOPipettingInfo
     {
         public int rackIndex;
         public int batchIndex;

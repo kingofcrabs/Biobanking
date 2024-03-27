@@ -72,11 +72,8 @@ namespace Settings
         {
 
             sPath = GetOutputFolder() + sPath;
-            
-            using (StreamWriter sw = new StreamWriter(sPath))
-            {
-                sw.WriteLine(bok.ToString());
-            }
+
+            File.WriteAllText(sPath, bok.ToString());
         }
 
         static public void WriteExecuteResult(int SampleCount)
@@ -96,10 +93,7 @@ namespace Settings
                 }
             }
 
-            using (StreamWriter sw = new StreamWriter(sPath))
-            {
-                sw.WriteLine(SampleCount);
-            }
+            File.WriteAllText(sPath, SampleCount.ToString());
         }
 
         static public string ReadFolder(string sPath)
@@ -161,11 +155,7 @@ namespace Settings
 
         static public void Write2File(string fileName, List<string> strs)
         {
-            using (StreamWriter sw = new StreamWriter(fileName))
-            {
-                foreach (string s in strs)
-                    sw.WriteLine(s);
-            }
+            File.WriteAllLines(fileName, strs);
         }
 
         static public string GetBloodTypeFile()
@@ -175,10 +165,7 @@ namespace Settings
 
         static public void Write2File(string fileName, string s)
         {
-            using (StreamWriter sw = new StreamWriter(fileName))
-            {
-                sw.WriteLine(s);
-            }
+            File.WriteAllText(fileName, s);
         }
         public static int CalculateDestLabwareNeededCnt(int totalSampleCnt,LabwareSettings labwareSettings, PipettingSettings pipettingSettings,bool buffyStandalone)
         {

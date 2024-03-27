@@ -54,10 +54,10 @@ namespace Biobanking
             return tip;
         }
 
-        protected void WriteComand(string sSEP, StreamWriter sw)
+        protected void WriteComand(string sSEP, List<string> strs)
         {
             string s = string.Format(breakPrefix + "Command(\"{0}\",1,1,,,2,2,0);", sSEP);
-            sw.WriteLine(s);
+            strs.Add(s);
         }
 
         protected string GetComment(string sComment)
@@ -65,23 +65,23 @@ namespace Biobanking
             return string.Format(breakPrefix + "Comment(\"{0}\");", sComment);
         }
 
-        protected void WriteComment(string sComment, StreamWriter sw)
+        protected void WriteComment(string sComment, List<string> strs)
         {
             string s = GetComment(sComment);
-            sw.WriteLine(s);
+            strs.Add(s);
         }
 
-        protected void WriteVariable(string sName, string sVal, StreamWriter sw)
+        protected void WriteVariable(string sName, string sVal, List<string> strs)
         {
             string s = string.Format(breakPrefix + "Variable({0}, \"{1}\", 0, \"\", 0, 1.000000, 10.000000, 0, 2, 0, 0)", sName, sVal);
             //Variable(Tip_Volume_1, "1000", 0, "", 0, 1.000000, 10.000000, 0, 2, 0, 0);
-            sw.WriteLine(s);
+            strs.Add(s);
         }
-        protected void WriteVariable(string sName, int nVal, StreamWriter sw)
-        {
-            string sVal = nVal.ToString();
-            WriteVariable(sName, sVal, sw);
-        }
+        //protected void WriteVariable(string sName, int nVal, List<string> strs)
+        //{
+        //    string sVal = nVal.ToString();
+        //    WriteVariable(sName, sVal, strs);
+        //}
 
         protected string GenerateAspirateCommand(List<POINT> wells, List<double> volumes, string liquidClass, int gridPos, int site, int height)
         {
@@ -200,12 +200,12 @@ namespace Biobanking
         }
 
 
-        protected void WriteSetVolString(int tipIndex, double volume2Set, StreamWriter sw)
+        protected void WriteSetVolString(int tipIndex, double volume2Set, List<string> sContents)
         {
             List<string> strs = GetSetVolString(tipIndex, volume2Set);
             foreach (string s in strs)
             {
-                sw.WriteLine(s);
+                sContents.Add(s);
             }
         }
 
@@ -227,7 +227,7 @@ namespace Biobanking
             }
             return s;
         }
-        protected void MoveTipsToAbsolutePosition(StreamWriter sw, List<double> heights, int tipOffset)
+        protected void MoveTipsToAbsolutePosition(List<string> strs, List<double> heights, int tipOffset)
         {
             string s = "C5PAZ";
             for (int i = 0; i < tipOffset; i++)
@@ -243,7 +243,7 @@ namespace Biobanking
             {
                 s += ",";
             }
-            WriteComand(s, sw);
+            WriteComand(s, strs);
         }
 
         protected string GetPPAString(int samplesThisBatch, int pos, int tipOffset)

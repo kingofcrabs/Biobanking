@@ -23,11 +23,13 @@ namespace Biobanking
         Dictionary<string, string> barcode_Position = new Dictionary<string, string>();
         List<PatientInfo> patientInfos;
         int sampleIndex = 0;
-        
+        bool duplicateSample;
+
         //const string plasmaName = "Plasma";
         //const string redCellName = "RedCell";
-        public BarcodeTracker(PipettingSettings pipettingSettings,LabwareSettings labwareSettings,List<PatientInfo> patientInfos)
+        public BarcodeTracker(PipettingSettings pipettingSettings, LabwareSettings labwareSettings, List<PatientInfo> patientInfos, bool duplicateSample = false)
         {
+            this.duplicateSample = duplicateSample;
             this.patientInfos = patientInfos;
             this.pipettingSettings = pipettingSettings;
             ExcelReader excelReader = new ExcelReader();
@@ -55,9 +57,19 @@ namespace Biobanking
         {
             //trackInfos.Add( new TrackInfo(srcBarcodes[sam))
             int indexInList = 0;
+            int virtualSampleIndex = sampleIndex;
+            if(duplicateSample)
+            {
+                //if(sampleIndex / 16)
+                int rackID = sampleIndex / 16 + 1;
+                if(rackID % 2 == 0)
+                {
+                    virtualSampleIndex = sampleIndex - 1;
+                }
+            }
             foreach (var vol in plasmaVols)
             {
-                var tuple= correspondingbarcodes[sampleIndex + indexInList][sliceIndex];
+                var tuple= correspondingbarcodes[virtualSampleIndex + indexInList][sliceIndex];
                 string dstBarcode = tuple.Item2;
                 int sampleID = sampleIndex + indexInList + 1;
               

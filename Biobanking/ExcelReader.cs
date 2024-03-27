@@ -218,7 +218,7 @@ namespace Biobanking
             int barcodeColumnIndex)
         {
             int sampleID = 1;
-            strs = strs.Skip(2).ToList();
+            strs = strs.Skip(3).ToList();
             foreach (var s in strs)
             {
                 if (s == "")
