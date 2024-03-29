@@ -108,6 +108,7 @@ namespace Biobanking
         List<DetectedInfo> detectInfos = null;
         List<PatientInfo> patientInfos = null;
         bool duplicateSample = false;
+        List<string> dstPtsTrackStrs = new List<string>();
         public bool DoJob(string sArg)
         {
             bool realData = sArg != "";
@@ -150,15 +151,18 @@ namespace Biobanking
                 int thisRackSamples = regionIndex == sourceRackCount - 1 ? (detectInfos.Count - regionIndex * labwareSettings.sourceWells) : labwareSettings.sourceWells;
                 Utility.Write2File(sOutput + "totalSample.txt", thisRackSamples.ToString());
                 int batchNum = (int)Math.Ceiling((double)thisRackSamples / labwareSettings.tipCount);
-                Utility.Write2File(sOutput + "batchCount.txt", batchNum.ToString());
+              
                 for (int startSample = 0; startSample < thisRackSamples; startSample += labwareSettings.tipCount)
                 {
                     for(int rackIndexInRegion = 0; rackIndexInRegion < rackIncrement; rackIndexInRegion++)
                     {
+
                         int srcRackIndex = regionIndex + rackIndexInRegion;
                         sOutput = sOrgOutPut + $"\\srcRack{srcRackIndex+1}\\";
                         if (!Directory.Exists(sOutput))
                             Directory.CreateDirectory(sOutput);
+                        Utility.Write2File(sOutput + "batchCount.txt", batchNum.ToString());
+
                         List<DetectedInfo> heightsThisTime = new List<DetectedInfo>();
                         for (int tip = 0; tip < labwareSettings.tipCount; tip++)
                         {
@@ -173,6 +177,7 @@ namespace Biobanking
             }
             if(GlobalVars.Instance.TrackBarcode)
                 barcodeTracker.WriteResult();
+
 
             AddCommonInfo2RunResult(runResult);
             SaveRunResult(runResult);
@@ -252,6 +257,8 @@ namespace Biobanking
             int plasmaSlice = pipettingSettings.dstPlasmaSlice;
             List<double> plasmaVols = new List<double>();
             int plasmaSliceFinished = 0;
+            bool inSameColumn = IsDstWellsInSameColumn(rackIndex, sampleIndexInRack, ptsAsp.Count);
+
             if (pipettingSettings.onlyOneSlicePerLabware)
             {
                 int srcGrid = GetSrcGrid(rackIndex);
@@ -269,13 +276,48 @@ namespace Biobanking
                     string strAspirate = GenerateAspirateCommand(ptsAsp, volumes, BBPlasmaFast, srcGrid, 0, labwareSettings.sourceWells);
                     sContents.Add(strAspirate);
                     int grid = 0, site = 0;
+               
                     for (int i = 0; i < thisTimeSliceCnt; i++)
                     {
                         GetGridSite4OneSlicePerLabware(plasmaSliceFinished, ref grid, ref site);
                         List<double> thisBatchVolumes = GetDispenseVolume(volumes);
-                        List<POINT> ptsDisp = positionGenerator.GetDestWellsOneSlicePerRegion(rackIndex, sampleIndexInRack, heightsThisTime.Count); 
-                        var strDispense = GenerateDispenseCommand(ptsDisp, thisBatchVolumes, BBPlasmaFast, grid, site, labwareSettings.dstLabwareRows);
-                        sContents.Add(strDispense);
+                        if (inSameColumn)
+                        {
+                            List<POINT> ptsDisp = positionGenerator.GetDestWellsOneSlicePerRegion(rackIndex, sampleIndexInRack, heightsThisTime.Count);
+                            var strDispense = GenerateDispenseCommand(ptsDisp, thisBatchVolumes, BBPlasmaFast, grid, site, labwareSettings.dstLabwareRows);
+                            sContents.Add(strDispense);
+                            AddTrackDstStrs(ptsDisp,"plasma same time");
+                        }
+                        else//need to dispense to different column
+                        {
+                            List<double> sameColumnVolumes = new List<double>();
+                            int firstColumnSampleCount = positionGenerator.GetThisColumnCnt(rackIndex, sampleIndexInRack);
+                            
+                            List<POINT> ptsDisp = positionGenerator.GetDestWellsOneSlicePerRegion(rackIndex, sampleIndexInRack, firstColumnSampleCount);
+                            AddTrackDstStrs(ptsDisp, "plasma twice time -1");
+                            sameColumnVolumes = thisBatchVolumes.Take(firstColumnSampleCount).ToList();
+                            var strDispense = GenerateDispenseCommand(ptsDisp, sameColumnVolumes, BBPlasmaFast, grid, site, labwareSettings.dstLabwareRows);
+                            sContents.Add(strDispense);
+
+                            int secondColumnSampleCount = heightsThisTime.Count - firstColumnSampleCount;
+                            int secondColumnStartSampleIndex = sampleIndexInRack +firstColumnSampleCount;
+                            sameColumnVolumes = thisBatchVolumes.Skip(firstColumnSampleCount).ToList();
+                            ptsDisp = positionGenerator.GetDestWellsOneSlicePerRegion(rackIndex, secondColumnStartSampleIndex, secondColumnSampleCount);
+                          
+                            AddTrackDstStrs(ptsDisp, "plasma twice time -2");
+                            for (int t = 0; t < firstColumnSampleCount; t++)
+                            {
+                                sameColumnVolumes.Insert(0,0);
+                                ptsDisp.Insert(0,new POINT(-1, -1));
+                            }
+                                
+                            strDispense = GenerateDispenseCommand(ptsDisp, sameColumnVolumes, BBPlasmaFast, grid, site, labwareSettings.dstLabwareRows);
+                            sContents.Add(strDispense);
+                        }
+
+
+                
+                        
                         string sExe = sNotifierFolder + string.Format("Notifier.exe Pipetting;{0};{1};{2}", rackIndex, batchID - 1, i);
                         if (sNotifierFolder != "")
                             sContents.Add(string.Format(breakPrefix + "Execute(\"{0}\",2,\"\",2);", sExe));
@@ -306,8 +348,7 @@ namespace Biobanking
             
             //2 aspirate & dispense buffy
             bool bhasBuffyCoat = pipettingSettings.dstbuffySlice > 0;//ResultReader.Instance.HasBuffyCoat();
-            bool inSameColumn = IsDstWellsInSameColumn(rackIndex, sampleIndexInRack, ptsAsp.Count);
-            int  globalSampleIndex = GetGlobalSampleIndex(rackIndex, sampleIndexInRack);
+             int  globalSampleIndex = GetGlobalSampleIndex(rackIndex, sampleIndexInRack);
             //int secondRegionStartSampleIndex = GetEndIndexForFirstRegion(rackIndex, startSample) + 1;
 
             if (bhasBuffyCoat)
@@ -342,10 +383,9 @@ namespace Biobanking
                 }
                 else//need to dispense to different column
                 {
-                    int endIndexFirstColumn = GetEndIndexForFirstColumn(rackIndex, sampleIndexInRack);
-                    int firstColumnSampleCount = endIndexFirstColumn - rackIndex * labwareSettings.sourceWells - sampleIndexInRack + 1;
+                    int firstColumnSampleCount = positionGenerator.GetThisColumnCnt(rackIndex, sampleIndexInRack);
                     WriteDispenseBuffy(rackIndex, sampleIndexInRack, firstColumnSampleCount, bNeedUseLastFour, sContents);
-                    int secondColumnStartSampleIndex = endIndexFirstColumn + 1;
+                    int secondColumnStartSampleIndex = sampleIndexInRack +firstColumnSampleCount;
                     WriteDispenseBuffy(rackIndex, secondColumnStartSampleIndex, heightsThisTime.Count - firstColumnSampleCount, bNeedUseLastFour, sContents);
                 }
             }
@@ -358,8 +398,17 @@ namespace Biobanking
                 string sFinishedCommand = sNotifierFolder + string.Format("Notifier.exe Pipetting;true");
                 sContents.Add(string.Format(breakPrefix + "Execute(\"{0}\",2,\"\",2);", sFinishedCommand));
             }
-            File.WriteAllLines(sBatchFile, sContents);
+            File.WriteAllLines(sBatchFile, sContents,Encoding.Default);
             
+        }
+
+        private void AddTrackDstStrs(List<POINT> ptsDisp,string sDescription)
+        {
+            dstPtsTrackStrs.Add(sDescription);
+            foreach(var pt in ptsDisp)
+            {
+                dstPtsTrackStrs.Add($"{pt.x}-{pt.y}");
+            }
         }
 
         private void WriteHeightInfo(List<DetectedInfo> heightsThisTime)
@@ -654,8 +703,7 @@ namespace Biobanking
             else
             {
                 //throw new Exception("try to dispense to different regions.");
-                int endIndexFirstColumn = GetEndIndexForFirstColumn(srcRackIndex, sampleIndexInRack);
-                int firstColumnSampleCount = endIndexFirstColumn - srcRackIndex * labwareSettings.sourceWells - sampleIndexInRack + 1;
+                int firstColumnSampleCount = positionGenerator.GetThisColumnCnt(srcRackIndex, sampleIndexInRack);
                 List<POINT> ptsDisp = positionGenerator.GetDestWells(srcRackIndex,sliceIndex, sampleIndexInRack, firstColumnSampleCount);
                 int grid = 0, site = 0;
                 CalculateDestGridAndSite4OneSlicePerLabware(sliceIndex, ref grid, ref site);
@@ -664,7 +712,7 @@ namespace Biobanking
                 SplitVolumes2Region(volumes, out volumes1, out volumes2, firstColumnSampleCount);
                 string strDispense = GenerateDispenseCommand(ptsDisp, volumes1, liquidClass, grid, site, labwareSettings.dstLabwareRows);
                 sContents.Add(strDispense);
-                int secondColumnStartSampleIndex = endIndexFirstColumn + 1;
+                
                 ptsDisp = positionGenerator.GetDestWells(srcRackIndex,sliceIndex, sampleIndexInRack + firstColumnSampleCount, ptsAsp.Count - firstColumnSampleCount);
                 strDispense = GenerateDispenseCommand(ptsDisp, volumes2, liquidClass, grid, site, labwareSettings.dstLabwareRows);
                 sContents.Add(strDispense);
@@ -691,12 +739,7 @@ namespace Biobanking
             }
         }
 
-        private int GetEndIndexForFirstColumn(int srcRackIndex, int startSample)
-        {
-            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
-            int columnIndex = nStartSampleIndex / labwareSettings.dstLabwareRows;
-            return (columnIndex + 1) * labwareSettings.dstLabwareRows - 1;
-        }
+   
 
         public int GetMaxGrid()
         {
@@ -810,11 +853,25 @@ namespace Biobanking
         }
 
 
+        int GetSrcWellIndexFromDstWell(int dstWellIndex)
+        {
+            int totalSliceCnt = pipettingSettings.dstbuffySlice + pipettingSettings.dstPlasmaSlice;
+            int regionDstTubeCnt = totalSliceCnt * labwareSettings.dstLabwareRows;
+            int regionIndex = 0;
+            while (dstWellIndex >= regionDstTubeCnt)
+            {
+                dstWellIndex -= regionDstTubeCnt;
+                regionIndex++;
+            }
+                
+            return dstWellIndex + regionIndex * labwareSettings.dstLabwareRows;
+        }
+
         private bool IsDstWellsInSameColumn(int srcRackIndex, int startSample, int sampleCount)
         {
-            //if (isPlasma && !pipettingSetting.mov2NextRegionEachPlasmaRack) //无视rack的变化，总是同一region
-            //    return true;
-            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample;
+       
+            int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample ;
+            nStartSampleIndex += pipettingSettings.startWell - 1;
             int nEndSampleIndex = nStartSampleIndex + sampleCount - 1;
             int wellsCount = labwareSettings.dstLabwareRows;
 
@@ -958,6 +1015,8 @@ namespace Biobanking
                   (rackIndex, slice, sampleIndexThisRack, samplesCountThisBatch)
                 : positionGenerator.GetDestWells(rackIndex, slice, sampleIndexThisRack, samplesCountThisBatch);
             int grid = 0, site = 0;
+
+            AddTrackDstStrs(ptsDisp, $"Buffy");
             CalculateDestBuffyGridAndSite(GetGlobalSampleIndex(rackIndex, sampleIndexThisRack), ref grid, ref site);
             int tipShift = bNeedUseLastFour ? 4 : 0;
             WriteDispenseBuffy(ptsDisp, grid, site, sContents, tipShift);
@@ -1054,6 +1113,8 @@ namespace Biobanking
             string sRunResultPath = Utility.GetOutputFolder() + "runResult.xml";
             if (File.Exists(sRunResultPath))
                 File.Delete(sRunResultPath);
+            string sPositionsInfo = Utility.GetOutputFolder() + "dstPositionsTrack.txt";
+            File.WriteAllLines(sPositionsInfo, dstPtsTrackStrs);
 
             string sContent = Utility.Serialize(runResult);
             File.WriteAllText(sRunResultPath, sContent);

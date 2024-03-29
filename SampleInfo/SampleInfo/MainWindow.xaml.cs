@@ -189,11 +189,24 @@ namespace SampleInfo
                     //return;
                 }
 
-                if(  (pipettingSettings.startWell - 1) % (tmpPlasmaCount+ tmpBuffySliceCount) !=0)
+                if(pipettingSettings.startWell-1 + sampleCount > 96)
                 {
-                    SetInfo("开始孔位不能被plasma加白膜份数整除",Colors.Red);
+                    SetInfo($"最多可以放置{96-pipettingSettings.startWell+1}个样品", Colors.Red);
                     return;
                 }
+
+
+                //int virtualStartWellIndex = pipettingSettings.startWell - 1;
+                //while (virtualStartWellIndex >= regionCnt)
+                //    virtualStartWellIndex -= regionCnt;
+
+
+
+                //if (virtualStartWellIndex >= 8)
+                //{
+                //    SetInfo("开始孔位不能被plasma加白膜份数整除",Colors.Red);
+                //    return;
+                //}
 
 
 

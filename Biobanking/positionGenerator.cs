@@ -12,6 +12,10 @@ namespace Biobanking
          PipettingSettings pipettingSettings = null;
          LabwareSettings labwareSettings = null;
          int totalSample = 0;
+         List<string> trackStrs = new List<string>();
+
+
+  
          private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
          public PositionGenerator(PipettingSettings pSettings, LabwareSettings lSettings, int nSample)
          {
@@ -104,18 +108,28 @@ namespace Biobanking
             }
             return pts;
         }
+        public int GetThisColumnCnt(int srcRackIndex, int startSample)
+        {
+            int nStartSampleIndex = startSample + pipettingSettings.startWell - 1;
+            while (nStartSampleIndex > labwareSettings.dstLabwareRows)
+                nStartSampleIndex -= labwareSettings.dstLabwareRows;
 
+            return labwareSettings.dstLabwareRows - nStartSampleIndex;
+        }
         internal List<POINT> GetDestWellsOneSlicePerRegion(int srcRackIndex, int startSample, int sampleCount)
         {
             int nStartSampleIndex = srcRackIndex * labwareSettings.sourceWells + startSample + pipettingSettings.startWell -1;
             List<POINT> pts = new List<POINT>();
-            for(int i = 0; i< sampleCount ; i++)
+           
+            for (int i = 0; i< sampleCount ; i++)
             {
                 int nSampleIndex = nStartSampleIndex + i;
                 int col = nSampleIndex / labwareSettings.dstLabwareRows + 1;
                 int row = nSampleIndex - (col - 1) * labwareSettings.dstLabwareRows + 1;
                 pts.Add(new POINT(col, row));
+                
             }
+            
             return pts;
         }
 
